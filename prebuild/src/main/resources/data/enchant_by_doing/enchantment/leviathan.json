@@ -1,0 +1,21 @@
+﻿{
+  "anvil_cost": 4,
+  "description": {
+    "translate": "enchantment.enchant_by_doing.leviathan"
+  },
+  "max_cost": {
+    "base": 80,
+    "per_level_above_first": 0
+  },
+  "max_level": 1,
+  "min_cost": {
+    "base": 30,
+    "per_level_above_first": 0
+  },
+  "primary_items": "#enchant_by_doing:enchantable/axe",
+  "slots": [
+    "mainhand"
+  ],
+  "supported_items": "#enchant_by_doing:enchantable/axe",
+  "weight": 2
+}

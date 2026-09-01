@@ -1,0 +1,11 @@
+﻿{
+  "enchantment_id": "enchant_by_doing:slipway",
+  "maxLevel": 1,
+  "levels": {
+    "1": [
+      { "id": "minecraft:packed_ice", "amount": 8 },
+      { "id": "minecraft:slime_ball", "amount": 4 },
+      { "id": "minecraft:amethyst_shard", "amount": 2 }
+    ]
+  }
+}

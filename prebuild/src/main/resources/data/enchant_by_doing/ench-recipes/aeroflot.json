@@ -1,0 +1,11 @@
+﻿{
+  "enchantment_id": "enchant_by_doing:aeroflot",
+  "maxLevel": 1,
+  "levels": {
+    "1": [
+      { "id": "minecraft:phantom_membrane", "amount": 2 },
+      { "id": "minecraft:feather", "amount": 8 },
+      { "id": "minecraft:amethyst_shard", "amount": 2 }
+    ]
+  }
+}

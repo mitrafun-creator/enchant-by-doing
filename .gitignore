@@ -1,0 +1,26 @@
+﻿# Gradle & Build Artifacts
+.gradle/
+build/
+prebuild/.gradle/
+prebuild/build/
+prebuild/run/
+prebuild/.cache/
+bin/
+out/
+
+# IDE Configuration
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+
+# OS & Logs
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak

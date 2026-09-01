@@ -1,0 +1,864 @@
+[
+  {
+    "id": "enchant_by_doing:aeroflot",
+    "filename": "aeroflot",
+    "is_vanilla": false,
+    "name_en": "Aeroflot",
+    "name_ru": "Аэрофлот",
+    "desc_en": "Causes the boat to glide slowly in the air and maintain horizontal speed when falling",
+    "desc_ru": "Заставляет лодку плавно парить в воздухе и сохранять горизонтальную скорость при падении",
+    "max_level": 1,
+    "weight": 3,
+    "anvil_cost": 5,
+    "min_cost": {
+      "base": 20,
+      "per_level_above_first": 0
+    },
+    "max_cost": {
+      "base": 60,
+      "per_level_above_first": 0
+    },
+    "primary_items": "#minecraft:boats",
+    "supported_items": "#minecraft:boats",
+    "recipe": {
+      "maxLevel": 1,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:phantom_membrane",
+            "amount": 2
+          },
+          {
+            "id": "minecraft:feather",
+            "amount": 8
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 2
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:autodrive",
+    "filename": "autodrive",
+    "is_vanilla": false,
+    "name_en": "Autodrive",
+    "name_ru": "Веслосипед",
+    "desc_en": "Automatically sails forward once you start moving, until you press back or dismount",
+    "desc_ru": "Автоматически плывет вперед после начала движения, пока вы не нажмете назад или не выйдете из лодки",
+    "max_level": 1,
+    "weight": 4,
+    "anvil_cost": 4,
+    "min_cost": {
+      "base": 12,
+      "per_level_above_first": 0
+    },
+    "max_cost": {
+      "base": 50,
+      "per_level_above_first": 0
+    },
+    "primary_items": "#minecraft:boats",
+    "supported_items": "#minecraft:boats",
+    "recipe": {
+      "maxLevel": 1,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:compass",
+            "amount": 1
+          },
+          {
+            "id": "minecraft:redstone",
+            "amount": 8
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 2
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:auto_reload",
+    "filename": "auto_reload",
+    "is_vanilla": false,
+    "name_en": "Auto-Reload",
+    "name_ru": "Автоперезарядка",
+    "desc_en": "Automatically reloads a crossbow passively while it is kept in your inventory",
+    "desc_ru": "Автоматически заряжает арбалет раз в 5 секунд, когда игрок не держит его в руках",
+    "max_level": 1,
+    "weight": 2,
+    "anvil_cost": 4,
+    "min_cost": {
+      "base": 25,
+      "per_level_above_first": 0
+    },
+    "max_cost": {
+      "base": 80,
+      "per_level_above_first": 0
+    },
+    "primary_items": "#enchant_by_doing:enchantable/crossbow",
+    "supported_items": "#enchant_by_doing:enchantable/crossbow",
+    "recipe": {
+      "maxLevel": 1,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:hopper",
+            "amount": 2
+          },
+          {
+            "id": "minecraft:observer",
+            "amount": 1
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 6
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:capacity",
+    "filename": "capacity",
+    "is_vanilla": false,
+    "name_en": "Capacity",
+    "name_ru": "Вместимость",
+    "desc_en": "Increases chest and barrel storage space by 27 slots. Enchanted chests cannot form double chests.",
+    "desc_ru": "Увеличивает вместимость сундука или бочки на 27 слотов. Зачарованные сундуки не могут объединяться в двойные.",
+    "max_level": 1,
+    "weight": 4,
+    "anvil_cost": 4,
+    "min_cost": {
+      "base": 15,
+      "per_level_above_first": 0
+    },
+    "max_cost": {
+      "base": 50,
+      "per_level_above_first": 0
+    },
+    "primary_items": "#enchant_by_doing:enchantable/storage",
+    "supported_items": "#enchant_by_doing:enchantable/storage",
+    "recipe": {
+      "maxLevel": 1,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:chest",
+            "amount": 8
+          },
+          {
+            "id": "minecraft:iron_ingot",
+            "amount": 8
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 4
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:disarm",
+    "filename": "disarm",
+    "is_vanilla": false,
+    "name_en": "Disarm",
+    "name_ru": "Обезоруживание",
+    "desc_en": "Has a chance to disarm the target's weapon upon hitting them with a shovel",
+    "desc_ru": "Дает шанс выбить оружие из рук цели при ударе лопатой",
+    "max_level": 3,
+    "weight": 2,
+    "anvil_cost": 4,
+    "min_cost": {
+      "base": 20,
+      "per_level_above_first": 15
+    },
+    "max_cost": {
+      "base": 70,
+      "per_level_above_first": 15
+    },
+    "primary_items": "#enchant_by_doing:enchantable/shovel",
+    "supported_items": "#enchant_by_doing:enchantable/shovel",
+    "recipe": {
+      "maxLevel": 3,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:iron_ingot",
+            "amount": 6
+          },
+          {
+            "id": "minecraft:chain",
+            "amount": 2
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 2
+          }
+        ],
+        "2": [
+          {
+            "id": "minecraft:iron_ingot",
+            "amount": 12
+          },
+          {
+            "id": "minecraft:chain",
+            "amount": 4
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 4
+          }
+        ],
+        "3": [
+          {
+            "id": "minecraft:iron_ingot",
+            "amount": 24
+          },
+          {
+            "id": "minecraft:chain",
+            "amount": 8
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 8
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:dragons_breath",
+    "filename": "dragons_breath",
+    "is_vanilla": false,
+    "name_en": "Dragon's Breath",
+    "name_ru": "Дыхание дракона",
+    "desc_en": "Hold right-click with flint & steel to emit a cone of flame that ignites targets",
+    "desc_ru": "Зажатие ПКМ с зажигалкой выпускает огненный конус, поджигающий всех врагов перед вами",
+    "max_level": 1,
+    "weight": 2,
+    "anvil_cost": 4,
+    "min_cost": {
+      "base": 25,
+      "per_level_above_first": 0
+    },
+    "max_cost": {
+      "base": 80,
+      "per_level_above_first": 0
+    },
+    "primary_items": "#enchant_by_doing:enchantable/flint_and_steel",
+    "supported_items": "#enchant_by_doing:enchantable/flint_and_steel",
+    "recipe": {
+      "maxLevel": 1,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:blaze_powder",
+            "amount": 16
+          },
+          {
+            "id": "minecraft:ghast_tear",
+            "amount": 2
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 6
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:executioner",
+    "filename": "executioner",
+    "is_vanilla": false,
+    "name_en": "Executioner",
+    "name_ru": "Палач",
+    "desc_en": "Increases head and skull drop rates from enemies killed with an axe",
+    "desc_ru": "Увеличивает шанс выпадения черепов визер-скелетов и добавляет дроп голов при убийстве топором других мобов и игроков",
+    "max_level": 1,
+    "weight": 2,
+    "anvil_cost": 4,
+    "min_cost": {
+      "base": 30,
+      "per_level_above_first": 0
+    },
+    "max_cost": {
+      "base": 80,
+      "per_level_above_first": 0
+    },
+    "primary_items": "#enchant_by_doing:enchantable/axe",
+    "supported_items": "#enchant_by_doing:enchantable/axe",
+    "recipe": {
+      "maxLevel": 1,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:wither_skeleton_skull",
+            "amount": 1
+          },
+          {
+            "id": "minecraft:diamond",
+            "amount": 4
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 8
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:fireproof_boat",
+    "filename": "fireproof_boat",
+    "is_vanilla": false,
+    "name_en": "Fireproof",
+    "name_ru": "Негорит",
+    "desc_en": "Allows swimming on lava and protects the boat from burning",
+    "desc_ru": "Позволяет плавать по лаве и защищает лодку от сгорания",
+    "max_level": 1,
+    "weight": 2,
+    "anvil_cost": 6,
+    "min_cost": {
+      "base": 25,
+      "per_level_above_first": 0
+    },
+    "max_cost": {
+      "base": 80,
+      "per_level_above_first": 0
+    },
+    "primary_items": "#minecraft:boats",
+    "supported_items": "#minecraft:boats",
+    "recipe": {
+      "maxLevel": 1,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:magma_block",
+            "amount": 8
+          },
+          {
+            "id": "minecraft:netherite_scrap",
+            "amount": 1
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 4
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:leviathan",
+    "filename": "leviathan",
+    "is_vanilla": false,
+    "name_en": "Leviathan",
+    "name_ru": "Левиафан",
+    "desc_en": "Allows throwing the axe like a trident, making it spin in flight and return via Loyalty",
+    "desc_ru": "Позволяет метать топор зажатием ПКМ. Топор вращается в полете и возвращается к вам, если зачарован на Верность",
+    "max_level": 1,
+    "weight": 2,
+    "anvil_cost": 4,
+    "min_cost": {
+      "base": 30,
+      "per_level_above_first": 0
+    },
+    "max_cost": {
+      "base": 80,
+      "per_level_above_first": 0
+    },
+    "primary_items": "#enchant_by_doing:enchantable/axe",
+    "supported_items": "#enchant_by_doing:enchantable/axe",
+    "recipe": {
+      "maxLevel": 1,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:prismarine_crystals",
+            "amount": 8
+          },
+          {
+            "id": "minecraft:heart_of_the_sea",
+            "amount": 1
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 8
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:magazine",
+    "filename": "magazine",
+    "is_vanilla": false,
+    "name_en": "Magazine",
+    "name_ru": "Обойма",
+    "desc_en": "Allows loading and shooting multiple arrows sequentially from a crossbow without reloading",
+    "desc_ru": "Позволяет заряжать и выпускать последовательно 2-3 стрелы из арбалета без необходимости перезарядки после каждого выстрела",
+    "max_level": 2,
+    "weight": 2,
+    "anvil_cost": 4,
+    "min_cost": {
+      "base": 20,
+      "per_level_above_first": 15
+    },
+    "max_cost": {
+      "base": 70,
+      "per_level_above_first": 15
+    },
+    "primary_items": "#enchant_by_doing:enchantable/crossbow",
+    "supported_items": "#enchant_by_doing:enchantable/crossbow",
+    "recipe": {
+      "maxLevel": 2,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:redstone",
+            "amount": 16
+          },
+          {
+            "id": "minecraft:iron_block",
+            "amount": 1
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 4
+          }
+        ],
+        "2": [
+          {
+            "id": "minecraft:redstone",
+            "amount": 32
+          },
+          {
+            "id": "minecraft:iron_block",
+            "amount": 2
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 8
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:pocket_boat",
+    "filename": "pocket_boat",
+    "is_vanilla": false,
+    "name_en": "Pocket Boat",
+    "name_ru": "Вёсла в руки",
+    "desc_en": "Automatically returns the boat with all its enchantments to your inventory when you dismount",
+    "desc_ru": "Автоматически возвращает лодку со всеми зачарованиями в ваш инвентарь при выходе из нее",
+    "max_level": 1,
+    "weight": 5,
+    "anvil_cost": 3,
+    "min_cost": {
+      "base": 10,
+      "per_level_above_first": 0
+    },
+    "max_cost": {
+      "base": 40,
+      "per_level_above_first": 0
+    },
+    "primary_items": "#minecraft:boats",
+    "supported_items": "#minecraft:boats",
+    "recipe": {
+      "maxLevel": 1,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:ender_pearl",
+            "amount": 2
+          },
+          {
+            "id": "minecraft:string",
+            "amount": 8
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 2
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:quicksand",
+    "filename": "quicksand",
+    "is_vanilla": false,
+    "name_en": "Quicksand",
+    "name_ru": "Зыбучие пески",
+    "desc_en": "Applies Slowness upon hitting a target with a shovel",
+    "desc_ru": "Накладывает замедление при ударе лопатой по противнику",
+    "max_level": 2,
+    "weight": 5,
+    "anvil_cost": 4,
+    "min_cost": {
+      "base": 15,
+      "per_level_above_first": 15
+    },
+    "max_cost": {
+      "base": 60,
+      "per_level_above_first": 15
+    },
+    "primary_items": "#enchant_by_doing:enchantable/shovel",
+    "supported_items": "#enchant_by_doing:enchantable/shovel",
+    "recipe": {
+      "maxLevel": 2,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:soul_sand",
+            "amount": 8
+          },
+          {
+            "id": "minecraft:slime_ball",
+            "amount": 4
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 2
+          }
+        ],
+        "2": [
+          {
+            "id": "minecraft:soul_sand",
+            "amount": 16
+          },
+          {
+            "id": "minecraft:slime_ball",
+            "amount": 8
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 4
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:seafarer",
+    "filename": "seafarer",
+    "is_vanilla": false,
+    "name_en": "Seafarer",
+    "name_ru": "Мореплаватель",
+    "desc_en": "Increases the speed of the boat on water",
+    "desc_ru": "Увеличивает скорость движения лодки по воде",
+    "max_level": 3,
+    "weight": 4,
+    "anvil_cost": 4,
+    "min_cost": {
+      "base": 15,
+      "per_level_above_first": 15
+    },
+    "max_cost": {
+      "base": 70,
+      "per_level_above_first": 20
+    },
+    "primary_items": "#minecraft:boats",
+    "supported_items": "#minecraft:boats",
+    "recipe": {
+      "maxLevel": 3,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:prismarine_crystals",
+            "amount": 4
+          },
+          {
+            "id": "minecraft:heart_of_the_sea",
+            "amount": 1
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 2
+          }
+        ],
+        "2": [
+          {
+            "id": "minecraft:prismarine_crystals",
+            "amount": 8
+          },
+          {
+            "id": "minecraft:heart_of_the_sea",
+            "amount": 1
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 4
+          }
+        ],
+        "3": [
+          {
+            "id": "minecraft:prismarine_crystals",
+            "amount": 16
+          },
+          {
+            "id": "minecraft:heart_of_the_sea",
+            "amount": 2
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 8
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:slipway",
+    "filename": "slipway",
+    "is_vanilla": false,
+    "name_en": "Slipway",
+    "name_ru": "Скольжение",
+    "desc_en": "Allows the boat to slide quickly on ice. Without it, ice acts like normal blocks",
+    "desc_ru": "Позволяет лодке быстро скользить по льду. Без этого лед замедляет движение как обычные блоки",
+    "max_level": 1,
+    "weight": 5,
+    "anvil_cost": 3,
+    "min_cost": {
+      "base": 10,
+      "per_level_above_first": 0
+    },
+    "max_cost": {
+      "base": 40,
+      "per_level_above_first": 0
+    },
+    "primary_items": "#minecraft:boats",
+    "supported_items": "#minecraft:boats",
+    "recipe": {
+      "maxLevel": 1,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:packed_ice",
+            "amount": 8
+          },
+          {
+            "id": "minecraft:slime_ball",
+            "amount": 4
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 2
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:sting",
+    "filename": "sting",
+    "is_vanilla": false,
+    "name_en": "Sting",
+    "name_ru": "Жало",
+    "desc_en": "Applies Poison upon hitting a target with a hoe",
+    "desc_ru": "Накладывает отравление при ударе мотыгой по противнику",
+    "max_level": 2,
+    "weight": 5,
+    "anvil_cost": 4,
+    "min_cost": {
+      "base": 15,
+      "per_level_above_first": 15
+    },
+    "max_cost": {
+      "base": 60,
+      "per_level_above_first": 15
+    },
+    "primary_items": "#enchant_by_doing:enchantable/hoe",
+    "supported_items": "#enchant_by_doing:enchantable/hoe",
+    "recipe": {
+      "maxLevel": 2,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:spider_eye",
+            "amount": 8
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 2
+          }
+        ],
+        "2": [
+          {
+            "id": "minecraft:fermented_spider_eye",
+            "amount": 8
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 4
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "enchant_by_doing:submarine",
+    "filename": "submarine",
+    "is_vanilla": false,
+    "name_en": "Submarine",
+    "name_ru": "Субмарина",
+    "desc_en": "Allows diving and ascending underwater by pressing Sneak or Jump, and grants underwater vision and breathing",
+    "desc_ru": "Позволяет погружаться и всплывать под водой кнопками приседания и прыжка, а также дает подводное зрение и дыхание",
+    "max_level": 1,
+    "weight": 1,
+    "anvil_cost": 8,
+    "min_cost": {
+      "base": 30,
+      "per_level_above_first": 0
+    },
+    "max_cost": {
+      "base": 100,
+      "per_level_above_first": 0
+    },
+    "primary_items": "#minecraft:boats",
+    "supported_items": "#minecraft:boats",
+    "recipe": {
+      "maxLevel": 1,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:conduit",
+            "amount": 1
+          },
+          {
+            "id": "minecraft:pufferfish",
+            "amount": 4
+          },
+          {
+            "id": "minecraft:amethyst_shard",
+            "amount": 6
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "minecraft:knockback",
+    "filename": "knockback",
+    "is_vanilla": true,
+    "name_en": "Knockback",
+    "name_ru": "Knockback",
+    "desc_en": "Enemies will be knocked back further",
+    "desc_ru": "Отбрасывает врагов дальше при атаке ближнего боя",
+    "max_level": 2,
+    "weight": 5,
+    "anvil_cost": 2,
+    "min_cost": {
+      "base": 5,
+      "per_level_above_first": 20
+    },
+    "max_cost": {
+      "base": 55,
+      "per_level_above_first": 20
+    },
+    "primary_items": "",
+    "supported_items": "#minecraft:enchantable/sharp_weapon",
+    "recipe": {
+      "maxLevel": 0,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:redstone",
+            "amount": 24
+          },
+          {
+            "id": "minecraft:piston",
+            "amount": 4
+          }
+        ],
+        "2": [
+          {
+            "id": "minecraft:redstone",
+            "amount": 32
+          },
+          {
+            "id": "minecraft:piston",
+            "amount": 12
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "minecraft:looting",
+    "filename": "looting",
+    "is_vanilla": true,
+    "name_en": "Looting",
+    "name_ru": "Looting",
+    "desc_en": "Chance of additional drops on mob kill",
+    "desc_ru": "Увеличивает шанс и количество добычи при убийстве мобов",
+    "max_level": 3,
+    "weight": 2,
+    "anvil_cost": 4,
+    "min_cost": {
+      "base": 15,
+      "per_level_above_first": 9
+    },
+    "max_cost": {
+      "base": 65,
+      "per_level_above_first": 9
+    },
+    "primary_items": "",
+    "supported_items": "#minecraft:enchantable/sharp_weapon",
+    "recipe": {
+      "maxLevel": 0,
+      "levels": {
+        "1": [
+          {
+            "id": "minecraft:lapis_lazuli",
+            "amount": 16
+          },
+          {
+            "id": "minecraft:emerald",
+            "amount": 3
+          },
+          {
+            "id": "minecraft:raw_gold",
+            "amount": 12
+          }
+        ],
+        "2": [
+          {
+            "id": "minecraft:lapis_lazuli",
+            "amount": 32
+          },
+          {
+            "id": "minecraft:emerald",
+            "amount": 10
+          },
+          {
+            "id": "minecraft:raw_gold",
+            "amount": 24
+          }
+        ],
+        "3": [
+          {
+            "id": "minecraft:lapis_lazuli",
+            "amount": 48
+          },
+          {
+            "id": "minecraft:emerald",
+            "amount": 16
+          },
+          {
+            "id": "minecraft:raw_gold",
+            "amount": 32
+          }
+        ]
+      }
+    }
+  }
+]

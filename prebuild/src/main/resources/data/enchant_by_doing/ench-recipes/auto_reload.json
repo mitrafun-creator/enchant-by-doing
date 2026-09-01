@@ -1,0 +1,11 @@
+﻿{
+  "enchantment_id": "enchant_by_doing:auto_reload",
+  "maxLevel": 1,
+  "levels": {
+    "1": [
+      { "id": "minecraft:hopper", "amount": 2 },
+      { "id": "minecraft:observer", "amount": 1 },
+      { "id": "minecraft:amethyst_shard", "amount": 6 }
+    ]
+  }
+}

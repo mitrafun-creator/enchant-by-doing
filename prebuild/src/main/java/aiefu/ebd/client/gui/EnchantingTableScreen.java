@@ -1,0 +1,771 @@
+package aiefu.ebd.client.gui;
+
+import aiefu.ebd.ConfigurationFile;
+import aiefu.ebd.EBDCommon;
+import aiefu.ebd.Utils;
+import aiefu.ebd.client.EBDClient;
+import aiefu.ebd.data.RecipeHolder;
+import aiefu.ebd.data.itemdata.ItemDataPrepared;
+import aiefu.ebd.data.materialoverrides.MaterialData;
+import aiefu.ebd.data.materialoverrides.MaterialOverrides;
+import aiefu.ebd.menu.OverhauledEnchantmentMenu;
+import aiefu.ebd.network.C2SEnchantItemPayload;
+import com.google.common.collect.Maps;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerListener;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.TooltipRenderUtil;
+import org.joml.Matrix4f;
+
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.function.BiPredicate;
+
+public class EnchantingTableScreen extends AbstractContainerScreen<OverhauledEnchantmentMenu> {
+    public static final ResourceLocation ENCHANTING_BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(EBDCommon.MOD_ID, "textures/gui/ench_screen.png");
+
+    public static final Style STYLE = Style.EMPTY.withColor(ChatFormatting.DARK_BLUE);
+
+    public static final List<FormattedCharSequence> emptyMsg = Minecraft.getInstance().font.split(Component.translatable("eso.enchantmentsempty"), 110);
+
+    private static final Map<Holder<Enchantment>, Integer> EMPTY_MAP = Maps.newLinkedHashMap();
+
+    protected static final DecimalFormat decimal_formatter = new DecimalFormat("#.##");
+
+    protected EnchantmentListWidget enchantmentsScrollList;
+
+    protected RecipeListWidget recipeViewer;
+    protected EditBox searchFilter;
+
+    protected CustomEnchantingButton confirmButton;
+    protected CustomEnchantingButton cancelButton;
+    protected Holder<Enchantment> selectedEnchantment;
+
+    protected int ordinal = -1;
+    protected List<FormattedCharSequence> confirmMsg = new ArrayList<>();
+
+    protected MutableComponent displayMsg;
+
+    protected MutableComponent searchHint;
+
+    protected boolean overlayActive = false;
+
+    protected boolean viewingRecipes = false;
+
+    protected boolean seekRecipe = false;
+
+    protected HashSet<EnchButtonWithData> tickingButtons = new HashSet<>();
+
+    protected int ticks = 0;
+    protected EnchButtonWithData lastHoveredButton = null;
+
+    public EnchantingTableScreen(OverhauledEnchantmentMenu menu, Inventory playerInventory, Component title) {
+        super(menu, playerInventory, title);
+        this.imageHeight = 181;
+        this.imageWidth = 218;
+        this.inventoryLabelY = this.imageHeight - 94;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.confirmButton = this.addWidget(new CustomEnchantingButton(leftPos + 60, topPos + 92, 30, 12, CommonComponents.GUI_YES, button -> {
+            this.switchOverlayState(true);
+            this.switchButtonsState(false);
+            ResourceLocation key = selectedEnchantment.unwrapKey().map(ResourceKey::location).orElse(null);
+            if (key != null) {
+                net.neoforged.neoforge.network.PacketDistributor.sendToServer(new C2SEnchantItemPayload(key.toString(), ordinal));
+            }
+        }));
+        this.cancelButton = this.addWidget(new CustomEnchantingButton(leftPos + 130, topPos + 92, 30, 12, CommonComponents.GUI_NO, button -> {
+            this.switchOverlayState(true);
+            this.recalculateAvailability(this.menu.getTableInv());
+        }));
+
+        this.confirmButton.active = overlayActive;
+        this.confirmButton.visible = overlayActive;
+        this.cancelButton.active = overlayActive;
+        this.cancelButton.visible = overlayActive;
+        this.searchHint = Component.translatable("eso.search");
+        this.searchFilter = this.addWidget(new EditBox(this.font, leftPos + 81, topPos + 9, 123, 10, searchHint));
+        this.searchFilter.setBordered(false);
+        List<EnchButtonWithData> list = this.craftEnchantmentsButtons(this.searchFilter.getValue());
+        this.enchantmentsScrollList = Objects.requireNonNull(this.addWidget(new EnchantmentListWidget(this.leftPos + 79, this.topPos + 24, 125 , 48, Component.literal(""), list)));
+
+        this.viewingRecipes = false;
+        this.seekRecipe = false;
+        this.recipeViewer = new RecipeListWidget(this.leftPos + 79, this.topPos + 24, 125 , 48, Component.literal(""), this);
+        this.setInitialFocus(enchantmentsScrollList);
+        this.recalculateAvailability(menu.getTableInv());
+        this.menu.addSlotListener(new ContainerListener() {
+            @Override
+            public void slotChanged(AbstractContainerMenu containerToSend, int dataSlotIndex, ItemStack stack) {
+                if(dataSlotIndex == 41){
+                    EnchantingTableScreen.this.updateButtons();
+                }
+                EnchantingTableScreen.this.recalculateAvailability(menu.getTableInv());
+            }
+
+            @Override
+            public void dataChanged(AbstractContainerMenu containerMenu, int dataSlotIndex, int value) {
+
+            }
+        });
+    }
+
+    @Override
+    public void resize(Minecraft minecraft, int width, int height) {
+        super.resize(minecraft, width, height);
+        this.switchOverlayState(!overlayActive);
+    }
+
+    public void switchOverlayState(boolean bl){ //False to activate overlay, true to disable
+        if(selectedEnchantment != null && !bl){
+            MutableComponent msg = Component.translatable("eso.applyench.1",
+                    selectedEnchantment.value().description().copy().withStyle(STYLE),
+                    ((MutableComponent)this.menu.getTableInv().getItem(0).getDisplayName()).withStyle(STYLE));
+            this.confirmMsg = font.split(msg, 190);
+        }
+        this.searchFilter.active = bl;
+        this.enchantmentsScrollList.active = bl;
+        this.overlayActive = !bl;
+        this.confirmButton.active = !bl;
+        this.confirmButton.visible = !bl;
+        this.cancelButton.active = !bl;
+        this.cancelButton.visible = !bl;
+    }
+
+    public void switchButtonsState(boolean bl){
+        this.enchantmentsScrollList.switchOverlayState(bl);
+    }
+
+    @Override
+    protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
+        if(!overlayActive) {
+            super.slotClicked(slot, slotId, mouseButton, type);
+        }
+    }
+
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        
+        EnchButtonWithData currentHovered = null;
+        if (!viewingRecipes) {
+            for (EnchButtonWithData b : this.enchantmentsScrollList.enchantments) {
+                if (b.isHoveredOrFocused() && b.visible) {
+                    currentHovered = b;
+                    break;
+                }
+            }
+        }
+
+        boolean hoveredChanged = currentHovered != lastHoveredButton;
+        lastHoveredButton = currentHovered;
+
+        if (currentHovered != null) {
+            // Update immediately if hovered button changed, or every 20 ticks (1 second) to cycle tag ingredients
+            if (hoveredChanged || ticks % 20 == 0) {
+                net.minecraft.world.item.enchantment.ItemEnchantments enchsComponent = EnchantmentHelper.getEnchantmentsForCrafting(this.menu.getTableInv().getItem(0));
+                Map<Holder<Enchantment>, Integer> enchs = new HashMap<>();
+                if (enchsComponent != null) {
+                    enchsComponent.entrySet().forEach(entry -> enchs.put(entry.getKey(), entry.getValue()));
+                }
+                
+                Holder<Enchantment> enchantment = currentHovered.getEnchantment();
+                RecipeHolder holder = currentHovered.getRecipe();
+                Integer l = enchs.get(enchantment);
+                int maxLevel = holder != null ? holder.getMaxLevel(enchantment) : enchantment.value().getMaxLevel();
+                int targetLevel = l != null ? Math.min(maxLevel, l + 1) : 1;
+
+                MutableComponent translatable = RecipeHolder.getFullName(enchantment, targetLevel, maxLevel);
+                this.composeTooltipAndApply(translatable, enchantment, holder, targetLevel, currentHovered, false);
+            }
+        }
+
+        if(viewingRecipes){
+            recipeViewer.tick();
+        }
+        this.ticks++;
+    }
+
+    @Override
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        if(viewingRecipes){
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0.0F, 0.0F, 100.0F);
+            this.recipeViewer.render(guiGraphics, mouseX, mouseY, partialTick);
+            guiGraphics.pose().popPose();
+        }
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        if (!overlayActive) {
+            this.searchFilter.render(guiGraphics, mouseX, mouseY, partialTick);
+            if (!viewingRecipes) this.enchantmentsScrollList.render(guiGraphics, mouseX, mouseY, partialTick);
+            if(displayMsg != null){
+                int x = leftPos + 79;
+                this.drawCenteredString(guiGraphics, this.font, displayMsg, x + 124 / 2, topPos + 75, EBDClient.colorData.getTextActiveColor(), EBDClient.colorData.isDropShadow());
+            }
+            if(this.searchFilter.getValue().isEmpty() && !this.searchFilter.isFocused()){
+                guiGraphics.drawString(font, searchHint, this.leftPos + 81, this.topPos + 9, EBDClient.colorData.getSearchBarHintColor(), EBDClient.colorData.isSearchBarHintDropShadow());
+            }
+            if(!Minecraft.getInstance().player.getAbilities().instabuild && menu.allEnchantments.isEmpty()){
+                int i = 0;
+                int h = (48 - (8 * emptyMsg.size() + (emptyMsg.size() - 1) * 6)) / 2;
+                for (FormattedCharSequence cs : emptyMsg){
+                    this.drawCenteredString(guiGraphics, this.font, cs,leftPos + 79 + 124 / 2, topPos + 25 + h + 14 * i, EBDClient.colorData.getTextActiveColor(), EBDClient.colorData.isDropShadow());
+                    i++;
+                }
+            }
+        }
+        if(seekRecipe && !viewingRecipes && !overlayActive){
+            seekRecipe = false;
+            for (EnchButtonWithData e : this.enchantmentsScrollList.enchantments){
+                if(e.isHovered()){
+                    RecipeHolder holder = e.getRecipe();
+                    if(holder != null && !(holder.levels.isEmpty() && holder.xpMap.isEmpty())){
+                        this.recipeViewer.updateRecipes(holder, e.getEnchantment());
+                        this.recipeViewer.setFocused(true);
+                        this.viewingRecipes = true;
+                    }
+                    break;
+                }
+            }
+        }
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0.0F, 0.0F, 1000.0F);
+        this.renderConfirmOverlay(guiGraphics, mouseX, mouseY, partialTick);
+        this.confirmButton.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.cancelButton.render(guiGraphics, mouseX, mouseY, partialTick);
+        guiGraphics.pose().popPose();
+
+        if (!overlayActive) {
+            EnchButtonWithData hoveredButton = null;
+            if (!viewingRecipes) {
+                for (EnchButtonWithData b : this.enchantmentsScrollList.enchantments) {
+                    if (b.isHoveredOrFocused() && b.visible) {
+                        hoveredButton = b;
+                        break;
+                    }
+                }
+            }
+            if (hoveredButton != null && hoveredButton.getCachedTooltip() != null) {
+                this.renderCustomTooltip(guiGraphics, hoveredButton.getCachedTooltip(), mouseX, mouseY);
+            } else {
+                this.renderTooltip(guiGraphics, mouseX, mouseY);
+            }
+        }
+    }
+
+    public void renderConfirmOverlay(GuiGraphics graphics, int mx, int my, float pt){
+        if(overlayActive){
+            graphics.blit(ENCHANTING_BACKGROUND_TEXTURE, leftPos + 10, topPos + 48, 0,196,200, 60);
+            int h = (42 - (8* this.confirmMsg.size() + (this.confirmMsg.size() - 1) * 6)) / 2;
+            for (int i = 0; i < this.confirmMsg.size(); i++) {
+                this.drawCenteredString(graphics, font, this.confirmMsg.get(i), leftPos + 109, topPos + 50 + h + 14 * i,EBDClient.colorData.getTextActiveColor(), EBDClient.colorData.isDropShadow());
+            }
+        }
+    }
+    protected void drawCenteredString(GuiGraphics graphics, Font font, Component text, int x, int y, int color, boolean dropShadow){
+        graphics.drawString(font, text, x - font.width(text) / 2, y, color, dropShadow);
+    }
+
+    protected void drawCenteredString(GuiGraphics graphics, Font font, FormattedCharSequence text, int x, int y, int color, boolean dropShadow){
+        graphics.drawString(font, text, x - font.width(text) / 2, y, color, dropShadow);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        KeyMapping key = EBDClient.recipeKey;
+        if(this.searchFilter.isFocused()){
+            if(keyCode == 256) this.searchFilter.setFocused(false);
+            else if(keyCode == 257){
+                this.enchantmentsScrollList.setEnchantments(this.craftEnchantmentsButtons(this.searchFilter.getValue()));
+                this.recalculateAvailability(this.menu.getTableInv());
+                this.searchFilter.setFocused(false);
+            }
+           return this.searchFilter.keyPressed(keyCode, scanCode, modifiers);
+        }
+        else if(viewingRecipes && (key.matches(keyCode, scanCode) || keyCode == 256)){
+            this.viewingRecipes = false;
+            this.recipeViewer.setFocused(false);
+            return true;
+        } else if(!overlayActive && !viewingRecipes && key.matches(keyCode, scanCode)){
+            this.seekRecipe = true;
+            return true;
+        }else return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if(overlayActive) return false;
+        else {
+            if(viewingRecipes){
+                this.recipeViewer.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+            } else this.enchantmentsScrollList.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+            return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        }
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if(viewingRecipes){
+            recipeViewer.mouseClicked(mouseX, mouseY, button);
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if(viewingRecipes){
+            this.recipeViewer.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if(viewingRecipes){
+            this.recipeViewer.mouseReleased(mouseX, mouseY, button);
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+        int i = (this.width - this.imageWidth) / 2;
+        int j = (this.height - this.imageHeight) / 2;
+        guiGraphics.blit(ENCHANTING_BACKGROUND_TEXTURE, i, j, 0, 0, this.imageWidth, this.imageHeight);
+    }
+
+    public List<EnchButtonWithData> craftEnchantmentsButtons(String filter){
+        tickingButtons.clear();
+        List<EnchButtonWithData> list = new ArrayList<>();
+        ItemStack stack = this.menu.getTableInv().getItem(0);
+        boolean stackIsEmpty = stack.isEmpty();
+        boolean bl = stack.is(Items.BOOK) || stack.is(Items.ENCHANTED_BOOK);
+        
+        Map<Holder<Enchantment>, Integer> enchs = new HashMap<>();
+        if (!stackIsEmpty) {
+            net.minecraft.world.item.enchantment.ItemEnchantments enchsComponent = EnchantmentHelper.getEnchantmentsForCrafting(stack);
+            enchsComponent.entrySet().forEach(entry -> enchs.put(entry.getKey(), entry.getValue()));
+        }
+        
+        Object2IntOpenHashMap<Holder<Enchantment>> availableEnchantments = stackIsEmpty || bl ? menu.enchantments : this.filterToNewSet(menu.enchantments, (enchantment, level) -> enchantment.value().canEnchant(stack));
+        Object2IntOpenHashMap<Holder<Enchantment>> curses = this.filterToNewSet(enchs, (enchantment, integer) -> enchantment.is(net.minecraft.tags.EnchantmentTags.CURSE));
+        MaterialData matData = this.getMatData(stack.getItem());
+        int currentEnchantmentsCount = this.getCurrentEnchantmentsCount(enchs.size(), curses.size());
+        int enchantmentsLimit = this.getEnchantmentsLimit(curses.size(), matData);
+        if(stackIsEmpty){
+            this.displayMsg = null;
+        } else {
+            int i = Math.max(enchantmentsLimit - currentEnchantmentsCount, 0);
+            this.displayMsg = Component.translatable("eso.enchantmentsleft", i);
+        }
+
+        ConfigurationFile cfg = EBDCommon.config;
+
+        Object2IntOpenHashMap<Holder<Enchantment>> applicableCurses = bl ? menu.curses : this.filterToNewSet(menu.curses, (e, l) -> e.value().canEnchant(stack));
+        if(currentEnchantmentsCount >= enchantmentsLimit){
+            availableEnchantments = new Object2IntOpenHashMap<>(enchs);
+            if(cfg.enableCursesAmplifier){
+                if(curses.size() < matData.getMaxCurses()){
+                    availableEnchantments.putAll(applicableCurses);
+                } else {
+                    for (Object2IntMap.Entry<Holder<Enchantment>> c : curses.object2IntEntrySet()){
+                        availableEnchantments.put(c.getKey(), c.getIntValue());
+                    }
+                }
+            }
+        } else if(cfg.enableCursesAmplifier && curses.size() < matData.getMaxCurses()){
+            availableEnchantments.putAll(applicableCurses);
+        }
+        SortedMap<Holder<Enchantment>, Integer> sortedMap = new TreeMap<>(Comparator.comparing(e -> I18n.get(getDescriptionId(e))));
+        sortedMap.putAll(availableEnchantments);
+        int offset = 0;
+        LocalPlayer player = Minecraft.getInstance().player;
+
+        for (Map.Entry<Holder<Enchantment>, Integer> entry : sortedMap.entrySet()) {
+            Holder<Enchantment> enchantment = entry.getKey();
+            int level = entry.getValue();
+            String name = I18n.get(getDescriptionId(enchantment));
+            if(filter.isEmpty() || filter.isBlank() || name.toLowerCase().contains(filter.toLowerCase())){
+                ResourceLocation key = enchantment.unwrapKey().map(ResourceKey::location).orElse(null);
+                List<RecipeHolder> holders = key != null ? EBDCommon.getRecipeHolders(key) : null;
+                boolean hide = EBDCommon.config.hideEnchantmentsWithoutRecipe;
+                if(holders != null){
+                    int ordinal = 0;
+                    for (RecipeHolder holder : holders){
+                        Integer l = enchs.get(enchantment);
+                        int maxLevel = holder.getMaxLevel(enchantment);
+                        int targetLevel = l != null ? Math.min(maxLevel, l + 1) : 1;
+
+                        if(hide && !player.getAbilities().instabuild && !holder.levels.containsKey(targetLevel) && holder.xpMap.get(targetLevel) < 1){
+                            continue;
+                        }
+
+                        MutableComponent translatable = RecipeHolder.getFullName(enchantment, targetLevel, maxLevel);
+                        EnchButtonWithData b = new EnchButtonWithData(leftPos + 80, (this.topPos + 25) + 16 * offset, 123, 14, translatable, button -> {
+                            this.selectedEnchantment = enchantment;
+                            this.ordinal = ((EnchButtonWithData)button).getOrdinal();
+                            this.switchOverlayState(false);
+                            this.switchButtonsState(false);
+                        }, holder, enchantment, level, ordinal);
+                        b.setTargetLevel(targetLevel);
+                        this.composeTooltipAndApply(translatable, enchantment, holder, targetLevel, b, true);
+                        list.add(b);
+                        offset++;
+                        ordinal++;
+                    }
+                } else if(player.getAbilities().instabuild || !hide){
+                    Integer l = enchs.get(enchantment);
+                    int maxLevel = enchantment.value().getMaxLevel();
+                    int targetLevel = l != null ? Math.min(maxLevel, l + 1) : 1;
+
+                    MutableComponent translatable = RecipeHolder.getFullName(enchantment, targetLevel, maxLevel);
+                    EnchButtonWithData b = new EnchButtonWithData(leftPos + 80, (this.topPos + 25) + 16 * offset, 123, 14, translatable, button -> {
+                        this.selectedEnchantment = enchantment;
+                        this.ordinal = -1;
+                        this.switchOverlayState(false);
+                        this.switchButtonsState(false);
+                    }, null, enchantment, level, -1);
+                    b.setTargetLevel(targetLevel);
+                    this.composeTooltipAndApply(translatable, enchantment, null, targetLevel, b, true);
+                    list.add(b);
+                    offset++;
+                }
+            }
+        }
+
+        return list;
+    }
+
+    public static String getDescriptionId(Holder<Enchantment> e) {
+        if (e.value().description().getContents() instanceof TranslatableContents tc) {
+            return tc.getKey();
+        }
+        return e.unwrapKey().map(key -> "enchantment." + key.location().getNamespace() + "." + key.location().getPath()).orElse("enchantment.unknown");
+    }
+
+    public void composeTooltipAndApply(MutableComponent translatable, Holder<Enchantment> enchantment, RecipeHolder holder, int targetLevel, EnchButtonWithData button, boolean bl){
+        List<ClientTooltipComponent> list = new ArrayList<>();
+        MutableComponent titleComp = translatable.copy().withStyle(ChatFormatting.AQUA);
+        list.add(ClientTooltipComponent.create(titleComp.getVisualOrderText()));
+        
+        Component descComp = EBDClient.getEnchantmentDescription(enchantment);
+        for (FormattedCharSequence line : this.font.split(descComp, 200)) {
+            list.add(ClientTooltipComponent.create(line));
+        }
+
+        if(EBDCommon.config.enableEnchantmentsLeveling && !Minecraft.getInstance().player.getAbilities().instabuild && targetLevel > menu.allEnchantments.getInt(enchantment)){
+            Component knowReq = Component.translatable("eso.knowledgerequired", Enchantment.getFullname(enchantment, targetLevel)).withStyle(ChatFormatting.DARK_RED);
+            for (FormattedCharSequence line : this.font.split(knowReq, 200)) {
+                list.add(ClientTooltipComponent.create(line));
+            }
+        }
+
+        ItemStack stack = this.menu.getTableInv().getItem(0);
+        boolean incompatible = false;
+        if (!stack.isEmpty() && !stack.is(Items.BOOK) && !stack.is(Items.ENCHANTED_BOOK)) {
+            net.minecraft.world.item.enchantment.ItemEnchantments enchsComponent = EnchantmentHelper.getEnchantmentsForCrafting(stack);
+            for (Holder<Enchantment> e : enchsComponent.keySet()) {
+                if (e != enchantment && !Enchantment.areCompatible(e, enchantment)) {
+                    incompatible = true;
+                    break;
+                }
+            }
+        }
+        if (incompatible) {
+            Component incompatibleComp = Component.translatable("eso.incompatible").withStyle(ChatFormatting.RED);
+            for (FormattedCharSequence line : this.font.split(incompatibleComp, 200)) {
+                list.add(ClientTooltipComponent.create(line));
+            }
+            button.setIncompatible(true);
+        }
+
+        if(holder != null){
+            ItemDataPrepared[] d = holder.levels.get(targetLevel);
+            if(d != null){
+                float discountMultiplier = 1.0f;
+                Player player = Minecraft.getInstance().player;
+                if (player != null) {
+                    int enchanterLevel = Utils.getSkillLevel(player, "enchanter");
+                    discountMultiplier = 1.25f - ((Math.max(1, Math.min(100, enchanterLevel)) - 1) / 99.0f);
+                }
+
+                Component reqs = Component.translatable("eso.requires").withStyle(ChatFormatting.GRAY);
+                list.add(ClientTooltipComponent.create(reqs.getVisualOrderText()));
+                for (ItemDataPrepared data : holder.levels.get(targetLevel)) {
+                    if(data.isEmpty()){
+                        Component emptyComp = Component.translatable("eso.emptyitem").withStyle(ChatFormatting.DARK_GRAY);
+                        list.add(ClientTooltipComponent.create(emptyComp.getVisualOrderText()));
+                    } else {
+                        Item item;
+                        CompoundTag tag = null;
+                        int amount;
+                        if(data.itemList != null){
+                            if(data.applicableItems.isEmpty()) continue;
+                            if(bl){
+                                this.tickingButtons.add(button);
+                                data.resetPos();
+                            }
+                            ItemDataPrepared ids = data.getNotNestedData();
+                            item = ids.item;
+                            tag = ids.compoundTag;
+                            int origAmt = (ids.baseAmount >= 0) ? ids.baseAmount : ids.amount;
+                            amount = Math.max(1, Math.round(origAmt * discountMultiplier));
+                            data.next();
+                        } else if(data.tagKey != null){
+                            if(data.applicableItems.isEmpty()) continue;
+                            if(bl){
+                                this.tickingButtons.add(button);
+                                data.resetPos();
+                            }
+                            item = data.getApplicableItem();
+                            int origAmt = (data.baseAmount >= 0) ? data.baseAmount : data.amount;
+                            amount = Math.max(1, Math.round(origAmt * discountMultiplier));
+                            data.next();
+                        } else {
+                            item = data.item;
+                            tag = data.compoundTag;
+                            int origAmt = (data.baseAmount >= 0) ? data.baseAmount : data.amount;
+                            amount = Math.max(1, Math.round(origAmt * discountMultiplier));
+                        }
+                        
+                        MutableComponent itemName;
+                        ItemStack itemStack = new ItemStack(item, amount);
+                        if(tag != null){
+                            ItemDataPrepared.applyTagToStack(itemStack, tag);
+                            itemName = Component.translatable(itemStack.getDescriptionId());
+                            if(item instanceof PotionItem){
+                                net.minecraft.world.item.alchemy.PotionContents potionContents = itemStack.get(net.minecraft.core.component.DataComponents.POTION_CONTENTS);
+                                if (potionContents != null && potionContents.potion().isPresent()) {
+                                    ResourceLocation potionId = potionContents.potion().get().unwrapKey().map(ResourceKey::location).orElse(null);
+                                    if (potionId != null) {
+                                        String potion_id = potionId.toString();
+                                        if(potion_id.contains("strong")){
+                                            itemName.append(Component.translatable("eso.potionstrong"));
+                                        } else if(potion_id.contains("long")){
+                                            itemName.append(Component.translatable("eso.potionlong"));
+                                        }
+                                    }
+                                }
+                            }
+                        } else itemName = Component.translatable(item.getDescriptionId());
+                        itemName.append(": ").append(Component.literal(String.valueOf(amount)).withStyle(ChatFormatting.AQUA)).withStyle(ChatFormatting.GOLD);
+                        
+                        list.add(new RecipeIngredientTooltipComponent(itemStack, itemName));
+                    }
+                }
+            }
+            int cost = holder.xpMap.get(targetLevel);
+            if(cost > 0){
+                Player player = Minecraft.getInstance().player;
+                MutableComponent costMsg;
+                if(holder.mode){
+                    int totalXP = Utils.getTotalAvailableXPPoints(player);
+                    costMsg = Component.translatable("eso.xprequirementpoints", cost, decimal_formatter.format(Utils.getXPCostInLevels(player, cost, totalXP)));
+                    if(cost > totalXP){
+                        costMsg.withStyle(ChatFormatting.DARK_RED);
+                    } else costMsg.withStyle(ChatFormatting.DARK_GREEN);
+                } else {
+                    costMsg = Component.translatable("eso.xprequirementlevels", cost);
+                    if(cost > player.experienceLevel){
+                        costMsg.withStyle(ChatFormatting.DARK_RED);
+                    } else costMsg.withStyle(ChatFormatting.DARK_GREEN);
+                }
+                for (FormattedCharSequence line : this.font.split(costMsg, 200)) {
+                    list.add(ClientTooltipComponent.create(line));
+                }
+            }
+            if(!(holder.levels.isEmpty() && holder.xpMap.isEmpty())){
+                Component keyMsg = Component.translatable("eso.tooltip.recipekey", EBDClient.recipeKey.getTranslatedKeyMessage()).withStyle(ChatFormatting.DARK_GRAY);
+                for (FormattedCharSequence line : this.font.split(keyMsg, 200)) {
+                    list.add(ClientTooltipComponent.create(line));
+                }
+            }
+        }
+        button.setCachedTooltip(list);
+        button.setTooltip(null);
+    }
+
+    public Object2IntOpenHashMap<Holder<Enchantment>> filterToNewSet(Object2IntOpenHashMap<Holder<Enchantment>> map, BiPredicate<Holder<Enchantment>, Integer> predicate){
+        Object2IntOpenHashMap<Holder<Enchantment>> enchs = new Object2IntOpenHashMap<>();
+        for (Object2IntMap.Entry<Holder<Enchantment>> e : map.object2IntEntrySet()){
+            if(predicate.test(e.getKey(), e.getIntValue())){
+                enchs.put(e.getKey(), e.getIntValue());
+            }
+        }
+        return enchs;
+    }
+
+    public Object2IntOpenHashMap<Holder<Enchantment>> filterToNewSet(Map<Holder<Enchantment>, Integer> map, BiPredicate<Holder<Enchantment>, Integer> predicate){
+        Object2IntOpenHashMap<Holder<Enchantment>> enchs = new Object2IntOpenHashMap<>();
+        for (Map.Entry<Holder<Enchantment>, Integer> e : map.entrySet()){
+            if(predicate.test(e.getKey(), e.getValue())){
+                enchs.put(e.getKey(), e.getValue().intValue());
+            }
+        }
+        return enchs;
+    }
+
+    public EditBox getSearchFilter() {
+        return searchFilter;
+    }
+
+    public int getEnchantmentsLimit(int curses, MaterialData data){
+        return Utils.getEnchantmentsLimit(this.minecraft.player, curses, data);
+    }
+
+    public MaterialData getMatData(Item item){
+        return EBDCommon.config.enableEnchantability ? EBDCommon.mat_config.getMaterialData(item) : MaterialOverrides.defaultMatData;
+    }
+
+    public int getCurrentEnchantmentsCount(int appliedEnchantments, int curses){
+        ConfigurationFile cfg = EBDCommon.config;
+        return cfg.enableCursesAmplifier ? appliedEnchantments - curses : appliedEnchantments;
+    }
+
+    public void updateButtons(){
+        this.enchantmentsScrollList.resetScrollAmount();
+        this.enchantmentsScrollList.setEnchantments(craftEnchantmentsButtons(this.searchFilter.getValue()));
+    }
+
+    public void recalculateAvailability(SimpleContainer container){
+        ItemStack stack = container.getItem(0);
+        Player player = Minecraft.getInstance().player;
+        if(!stack.isEmpty() && (stack.is(Items.ENCHANTED_BOOK) || aiefu.ebd.Utils.isEnchantableItem(stack))){
+            net.minecraft.world.item.enchantment.ItemEnchantments enchsComponent = EnchantmentHelper.getEnchantmentsForCrafting(stack);
+            Map<Holder<Enchantment>, Integer> enchs = new HashMap<>();
+            enchsComponent.entrySet().forEach(entry -> enchs.put(entry.getKey(), entry.getValue()));
+            
+            label1:
+            for (EnchButtonWithData b : this.enchantmentsScrollList.getEnchantments()) {
+                Integer targetLevel = enchs.get(b.getEnchantment());
+                targetLevel = targetLevel == null ? 1 : targetLevel + 1;
+
+                b.setIncompatible(false);
+
+                if(EBDCommon.config.enableEnchantmentsLeveling && targetLevel > menu.allEnchantments.getInt(b.getEnchantment())){
+                    b.active = false;
+                    this.composeTooltipAndApply(b.getMessage().copy(), b.getEnchantment(), b.getRecipe(), targetLevel, b, false);
+                    continue;
+                }
+
+                if(!stack.is(Items.BOOK) && !stack.is(Items.ENCHANTED_BOOK)) {
+                    for (Holder<Enchantment> e : enchs.keySet()) {
+                        if (e != b.getEnchantment() && !Enchantment.areCompatible(e, b.getEnchantment())) {
+                            b.active = false;
+                            b.setIncompatible(true);
+                            this.composeTooltipAndApply(b.getMessage().copy(), b.getEnchantment(), b.getRecipe(), targetLevel, b, false);
+                            continue label1;
+                        }
+                    }
+                }
+                RecipeHolder holder = b.getRecipe();
+                if (holder != null) {
+                    b.active = targetLevel <= holder.getMaxLevel(b.getEnchantment()) && (player.getAbilities().instabuild || holder.check(container, targetLevel, player));
+                } else b.active = player.getAbilities().instabuild && targetLevel <= b.getEnchantment().value().getMaxLevel();
+
+                this.composeTooltipAndApply(b.getMessage().copy(), b.getEnchantment(), b.getRecipe(), targetLevel, b, false);
+            }
+        } else {
+            this.enchantmentsScrollList.enchantments.forEach(b -> {
+                b.active = false;
+                b.setIncompatible(false);
+                b.setCachedTooltip(null);
+            });
+        }
+    }
+
+    public EnchantmentListWidget getEnchantmentsScrollList() {
+        return enchantmentsScrollList;
+    }
+
+    public Font getFont(){
+        return font;
+    }
+
+    public static DecimalFormat getFormatter(){
+        return decimal_formatter;
+    }
+
+    public void renderCustomTooltip(GuiGraphics guiGraphics, List<ClientTooltipComponent> components, int mouseX, int mouseY) {
+        if (components.isEmpty()) return;
+
+        int width = 0;
+        int height = components.size() == 1 ? -2 : 0;
+        for (ClientTooltipComponent component : components) {
+            int compWidth = component.getWidth(this.font);
+            if (compWidth > width) {
+                width = compWidth;
+            }
+            height += component.getHeight();
+        }
+
+        int tooltipX = mouseX + 12;
+        int tooltipY = mouseY - 12;
+        
+        if (tooltipX + width + 6 > this.width) {
+            tooltipX = mouseX - 16 - width;
+        }
+        if (tooltipY + height + 6 > this.height) {
+            tooltipY = this.height - height - 6;
+        }
+        if (tooltipY < 6) {
+            tooltipY = 6;
+        }
+
+        TooltipRenderUtil.renderTooltipBackground(
+            guiGraphics, tooltipX - 3, tooltipY - 3, width + 6, height + 6, 400
+        );
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(0.0F, 0.0F, 400.0F);
+        
+        int currentY = tooltipY;
+        for (int i = 0; i < components.size(); i++) {
+            ClientTooltipComponent component = components.get(i);
+            component.renderImage(this.font, tooltipX, currentY, guiGraphics);
+            
+            Matrix4f matrix = guiGraphics.pose().last().pose();
+            component.renderText(this.font, tooltipX, currentY, matrix, guiGraphics.bufferSource());
+            
+            currentY += component.getHeight();
+        }
+        
+        guiGraphics.pose().popPose();
+    }
+}

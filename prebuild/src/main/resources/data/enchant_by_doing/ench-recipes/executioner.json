@@ -1,0 +1,11 @@
+﻿{
+  "enchantment_id": "enchant_by_doing:executioner",
+  "maxLevel": 1,
+  "levels": {
+    "1": [
+      { "id": "minecraft:wither_skeleton_skull", "amount": 1 },
+      { "id": "minecraft:diamond", "amount": 4 },
+      { "id": "minecraft:amethyst_shard", "amount": 8 }
+    ]
+  }
+}

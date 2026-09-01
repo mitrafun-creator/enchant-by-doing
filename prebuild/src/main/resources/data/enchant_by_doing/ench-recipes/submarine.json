@@ -1,0 +1,11 @@
+﻿{
+  "enchantment_id": "enchant_by_doing:submarine",
+  "maxLevel": 1,
+  "levels": {
+    "1": [
+      { "id": "minecraft:conduit", "amount": 1 },
+      { "id": "minecraft:pufferfish", "amount": 4 },
+      { "id": "minecraft:amethyst_shard", "amount": 6 }
+    ]
+  }
+}

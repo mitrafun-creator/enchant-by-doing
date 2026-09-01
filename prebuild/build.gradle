@@ -1,0 +1,72 @@
+plugins {
+    id 'net.neoforged.moddev' version '2.0.72'
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.mod_group
+
+base {
+    archivesName = project.mod_id
+}
+
+neoForge {
+    version = project.neoforge_version
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+        }
+    }
+
+    mods {
+        // Use a valid identifier for the mods block mapping
+        enchant_by_doing {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+dependencies {
+    // NeoForge and Minecraft dependencies are automatically managed by ModDevGradle.
+    compileOnly files("C:/Users/lmrcr/AppData/Roaming/ModrinthApp/profiles/NeoForge 1.21.1/mods/TreeChop-1.21.1-neoforge-0.19.3.jar")
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+processResources {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            neoforge_version       : neoforge_version,
+            mod_id                 : mod_id,
+            mod_version            : mod_version,
+            mod_name               : mod_name,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching("META-INF/neoforge.mods.toml") {
+        expand replaceProperties
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}

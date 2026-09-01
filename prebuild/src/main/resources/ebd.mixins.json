@@ -1,0 +1,43 @@
+﻿{
+  "required": true,
+  "package": "aiefu.ebd.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AnvilMenuMixins",
+    "ProjectileWeaponItemMixin",
+    "BowItemMixin",
+    "ArrowMixin",
+    "BoatItemMixin",
+    "MobEffectInstanceAccessor",
+    "BoatMixin",
+    "BrushItemMixin",
+    "EnchantedBookMixins",
+    "GrindstoneMenuMixin",
+    "LootPoolMixins",
+    "PlayerMixins",
+    "ServerPlayerMixins",
+    "ItemStackMixin",
+    "ItemMixin",
+    "CrossbowItemMixin",
+    "EntityMixin",
+    "VehicleEntityMixin",
+    "BlockEntityMixin",
+    "BlockMixin",
+    "BlockItemMixin",
+    "ChestBlockMixin",
+    "ChestBlockEntityMixin",
+    "BarrelBlockEntityMixin",
+    "LivingEntityAccessor",
+    "LivingEntityTickerAccessor",
+    "LivingEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "IClientLanguageAcc",
+    "GuiMixin",
+    "BoatRendererMixin",
+    "BlockEntityWithoutLevelRendererMixin"
+  ]
+}

@@ -1,0 +1,11 @@
+﻿{
+  "enchantment_id": "enchant_by_doing:leviathan",
+  "maxLevel": 1,
+  "levels": {
+    "1": [
+      { "id": "minecraft:prismarine_crystals", "amount": 8 },
+      { "id": "minecraft:heart_of_the_sea", "amount": 1 },
+      { "id": "minecraft:amethyst_shard", "amount": 8 }
+    ]
+  }
+}

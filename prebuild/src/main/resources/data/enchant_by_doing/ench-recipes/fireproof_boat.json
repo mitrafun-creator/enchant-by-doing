@@ -1,0 +1,11 @@
+﻿{
+  "enchantment_id": "enchant_by_doing:fireproof_boat",
+  "maxLevel": 1,
+  "levels": {
+    "1": [
+      { "id": "minecraft:magma_block", "amount": 8 },
+      { "id": "minecraft:netherite_scrap", "amount": 1 },
+      { "id": "minecraft:amethyst_shard", "amount": 4 }
+    ]
+  }
+}

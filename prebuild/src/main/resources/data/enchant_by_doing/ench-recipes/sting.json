@@ -1,0 +1,14 @@
+﻿{
+  "enchantment_id": "enchant_by_doing:sting",
+  "maxLevel": 2,
+  "levels": {
+    "1": [
+      { "id": "minecraft:spider_eye", "amount": 8 },
+      { "id": "minecraft:amethyst_shard", "amount": 2 }
+    ],
+    "2": [
+      { "id": "minecraft:fermented_spider_eye", "amount": 8 },
+      { "id": "minecraft:amethyst_shard", "amount": 4 }
+    ]
+  }
+}

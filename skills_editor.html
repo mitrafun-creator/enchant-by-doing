@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enchant by Doing (EbD) - Skills Tree Layout Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #12041d;
+            --panel-bg: rgba(25, 10, 40, 0.65);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --text-color: #f0e6f5;
+            --accent-glow: 0 0 20px rgba(160, 32, 240, 0.4);
+            
+            /* Skill Colors */
+            --color-miner: #708090;
+            --color-warrior: #B71C1C;
+            --color-hunter: #2E7D32;
+            --color-lumberjack: #8B4513;
+            --color-farmer: #F57F17;
+            --color-enchanter: #6A1B9A;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+
+        /* Background Canvas */
+        #space-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Editor Area */
+        #editor-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Constellation Container with Horizontal Slide */
+        #constellation-viewport {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        #constellation-viewport:active {
+            cursor: grabbing;
+        }
+
+        /* Center crosshair / origin indicator */
+        .origin-crosshair {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 20px;
+            height: 20px;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+        }
+
+        .origin-crosshair::before, .origin-crosshair::after {
+            content: '';
+            position: absolute;
+            background-color: #fff;
+        }
+
+        .origin-crosshair::before {
+            top: 9px;
+            left: 0;
+            width: 20px;
+            height: 2px;
+        }
+
+        .origin-crosshair::after {
+            top: 0;
+            left: 9px;
+            width: 2px;
+            height: 20px;
+        }
+
+        /* Grid lines overlay */
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 25px 25px;
+            background-position: center center;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .grid-overlay.visible {
+            opacity: 1;
+        }
+
+        /* Nebula item icon (Background decoration) */
+        .nebula-item {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 256px;
+            height: 256px;
+            image-rendering: pixelated;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0.45;
+            transform: translate(-50%, -50%);
+            filter: drop-shadow(0 0 35px var(--skill-color-glow, rgba(160, 32, 240, 0.4)));
+        }
+
+        /* Navigation Arrows */
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 80px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            cursor: pointer;
+            transition: background 0.3s;
+            background: linear-gradient(to right, transparent, transparent);
+        }
+
+        .nav-arrow:hover {
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.02), transparent);
+        }
+
+        .nav-arrow.left {
+            left: 0;
+        }
+
+        .nav-arrow.right {
+            right: 0;
+            background: linear-gradient(to left, transparent, transparent);
+        }
+
+        .nav-arrow.right:hover {
+            background: linear-gradient(to left, rgba(255, 255, 255, 0.02), transparent);
+        }
+
+        .arrow-icon {
+            width: 24px;
+            height: 24px;
+            border-top: 4px solid rgba(255, 255, 255, 0.4);
+            border-left: 4px solid rgba(255, 255, 255, 0.4);
+            transition: border-color 0.3s, transform 0.3s;
+        }
+
+        .nav-arrow:hover .arrow-icon {
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .nav-arrow.left .arrow-icon {
+            transform: rotate(-45deg);
+        }
+
+        .nav-arrow.left:hover .arrow-icon {
+            transform: rotate(-45deg) scale(1.1) translateX(-5px);
+        }
+
+        .nav-arrow.right .arrow-icon {
+            transform: rotate(135deg);
+        }
+
+        .nav-arrow.right:hover .arrow-icon {
+            transform: rotate(135deg) scale(1.1) translateX(-5px);
+        }
+
+        /* SVG Overlay for drawing connections */
+        #connections-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 6;
+            pointer-events: none;
+        }
+
+        .svg-line {
+            stroke: var(--skill-color, #44AA44);
+            stroke-width: 3.5;
+            stroke-linecap: round;
+            opacity: 0.7;
+            filter: drop-shadow(0 0 6px var(--skill-color, #44AA44));
+            transition: stroke 0.5s;
+        }
+
+        .svg-line.active {
+            stroke: #ffea00;
+            filter: drop-shadow(0 0 10px #ffea00);
+        }
+
+        /* Skill Star (Node) */
+        .star-node {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            z-index: 7;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            background: #FF44AA44;
+            border: 2px solid #fff;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+            transition: box-shadow 0.3s, transform 0.2s, background 0.5s;
+        }
+
+        .star-node:hover {
+            transform: translate(-50%, -50%) scale(1.35);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.9);
+        }
+
+        .star-node.selected {
+            border: 2px solid #ffea00;
+            box-shadow: 0 0 20px #ffea00;
+            transform: translate(-50%, -50%) scale(1.4);
+        }
+
+        /* Node Types */
+        .star-node.type-start {
+            width: 22px;
+            height: 22px;
+            background: #FF55FF55;
+            border: 2.5px solid #44AA44;
+            box-shadow: 0 0 15px #FF55FF55;
+            animation: pulse-start 2s infinite ease-in-out;
+        }
+
+        .star-node.type-start.selected {
+            border: 2.5px solid #ffea00;
+            box-shadow: 0 0 25px #ffea00;
+        }
+
+        .star-node.type-active {
+            background: #55FF55;
+            border: 2px solid #fff;
+            box-shadow: 0 0 12px #55FF55;
+        }
+
+        .star-node.type-unlocked {
+            background: #55FFFF;
+            border: 2px solid #fff;
+            box-shadow: 0 0 12px #55FFFF;
+        }
+
+        @keyframes pulse-start {
+            0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 12px rgba(85, 255, 85, 0.6); }
+            50% { transform: translate(-50%, -50%) scale(1.15); box-shadow: 0 0 24px rgba(255, 255, 85, 0.9); }
+            100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 12px rgba(85, 255, 85, 0.6); }
+        }
+
+        /* Glassmorphism Control Panel */
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 320px;
+            max-height: calc(100vh - 160px);
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            backdrop-filter: blur(15px);
+            z-index: 100;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .control-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+        .control-panel::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .panel-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Input Controls */
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .input-group label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        input[type="text"], input[type="number"], select, textarea {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: #fff;
+            padding: 8px 12px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s;
+            width: 100%;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+            border-color: rgba(160, 32, 240, 0.6);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        /* Checkbox & Switch style */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        /* Button controls */
+        .btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s, border-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary {
+            background: rgba(160, 32, 240, 0.4);
+            border-color: rgba(160, 32, 240, 0.5);
+            box-shadow: 0 0 10px rgba(160, 32, 240, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: rgba(160, 32, 240, 0.6);
+            border-color: rgba(160, 32, 240, 0.8);
+            box-shadow: var(--accent-glow);
+        }
+
+        .btn-danger {
+            background: rgba(183, 28, 28, 0.4);
+            border-color: rgba(183, 28, 28, 0.5);
+        }
+
+        .btn-danger:hover {
+            background: rgba(183, 28, 28, 0.6);
+            border-color: rgba(183, 28, 28, 0.8);
+        }
+
+        /* HUD Bottom Panel */
+        #hud-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 450px;
+            height: 100px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 25px;
+            pointer-events: none;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #hud-bottom.hidden {
+            transform: translate(-50%, 120px);
+        }
+
+        .hud-title-container {
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.85);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.15rem;
+            color: #fff;
+            text-align: center;
+            letter-spacing: 0.5px;
+            transition: color 0.5s;
+        }
+
+        .hud-xp-text {
+            font-size: 0.75rem;
+            color: #E0E0E0;
+            text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.8);
+            margin-bottom: 5px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+        }
+
+        /* Minecraft XP Bar */
+        .hud-xp-bar-container {
+            width: 182px;
+            height: 5px;
+            background-color: #000;
+            border: 1px solid #555;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .hud-xp-bar-fill {
+            height: 100%;
+            width: 75%;
+            background-color: var(--skill-color, #55FF55);
+            opacity: 0.75;
+            transition: width 0.5s ease-out, background-color 0.5s;
+        }
+
+        /* Top Bar - Left side general controls */
+        .top-left-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Keyboard help display */
+        .keyboard-shortcuts-help {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.7);
+            pointer-events: none;
+            backdrop-filter: blur(5px);
+        }
+
+        .keyboard-shortcuts-help b {
+            color: #ffea00;
+        }
+
+        /* Status toast message */
+        #toast {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50px);
+            background: rgba(25, 10, 45, 0.85);
+            border: 1.5px solid var(--skill-color, #a020f0);
+            border-radius: 8px;
+            padding: 10px 25px;
+            z-index: 1000;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: var(--accent-glow);
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            backdrop-filter: blur(5px);
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Hidden File inputs */
+        #file-input {
+            display: none;
+        }
+
+        /* Active Connection Line Indicator */
+        .connecting-line-temp {
+            stroke: #ffea00;
+            stroke-width: 2.5;
+            stroke-dasharray: 6 4;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast system -->
+    <div id="toast">Конфигурация экспортирована</div>
+
+    <!-- Space Background -->
+    <canvas id="space-canvas"></canvas>
+
+    <!-- Top Left Controls -->
+    <div class="top-left-panel">
+        <button class="btn" id="btn-toggle-grid">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+            Сетка (G)
+        </button>
+        <button class="btn" id="btn-toggle-snap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.886L4 9.076l5 4.572L7.088 20 12 16.586 16.912 20 15 13.648l5-4.572-6.088-.19L12 3z"/></svg>
+            Привязка: <span id="snap-status">ВКЛ</span> (S)
+        </button>
+    </div>
+
+    <!-- Left & Right Arrow Navigation -->
+    <div class="nav-arrow left" id="btn-prev-skill" title="Предыдущее созвездие (Стрелка влево)">
+        <div class="arrow-icon"></div>
+    </div>
+    <div class="nav-arrow right" id="btn-next-skill" title="Следующее созвездие (Стрелка вправо)">
+        <div class="arrow-icon"></div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div id="editor-container">
+        <div id="constellation-viewport">
+            <div class="grid-overlay" id="grid"></div>
+            <div class="origin-crosshair" id="origin"></div>
+            
+            <!-- Central item nebula -->
+            <img src="" class="nebula-item" id="nebula-bg-icon" alt="Nebula Item">
+            
+            <!-- Connection SVG rendering layer -->
+            <svg id="connections-svg">
+                <!-- Lines will be dynamically generated here -->
+                <line id="temp-connection-line" class="connecting-line-temp" x1="0" y1="0" x2="0" y2="0" style="display:none;"/>
+            </svg>
+            
+            <!-- HTML nodes for stars will be dynamically appended here -->
+        </div>
+    </div>
+
+    <!-- Right Control Panel -->
+    <div class="control-panel" id="sidebar">
+        <div class="panel-title">
+            <span>Редактор Созвездий</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+
+        <div class="panel-section">
+            <div class="section-title">Созвездие</div>
+            <div class="input-group">
+                <select id="skill-selector">
+                    <option value="miner">Шахтер (Pickaxe)</option>
+                    <option value="warrior">Воин (Sword)</option>
+                    <option value="hunter">Охотник (Bow)</option>
+                    <option value="lumberjack">Дровосек (Axe)</option>
+                    <option value="farmer">Фермер (Hoe)</option>
+                    <option value="enchanter">Зачарователь (Enchanted Book)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="panel-section" id="section-star-properties" style="display: none;">
+            <div class="section-title">Свойства выбранной звезды</div>
+            <div class="input-group">
+                <label for="star-id">ID Звезды (уникальный)</label>
+                <input type="text" id="star-id" placeholder="например, miner_start">
+            </div>
+            
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="star-x">Смещение X (px)</label>
+                    <input type="number" id="star-x" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="star-y">Смещение Y (px)</label>
+                    <input type="number" id="star-y" step="1">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="star-type">Тип Звезды</label>
+                <select id="star-type">
+                    <option value="start">Стартовая (XP Orb)</option>
+                    <option value="active">Активная</option>
+                    <option value="unlocked">Неактивная / Закрытая</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="star-name">Название бонуса</label>
+                <input type="text" id="star-name" placeholder="например, Сердце горы">
+            </div>
+
+            <div class="input-group">
+                <label for="star-desc">Описание бонуса</label>
+                <textarea id="star-desc" placeholder="Каждый уровень увеличивает..."></textarea>
+            </div>
+
+            <button class="btn btn-danger" id="btn-delete-star">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>
+                Удалить звезду (Del)
+            </button>
+        </div>
+
+        <div class="panel-section" id="section-no-selection">
+            <div style="text-align: center; color: rgba(255,255,255,0.4); padding: 15px; font-size: 0.9rem; border: 1.5px dashed rgba(255,255,255,0.1); border-radius: 8px;">
+                Двойной клик на холсте для создания звезды.<br><br>
+                Кликните на звезду для выбора свойств.<br><br>
+                <b>Shift + Клик</b> на вторую звезду для связывания.
+            </div>
+        </div>
+
+        <div class="panel-section" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+            <button class="btn btn-primary" id="btn-export">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Экспорт JSON
+            </button>
+            <button class="btn" id="btn-import">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                Импорт JSON
+            </button>
+            <input type="file" id="file-input" accept=".json">
+        </div>
+    </div>
+
+    <!-- Keyboard help Overlay -->
+    <div class="keyboard-shortcuts-help">
+        <b>Двойной Клик</b>: Создать звезду<br>
+        <b>Shift + Клик</b>: Связать звёзды<br>
+        <b>Drag</b>: Перетаскивать звёзды<br>
+        <b>Del</b>: Удалить звезду<br>
+        <b>Стрелки влево/вправо</b>: Смена навыка<br>
+        <b>G</b>: Сетка | <b>S</b>: Привязка
+    </div>
+
+    <!-- HUD bottom display -->
+    <div id="hud-bottom">
+        <div class="hud-title-container" id="hud-skill-title">Шахтер: 1</div>
+        <div class="hud-xp-text">0.0 / 100.0</div>
+        <div class="hud-xp-bar-container">
+            <div class="hud-xp-bar-fill" id="hud-xp-fill"></div>
+        </div>
+    </div>
+
+    <!-- Scripting Layer -->
+    <script>
+        // Data Structures
+        const skillTypes = {
+            miner: {
+                id: 'miner',
+                displayName: 'Шахтер',
+                color: '#708090',
+                colorGlow: 'rgba(112, 128, 144, 0.5)',
+                image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAHlBMVEUAAAAz68srx6wnspqJZydoTh5JNhUOPzYoHgsIJSBDqdTeAAAAAXRSTlMAQObYZgAAAEZJREFUeNpjwArKywvANLuQsXoqmFU509iDAQKSLCE0W4TRBDAjpWHyBIgAw+QJEAGGSRMgAgwTJ0AEGDihAlAtUEYHms0AO88PQ5cytswAAAAASUVORK5CYII=',
+                defaultStarName: 'Сердце горы'
+            },
+            warrior: {
+                id: 'warrior',
+                displayName: 'Воин',
+                color: '#B71C1C',
+                colorGlow: 'rgba(183, 28, 28, 0.5)',
+                image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAJFBMVEUAAAAOPzYIJSAz68uk/fArx6weincVY1VoTh5JNhUoHguJZycazUdMAAAAAXRSTlMAQObYZgAAAExJREFUGNN1jsENwDAMAgGndpLuv29/jZFa/+4QwkA/ks5jyPky8cHxwyQAxslZNAaYiux9Zlb4A0XjNcVu1r0hvYacGwB0Rq0OSC4ehwkBE0lygnsAAAAASUVORK5CYII=',
+                defaultStarName: 'Вдохновение битвы'
+            },
+            hunter: {
+                id: 'hunter',
+                displayName: 'Охотник',
+                color: '#2E7D32',
+                colorGlow: 'rgba(46, 125, 50, 0.5)',
+                image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAaklEQVR42mNgoCfwNBP9j4xJ1tSZrv4/w08OjEFsDTnu/wQ1wjTBNCBjvJqzs7PBGrFpcHFxIax52rRpYBpdnnaaYQaAnE22ZlwhS1Azsu3oBhClGZcL6KMZm/NJ0oxuAMmaCcUA0YBczQDVGni1vuKfywAAAABJRU5ErkJggg==',
+                defaultStarName: 'Орлиный взор'
+            },
+            lumberjack: {
+                id: 'lumberjack',
+                displayName: 'Дровосек',
+                color: '#8B4513',
+                colorGlow: 'rgba(139, 69, 19, 0.5)',
+                image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAIVBMVEUAAAAz68srx6wnspqJZyceindoTh5JNhUOPzYoHgsIJSBnmo+OAAAAAXRSTlMAQObYZgAAAEBJREFUeNpjQAEcDVBGowRUQFgDKmBsngBmLFQOngBmcC03tYLIlU2GMNg9uRZABCYwQAQyGSCgBJcAw0wGVAAAdKIMO6K/xjAAAAAASUVORK5CYII=',
+                defaultStarName: 'Лесной вихрь'
+            },
+            farmer: {
+                id: 'farmer',
+                displayName: 'Фермер',
+                color: '#F57F17',
+                colorGlow: 'rgba(245, 127, 23, 0.5)',
+                image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAAHlBMVEUAAAAz68srx6wnspqJZydoTh5JNhUOPzYoHgsIJSBDqdTeAAAAAXRSTlMAQObYZgAAADFJREFUeNpjQAbs5VBGoVIBhME5WT0VyjL2YICAJEsIzRYxAcJIaYAJMJAqwNDBgAoA50AJ6TlXpBwAAAAASUVORK5CYII=',
+                defaultStarName: 'Дар плодородия'
+            },
+            enchanter: {
+                id: 'enchanter',
+                displayName: 'Зачарователь',
+                color: '#6A1B9A',
+                colorGlow: 'rgba(106, 27, 154, 0.5)',
+                image: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAPFBMVEUAAADW1ta3t7fTohbUlhqZmZlbW1ukLCtlSxfFEzmdGzeJISBUPhNSLhBEMxBsFxdEJQphFBQxIQQWEAV8/BcXAAAAAXRSTlMAQObYZgAAAG1JREFUeNp1z0EWgyAMBNA0NA0WwTG5/101Ik9dOLv5ZBbQa8zsWWvOlyxLzREbr6pTbi3kPJ7/0yUx7hIAOy5aiO4Vv5jwIZoShIXI64djhfRlFsMpgGgRgzt1EeZSeh2CskYdAvhKt7j76683mGkGwVjE2/sAAAAASUVORK5CYII=',
+                defaultStarName: 'Мистический резонанс'
+            }
+        };
+
+        const skillOrder = ['miner', 'warrior', 'hunter', 'lumberjack', 'farmer', 'enchanter'];
+        let currentSkillIndex = 0;
+        let activeSkill = skillOrder[currentSkillIndex];
+
+        // Global Layout State (will be exported/imported)
+        let constellationsData = {
+            miner: {
+                stars: [{ id: "miner_start", x: 0, y: 0, type: "start", name: "Сердце горы", description: "Каждый уровень дает +1% к скорости копания киркой. Базовый штраф скорости уменьшен." }],
+                connections: []
+            },
+            warrior: {
+                stars: [{ id: "warrior_start", x: 0, y: 0, type: "start", name: "Вдохновение битвы", description: "Каждый уровень увеличивает наносимый мечами урон на +1%." }],
+                connections: []
+            },
+            hunter: {
+                stars: [{ id: "hunter_start", x: 0, y: 0, type: "start", name: "Орлиный взор", description: "Каждый уровень увеличивает урон от стрел на +1%." }],
+                connections: []
+            },
+            lumberjack: {
+                stars: [{ id: "lumberjack_start", x: 0, y: 0, type: "start", name: "Лесной вихрь", description: "Каждый уровень увеличивает скорость рубки топором на +1% и урон им на +1%." }],
+                connections: []
+            },
+            farmer: {
+                stars: [{ id: "farmer_start", x: 0, y: 0, type: "start", name: "Дар плодородия", description: "Каждый уровень повышает эффективность и урожайность фермерства на +1%." }],
+                connections: []
+            },
+            enchanter: {
+                stars: [{ id: "enchanter_start", x: 0, y: 0, type: "start", name: "Мистический резонанс", description: "Снижает затраты материалов при зачаровании (от +25% на 1 ур. до -75% на 100 ур.)." }],
+                connections: []
+            }
+        };
+
+        // UI State
+        let selectedStarId = null;
+        let connectingSourceStarId = null;
+        let isDragging = false;
+        let draggedStarId = null;
+        let showGrid = false;
+        let snapToGrid = true;
+        const snapSize = 25;
+
+        // Pan and view offset offsets (allows pan viewport)
+        let panX = 0;
+        let panY = 0;
+        let startPanX = 0;
+        let startPanY = 0;
+        let isPanning = false;
+
+        // DOM elements
+        const spaceCanvas = document.getElementById('space-canvas');
+        const viewport = document.getElementById('constellation-viewport');
+        const nebulaIcon = document.getElementById('nebula-bg-icon');
+        const connectionsSvg = document.getElementById('connections-svg');
+        const tempLine = document.getElementById('temp-connection-line');
+        const grid = document.getElementById('grid');
+        const origin = document.getElementById('origin');
+        
+        // Selectors
+        const skillSelector = document.getElementById('skill-selector');
+        const sectionProperties = document.getElementById('section-star-properties');
+        const sectionNoSelection = document.getElementById('section-no-selection');
+        
+        // Properties inputs
+        const starIdInput = document.getElementById('star-id');
+        const starXInput = document.getElementById('star-x');
+        const starYInput = document.getElementById('star-y');
+        const starTypeSelect = document.getElementById('star-type');
+        const starNameInput = document.getElementById('star-name');
+        const starDescTextarea = document.getElementById('star-desc');
+        
+        // HUD inputs
+        const hudTitle = document.getElementById('hud-skill-title');
+        const hudFill = document.getElementById('hud-xp-fill');
+
+        // Space Canvas render loop
+        const ctx = spaceCanvas.getContext('2d');
+        let bgStars = [];
+        let particlesList = [];
+
+        function resizeCanvas() {
+            spaceCanvas.width = window.innerWidth;
+            spaceCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Create initial background stars
+        for (let i = 0; i < 120; i++) {
+            bgStars.push({
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+                size: 0.5 + Math.random() * 1.5,
+                alpha: 0.3 + Math.random() * 0.7,
+                speed: 0.05 + Math.random() * 0.05
+            });
+        }
+
+        // Mouse Parallax coordinates
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging && !isPanning) {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            }
+        });
+
+        // Background Animation Loop
+        function animate() {
+            ctx.fillStyle = '#12041d';
+            ctx.fillRect(0, 0, spaceCanvas.width, spaceCanvas.height);
+            
+            const dx = mouseX - spaceCanvas.width / 2;
+            const dy = mouseY - spaceCanvas.height / 2;
+
+            // Draw Stars with parallax
+            ctx.fillStyle = '#ffffff';
+            bgStars.forEach(star => {
+                let sx = (star.x + dx * star.speed * 0.2) % spaceCanvas.width;
+                let sy = (star.y + dy * star.speed * 0.2) % spaceCanvas.height;
+                if (sx < 0) sx += spaceCanvas.width;
+                if (sy < 0) sy += spaceCanvas.height;
+                
+                const currentAlpha = star.alpha * (0.7 + 0.3 * Math.sin(Date.now() * 0.003 + star.x));
+                ctx.globalAlpha = currentAlpha;
+                ctx.fillRect(sx, sy, star.size, star.size);
+            });
+            ctx.globalAlpha = 1.0;
+
+            // Update & Render Particles
+            particlesList = particlesList.filter(p => p.life > 0);
+            particlesList.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                const pAlpha = Math.max(0.0, p.life / p.maxLife);
+                ctx.fillStyle = `rgba(160, 32, 240, ${pAlpha})`;
+                ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3);
+            });
+
+            // Parallax for nebula-item
+            const activeSkillData = skillTypes[activeSkill];
+            if (nebulaIcon) {
+                nebulaIcon.style.transform = `translate(-50%, -50%) translate(${panX}px, ${panY}px) scale(1.05)`;
+            }
+
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Spawn click particles
+        function spawnParticles(x, y) {
+            for (let i = 0; i < 15; i++) {
+                const angle = Math.random() * 2 * Math.PI;
+                const speed = 0.5 + Math.random() * 1.5;
+                particlesList.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 25 + Math.floor(Math.random() * 15),
+                    maxLife: 40
+                });
+            }
+        }
+
+        // Initialize viewport offsets
+        function updateOriginAndGrid() {
+            const centerX = window.innerWidth / 2 + panX;
+            const centerY = window.innerHeight / 2 + panY;
+            
+            origin.style.left = `calc(50% + ${panX}px)`;
+            origin.style.top = `calc(50% + ${panY}px)`;
+            
+            grid.style.backgroundPosition = `${centerX}px ${centerY}px`;
+        }
+
+        // Get Relative coordinates (relative to origin center 0,0)
+        function getRelativeCoords(screenX, screenY) {
+            const centerX = window.innerWidth / 2 + panX;
+            const centerY = window.innerHeight / 2 + panY;
+            let relX = screenX - centerX;
+            let relY = screenY - centerY;
+            
+            if (snapToGrid) {
+                relX = Math.round(relX / snapSize) * snapSize;
+                relY = Math.round(relY / snapSize) * snapSize;
+            }
+            return { x: relX, y: relY };
+        }
+
+        // Get Screen coordinates from Relative coordinates
+        function getScreenCoords(relX, relY) {
+            const centerX = window.innerWidth / 2 + panX;
+            const centerY = window.innerHeight / 2 + panY;
+            return {
+                x: centerX + relX,
+                y: centerY + relY
+            };
+        }
+
+        // Redraw connections and nodes
+        function renderConstellation() {
+            // Remove old HTML star elements
+            document.querySelectorAll('.star-node').forEach(el => el.remove());
+            
+            const skillData = constellationsData[activeSkill];
+            const currentTypeInfo = skillTypes[activeSkill];
+
+            // Render connections (lines)
+            // Empty SVG
+            connectionsSvg.innerHTML = '<line id="temp-connection-line" class="connecting-line-temp" x1="0" y1="0" x2="0" y2="0" style="display:none;"/>';
+            
+            // Re-fetch tempLine reference
+            const newTempLine = document.getElementById('temp-connection-line');
+            
+            skillData.connections.forEach(conn => {
+                const starA = skillData.stars.find(s => s.id === conn[0]);
+                const starB = skillData.stars.find(s => s.id === conn[1]);
+                if (starA && starB) {
+                    const posA = getScreenCoords(starA.x, starA.y);
+                    const posB = getScreenCoords(starB.x, starB.y);
+                    
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('class', 'svg-line');
+                    line.setAttribute('x1', posA.x);
+                    line.setAttribute('y1', posA.y);
+                    line.setAttribute('x2', posB.x);
+                    line.setAttribute('y2', posB.y);
+                    line.style.setProperty('--skill-color', currentTypeInfo.color);
+                    
+                    // Highlight selected connections
+                    if (selectedStarId === starA.id || selectedStarId === starB.id) {
+                        // Optional visual cue for connected lines
+                    }
+                    
+                    connectionsSvg.appendChild(line);
+                }
+            });
+
+            // Render Stars (nodes)
+            skillData.stars.forEach(star => {
+                const screenPos = getScreenCoords(star.x, star.y);
+                const el = document.createElement('div');
+                el.className = `star-node type-${star.type}`;
+                if (star.id === selectedStarId) {
+                    el.classList.add('selected');
+                }
+                el.style.left = `${screenPos.x}px`;
+                el.style.top = `${screenPos.y}px`;
+                el.dataset.id = star.id;
+                el.title = `${star.name || 'Звезда'} (${star.x}, ${star.y})`;
+                
+                // Add event listeners for node dragging/interaction
+                el.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                    if (e.shiftKey) {
+                        // Shift+click to link
+                        startConnecting(star.id);
+                    } else {
+                        // Drag setup
+                        isDragging = true;
+                        draggedStarId = star.id;
+                        selectStar(star.id);
+                        document.body.style.cursor = 'move';
+                    }
+                });
+
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectStar(star.id);
+                });
+                
+                viewport.appendChild(el);
+            });
+
+            updateOriginAndGrid();
+        }
+
+        // Select a star to edit its properties
+        function selectStar(id) {
+            selectedStarId = id;
+            const skillData = constellationsData[activeSkill];
+            const star = skillData.stars.find(s => s.id === id);
+            
+            if (star) {
+                // Update active highlight classes
+                document.querySelectorAll('.star-node').forEach(el => {
+                    if (el.dataset.id === id) {
+                        el.classList.add('selected');
+                    } else {
+                        el.classList.remove('selected');
+                    }
+                });
+
+                // Display form
+                sectionProperties.style.display = 'flex';
+                sectionNoSelection.style.display = 'none';
+                
+                // Set input values
+                starIdInput.value = star.id;
+                starXInput.value = star.x;
+                starYInput.value = star.y;
+                starTypeSelect.value = star.type;
+                starNameInput.value = star.name || '';
+                starDescTextarea.value = star.description || '';
+            } else {
+                deselectAll();
+            }
+        }
+
+        function deselectAll() {
+            selectedStarId = null;
+            connectingSourceStarId = null;
+            document.querySelectorAll('.star-node').forEach(el => el.classList.remove('selected'));
+            sectionProperties.style.display = 'none';
+            sectionNoSelection.style.display = 'block';
+            tempLine.style.display = 'none';
+        }
+
+        // Connection linking state
+        function startConnecting(id) {
+            connectingSourceStarId = id;
+            const skillData = constellationsData[activeSkill];
+            const star = skillData.stars.find(s => s.id === id);
+            if (star) {
+                const screenPos = getScreenCoords(star.x, star.y);
+                tempLine.setAttribute('x1', screenPos.x);
+                tempLine.setAttribute('y1', screenPos.y);
+                tempLine.setAttribute('x2', screenPos.x);
+                tempLine.setAttribute('y2', screenPos.y);
+                tempLine.style.display = 'block';
+                showToast("Режим связывания: кликните по целевой звезде");
+            }
+        }
+
+        // Complete connection linking
+        function completeConnecting(targetId) {
+            if (connectingSourceStarId && connectingSourceStarId !== targetId) {
+                const skillData = constellationsData[activeSkill];
+                
+                // Check if connection already exists
+                const exists = skillData.connections.some(conn => 
+                    (conn[0] === connectingSourceStarId && conn[1] === targetId) ||
+                    (conn[0] === targetId && conn[1] === connectingSourceStarId)
+                );
+                
+                if (!exists) {
+                    skillData.connections.push([connectingSourceStarId, targetId]);
+                    showToast("Связь добавлена!");
+                } else {
+                    // Toggle connection off if it already exists
+                    skillData.connections = skillData.connections.filter(conn => 
+                        !((conn[0] === connectingSourceStarId && conn[1] === targetId) ||
+                          (conn[0] === targetId && conn[1] === connectingSourceStarId))
+                    );
+                    showToast("Связь удалена!");
+                }
+                
+                renderConstellation();
+            }
+            connectingSourceStarId = null;
+            tempLine.style.display = 'none';
+        }
+
+        // Toast Notification System
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // Switch Constellation Skills
+        function switchSkill(direction) {
+            // Anim slide-down HUD
+            const hud = document.getElementById('hud-bottom');
+            hud.classList.add('hidden');
+            
+            spawnParticles(window.innerWidth / 2, window.innerHeight / 2);
+
+            setTimeout(() => {
+                if (direction === 'next') {
+                    currentSkillIndex = (currentSkillIndex + 1) % skillOrder.length;
+                } else {
+                    currentSkillIndex = (currentSkillIndex - 1 + skillOrder.length) % skillOrder.length;
+                }
+                activeSkill = skillOrder[currentSkillIndex];
+                
+                // Reset Pan
+                panX = 0;
+                panY = 0;
+                
+                // Update dropdown
+                skillSelector.value = activeSkill;
+                
+                deselectAll();
+                loadSkillUIDetails();
+                renderConstellation();
+                
+                // Anim slide-up HUD
+                setTimeout(() => {
+                    hud.classList.remove('hidden');
+                }, 100);
+            }, 200);
+        }
+
+        // Load visual assets/colors for active skill
+        function loadSkillUIDetails() {
+            const skillData = skillTypes[activeSkill];
+            
+            // Set styles & colors
+            document.documentElement.style.setProperty('--skill-color', skillData.color);
+            document.documentElement.style.setProperty('--skill-color-glow', skillData.colorGlow);
+            
+            // Set background nebula item icon
+            nebulaIcon.src = skillData.image;
+            
+            // Update HUD bottom elements
+            hudTitle.textContent = `${skillData.displayName}: 1`;
+            hudTitle.style.color = skillData.color;
+            hudFill.style.backgroundColor = skillData.color;
+        }
+
+        // Form properties changes listeners
+        starIdInput.addEventListener('change', () => {
+            if (selectedStarId) {
+                const newId = starIdInput.value.trim().replace(/\s+/g, '_');
+                if (!newId) return;
+                
+                const skillData = constellationsData[activeSkill];
+                
+                // Check duplicate ID
+                const duplicate = skillData.stars.find(s => s.id === newId && s.id !== selectedStarId);
+                if (duplicate) {
+                    showToast("Ошибка: Звезда с таким ID уже существует!");
+                    starIdInput.value = selectedStarId;
+                    return;
+                }
+
+                // Update in connections
+                skillData.connections = skillData.connections.map(conn => {
+                    if (conn[0] === selectedStarId) conn[0] = newId;
+                    if (conn[1] === selectedStarId) conn[1] = newId;
+                    return conn;
+                });
+
+                // Update star
+                const star = skillData.stars.find(s => s.id === selectedStarId);
+                if (star) {
+                    star.id = newId;
+                    selectedStarId = newId;
+                    renderConstellation();
+                }
+            }
+        });
+
+        // Numeric position adjust
+        const updateCoordsFromInputs = () => {
+            if (selectedStarId) {
+                const star = constellationsData[activeSkill].stars.find(s => s.id === selectedStarId);
+                if (star) {
+                    star.x = parseInt(starXInput.value) || 0;
+                    star.y = parseInt(starYInput.value) || 0;
+                    renderConstellation();
+                }
+            }
+        };
+        starXInput.addEventListener('input', updateCoordsFromInputs);
+        starYInput.addEventListener('input', updateCoordsFromInputs);
+
+        starTypeSelect.addEventListener('change', () => {
+            if (selectedStarId) {
+                const star = constellationsData[activeSkill].stars.find(s => s.id === selectedStarId);
+                if (star) {
+                    star.type = starTypeSelect.value;
+                    renderConstellation();
+                }
+            }
+        });
+
+        starNameInput.addEventListener('input', () => {
+            if (selectedStarId) {
+                const star = constellationsData[activeSkill].stars.find(s => s.id === selectedStarId);
+                if (star) {
+                    star.name = starNameInput.value;
+                }
+            }
+        });
+
+        starDescTextarea.addEventListener('input', () => {
+            if (selectedStarId) {
+                const star = constellationsData[activeSkill].stars.find(s => s.id === selectedStarId);
+                if (star) {
+                    star.description = starDescTextarea.value;
+                }
+            }
+        });
+
+        // Add node by double clicking on viewport
+        viewport.addEventListener('dblclick', (e) => {
+            if (e.target !== viewport && e.target !== grid && e.target !== nebulaIcon) return;
+            
+            const relCoords = getRelativeCoords(e.clientX, e.clientY);
+            const skillData = constellationsData[activeSkill];
+            
+            // Unique ID helper
+            const idx = skillData.stars.length + 1;
+            const newId = `${activeSkill}_node${idx}`;
+            
+            // Create node
+            const isStart = skillData.stars.length === 0;
+            const newStar = {
+                id: newId,
+                x: relCoords.x,
+                y: relCoords.y,
+                type: isStart ? 'start' : 'active',
+                name: isStart ? skillTypes[activeSkill].defaultStarName : `Бонус ${idx}`,
+                description: `Дополнительный бонус уровня ${idx}`
+            };
+            
+            skillData.stars.push(newStar);
+            spawnParticles(e.clientX, e.clientY);
+            renderConstellation();
+            selectStar(newId);
+            
+            showToast("Новая звезда создана!");
+        });
+
+        // Viewport Dragging (Pan)
+        viewport.addEventListener('mousedown', (e) => {
+            if (e.target !== viewport && e.target !== grid && e.target !== nebulaIcon) return;
+            isPanning = true;
+            startPanX = e.clientX - panX;
+            startPanY = e.clientY - panY;
+            deselectAll();
+        });
+
+        // Handle MouseMove for dragging (either star or panning viewport)
+        window.addEventListener('mousemove', (e) => {
+            if (isDragging && draggedStarId) {
+                const relCoords = getRelativeCoords(e.clientX, e.clientY);
+                const star = constellationsData[activeSkill].stars.find(s => s.id === draggedStarId);
+                if (star) {
+                    star.x = relCoords.x;
+                    star.y = relCoords.y;
+                    
+                    // Update input fields in real time
+                    starXInput.value = star.x;
+                    starYInput.value = star.y;
+                    
+                    // Reposition SVG and nodes
+                    renderConstellation();
+                }
+            } else if (isPanning) {
+                panX = e.clientX - startPanX;
+                panY = e.clientY - startPanY;
+                renderConstellation();
+            }
+
+            // Connection linking updates line
+            if (connectingSourceStarId) {
+                tempLine.setAttribute('x2', e.clientX);
+                tempLine.setAttribute('y2', e.clientY);
+            }
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (isDragging) {
+                isDragging = false;
+                draggedStarId = null;
+                document.body.style.cursor = 'default';
+            }
+            if (isPanning) {
+                isPanning = false;
+            }
+        });
+
+        // Finish connecting click release
+        viewport.addEventListener('click', (e) => {
+            if (connectingSourceStarId) {
+                const nodeEl = e.target.closest('.star-node');
+                if (nodeEl) {
+                    completeConnecting(nodeEl.dataset.id);
+                } else {
+                    // Cancel connecting if clicked on empty viewport
+                    connectingSourceStarId = null;
+                    tempLine.style.display = 'none';
+                }
+            }
+        });
+
+        // General Button listeners
+        document.getElementById('btn-prev-skill').addEventListener('click', () => switchSkill('prev'));
+        document.getElementById('btn-next-skill').addEventListener('click', () => switchSkill('next'));
+
+        skillSelector.addEventListener('change', () => {
+            const index = skillOrder.indexOf(skillSelector.value);
+            if (index !== -1) {
+                currentSkillIndex = index;
+                activeSkill = skillOrder[currentSkillIndex];
+                panX = 0;
+                panY = 0;
+                deselectAll();
+                loadSkillUIDetails();
+                renderConstellation();
+            }
+        });
+
+        // Grid controls
+        const gridBtn = document.getElementById('btn-toggle-grid');
+        gridBtn.addEventListener('click', () => {
+            showGrid = !showGrid;
+            if (showGrid) {
+                grid.classList.add('visible');
+                gridBtn.style.background = 'rgba(160, 32, 240, 0.3)';
+            } else {
+                grid.classList.remove('visible');
+                gridBtn.style.background = 'rgba(255,255,255,0.08)';
+            }
+        });
+
+        // Snap controls
+        const snapBtn = document.getElementById('btn-toggle-snap');
+        const snapText = document.getElementById('snap-status');
+        snapBtn.addEventListener('click', () => {
+            snapToGrid = !snapToGrid;
+            if (snapToGrid) {
+                snapText.textContent = 'ВКЛ';
+                snapBtn.style.background = 'rgba(160, 32, 240, 0.3)';
+            } else {
+                snapText.textContent = 'ВЫКЛ';
+                snapBtn.style.background = 'rgba(255,255,255,0.08)';
+            }
+        });
+
+        // Delete Star Action
+        function deleteSelectedStar() {
+            if (selectedStarId) {
+                const skillData = constellationsData[activeSkill];
+                
+                // Remove star
+                skillData.stars = skillData.stars.filter(s => s.id !== selectedStarId);
+                
+                // Remove connections
+                skillData.connections = skillData.connections.filter(conn => 
+                    conn[0] !== selectedStarId && conn[1] !== selectedStarId
+                );
+                
+                deselectAll();
+                renderConstellation();
+                showToast("Звезда удалена!");
+            }
+        }
+        document.getElementById('btn-delete-star').addEventListener('click', deleteSelectedStar);
+
+        // Keyboard Shortcuts
+        window.addEventListener('keydown', (e) => {
+            // Ignore if typing inside form fields
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+                return;
+            }
+
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                deleteSelectedStar();
+            } else if (e.key === 'g' || e.key === 'G' || e.key === 'п' || e.key === 'П') {
+                gridBtn.click();
+            } else if (e.key === 's' || e.key === 'S' || e.key === 'ы' || e.key === 'Ы') {
+                snapBtn.click();
+            } else if (e.key === 'ArrowRight') {
+                switchSkill('next');
+            } else if (e.key === 'ArrowLeft') {
+                switchSkill('prev');
+            } else if (e.key === 'Escape') {
+                deselectAll();
+            }
+        });
+
+        // Export JSON File
+        document.getElementById('btn-export').addEventListener('click', () => {
+            // Beautify format
+            const jsonString = JSON.stringify(constellationsData, null, 4);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'ebd_skills_layout.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showToast("Конфигурация сохранена в файл!");
+        });
+
+        // Import JSON File Trigger
+        const fileInput = document.getElementById('file-input');
+        document.getElementById('btn-import').addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const parsedData = JSON.parse(event.target.result);
+                    
+                    // Validate keys
+                    const keys = Object.keys(constellationsData);
+                    let valid = true;
+                    keys.forEach(k => {
+                        if (!parsedData[k] || !Array.isArray(parsedData[k].stars) || !Array.isArray(parsedData[k].connections)) {
+                            valid = false;
+                        }
+                    });
+
+                    if (valid) {
+                        constellationsData = parsedData;
+                        renderConstellation();
+                        deselectAll();
+                        showToast("Конфигурация успешно загружена!");
+                    } else {
+                        showToast("Ошибка: Неверный формат JSON-файла!");
+                    }
+                } catch (err) {
+                    showToast("Ошибка при чтении JSON-файла!");
+                    console.error(err);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        // Initialize UI
+        loadSkillUIDetails();
+        renderConstellation();
+    </script>
+</body>
+</html>

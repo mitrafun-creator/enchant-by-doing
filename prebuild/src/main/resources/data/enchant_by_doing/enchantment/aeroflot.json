@@ -1,0 +1,11 @@
+﻿{
+  "anvil_cost": 5,
+  "description": {"translate": "enchantment.enchant_by_doing.aeroflot"},
+  "max_cost": {"base": 60, "per_level_above_first": 0},
+  "max_level": 1,
+  "min_cost": {"base": 20, "per_level_above_first": 0},
+  "primary_items": "#minecraft:boats",
+  "slots": ["mainhand"],
+  "supported_items": "#minecraft:boats",
+  "weight": 3
+}
