@@ -1,4 +1,4 @@
-﻿{
+{
   "enchantment_id": "create:potato_recovery",
   "dependsOn": ["create"],
   "maxLevel": 0,

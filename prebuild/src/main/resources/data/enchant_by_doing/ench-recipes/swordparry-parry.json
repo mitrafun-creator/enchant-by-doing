@@ -1,4 +1,4 @@
-﻿{
+{
   "enchantment_id": "frycparry:parry_enchantment",
   "dependsOn": ["frycparry"],
   "maxLevel": 0,

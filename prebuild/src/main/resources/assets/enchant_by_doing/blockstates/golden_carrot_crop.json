@@ -1,4 +1,4 @@
-﻿{
+{
   "variants": {
     "age=0": { "model": "enchant_by_doing:block/golden_carrot_crop_stage0" },
     "age=1": { "model": "enchant_by_doing:block/golden_carrot_crop_stage1" },

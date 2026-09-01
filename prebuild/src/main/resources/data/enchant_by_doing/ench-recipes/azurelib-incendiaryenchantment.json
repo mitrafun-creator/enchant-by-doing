@@ -1,4 +1,4 @@
-﻿{
+{
   "enchantment_id": "azurelib:incendiaryenchantment",
   "dependsOn": ["azurelib"],
   "maxLevel": 0,

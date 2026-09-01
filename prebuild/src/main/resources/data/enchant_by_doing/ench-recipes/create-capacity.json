@@ -1,4 +1,4 @@
-﻿{
+{
   "enchantment_id": "create:capacity",
   "dependsOn": ["create"],
   "maxLevel": 0,

@@ -1,4 +1,4 @@
-﻿{
+{
   "anvil_cost": 6,
   "description": {"translate": "enchantment.enchant_by_doing.fireproof_boat"},
   "max_cost": {"base": 80, "per_level_above_first": 0},
