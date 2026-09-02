@@ -40,5 +40,5 @@ A complete RPG progression and enchanting overhaul for Minecraft (NeoForge 1.21.
 
 ## 📜 License
 Licensed under the [MIT License](LICENSE).
-Copyright (c) 2024 CmdrJane, 2024-2026 Aiefu.
+Copyright (c) 2024 CmdrJane, 2024-2026 MitraFun.
 
