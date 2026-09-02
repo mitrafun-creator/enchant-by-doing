@@ -53,10 +53,11 @@ EbD removes the frustrating random number generator (RNG) and endless AFK XP mob
 
 | Section | Description |
 |---|---|
-| 🌌 **[Skill Trees & Constellations](Skill-Trees-and-Constellations)** | In-depth breakdown of all 6 skills, XP gain formulas, 30+ constellation star perks, GUI controls, and the visual editor. |
+| 🌌 **[Skill Trees & Constellations](Skill-Trees-and-Constellations)** | In-depth breakdown of all 6 skills, 30+ constellation star perks, GUI controls, and the visual editor. |
+| 🛡️ **[Experience & Anti-Abuse System](Experience-Mechanics-and-Anti-Abuse)** | Exact XP gain values, formula math, Silk Touch nullification, placement penalty timers, and the World-Saved Melon Tracker. |
 | 🔮 **[Enchanting Overhaul](Enchanting-Overhaul)** | The deterministic Enchanting Table, Dusty Book discovery, material formulas, anvil mechanics, and capacity limits. |
 | ✨ **[Custom Enchantments & Effects](Custom-Enchantments-and-Effects)** | Full catalog of weapon, bow, and boat enchantments, status effects (`Shrinking`, `Growing`, `Experience Surge`), and gilded crops. |
-| ⚙️ **[Configuration & Datapacks](Configuration-and-Datapacks)** | Complete reference for `config.yml`, `skills_xp.yml`, `ebd_skills_layout.json`, custom datapack recipes, and overrides. |
+| ⚙️ **[Configuration & Datapacks](Configuration-and-Datapacks)** | Complete reference for `config.yml`, `config.json`, `skills_xp.yml`, `ebd_skills_layout.json`, custom datapack recipes, and overrides. |
 | 💬 **[Commands & Administration](Commands-and-Admin)** | Command syntax for `/ebd skill`, `/ebd learn`, `/ebd forget`, permissions, and server management. |
 | 🧩 **[Compatibility & Integrations](Compatibility-and-Integrations)** | Support for TreeChop, Farmers Delight, Iris/Sodium, and tips for modpack creators. |
 | 🔍 **[Codebase Audit & Roadmap](Codebase-Audit-and-Roadmap)** | Technical review of mod architecture, known quirks, edge cases, and future planned features. |
