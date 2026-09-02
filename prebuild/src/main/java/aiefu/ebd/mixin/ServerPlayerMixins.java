@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -167,8 +168,8 @@ public class ServerPlayerMixins implements IServerPlayerAcc {
 
         if (levelUp) {
             SkillType sType = SkillType.fromId(skill);
-            String skillName = sType != null ? sType.displayName : skill;
-            player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§6❖ §eВаш уровень в навыке " + skillName + " повысился до " + currentLevel + "!"));
+            Component skillComp = sType != null ? sType.getDisplayName() : Component.literal(skill);
+            player.sendSystemMessage(Component.literal("§6❖ ").append(Component.translatable("skill.enchant_by_doing.level_up", skillComp, currentLevel).withStyle(net.minecraft.ChatFormatting.YELLOW)));
             player.playNotifySound(net.minecraft.sounds.SoundEvents.PLAYER_LEVELUP, net.minecraft.sounds.SoundSource.PLAYERS, 0.5f, 1.2f);
         }
 

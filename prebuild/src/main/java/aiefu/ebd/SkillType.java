@@ -1,7 +1,9 @@
 package aiefu.ebd;
 
+import net.minecraft.network.chat.Component;
+
 public enum SkillType {
-    MINER("miner", "Шахтер", 0x708090),       // Slate Gray
+    MINER("miner", "Шахтёр", 0x708090),       // Slate Gray
     WARRIOR("warrior", "Воин", 0xB71C1C),     // Dark Red
     HUNTER("hunter", "Охотник", 0x2E7D32),    // Forest Green
     LUMBERJACK("lumberjack", "Дровосек", 0x8B4513), // Saddle Brown
@@ -16,6 +18,10 @@ public enum SkillType {
         this.id = id;
         this.displayName = displayName;
         this.color = color;
+    }
+
+    public Component getDisplayName() {
+        return Component.translatable("skill.enchant_by_doing." + id);
     }
 
     public static SkillType fromId(String id) {

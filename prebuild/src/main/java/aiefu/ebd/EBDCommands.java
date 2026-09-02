@@ -249,7 +249,7 @@ public class EBDCommands {
     public static int setSkillLevel(CommandContext<CommandSourceStack> ctx, ServerPlayer targetPlayer, String skillId, int level) {
         SkillType type = SkillType.fromId(skillId);
         if (type == null) {
-            ctx.getSource().sendFailure(Component.literal("Skill '" + skillId + "' not found."));
+            ctx.getSource().sendFailure(Component.translatable("eso.command.feedback.skill.notfound", skillId));
             return 0;
         }
         IServerPlayerAcc acc = (IServerPlayerAcc) targetPlayer;
@@ -258,14 +258,14 @@ public class EBDCommands {
         
         EBDCommon.syncPlayerSkills(targetPlayer);
         
-        ctx.getSource().sendSuccess(() -> Component.literal("Set level of " + type.displayName + " for " + targetPlayer.getScoreboardName() + " to " + level), true);
+        ctx.getSource().sendSuccess(() -> Component.translatable("eso.command.feedback.skill.set", type.getDisplayName(), targetPlayer.getDisplayName(), level), true);
         return 1;
     }
 
     public static int addSkillLevel(CommandContext<CommandSourceStack> ctx, ServerPlayer targetPlayer, String skillId, int levelsToAdd) {
         SkillType type = SkillType.fromId(skillId);
         if (type == null) {
-            ctx.getSource().sendFailure(Component.literal("Skill '" + skillId + "' not found."));
+            ctx.getSource().sendFailure(Component.translatable("eso.command.feedback.skill.notfound", skillId));
             return 0;
         }
         IServerPlayerAcc acc = (IServerPlayerAcc) targetPlayer;
@@ -276,14 +276,14 @@ public class EBDCommands {
         
         EBDCommon.syncPlayerSkills(targetPlayer);
         
-        ctx.getSource().sendSuccess(() -> Component.literal("Added " + levelsToAdd + " levels to " + type.displayName + " for " + targetPlayer.getScoreboardName() + " (now " + newLevel + ")"), true);
+        ctx.getSource().sendSuccess(() -> Component.translatable("eso.command.feedback.skill.add", levelsToAdd, type.getDisplayName(), targetPlayer.getDisplayName(), newLevel), true);
         return 1;
     }
 
     public static int getSkillLevelCmd(CommandContext<CommandSourceStack> ctx, ServerPlayer targetPlayer, String skillId) {
         SkillType type = SkillType.fromId(skillId);
         if (type == null) {
-            ctx.getSource().sendFailure(Component.literal("Skill '" + skillId + "' not found."));
+            ctx.getSource().sendFailure(Component.translatable("eso.command.feedback.skill.notfound", skillId));
             return 0;
         }
         IServerPlayerAcc acc = (IServerPlayerAcc) targetPlayer;
@@ -291,7 +291,7 @@ public class EBDCommands {
         double xp = acc.ebd$getSkillXP(type.id);
         double needed = LBDConfig.INSTANCE.getXPNeededForLevel(type.id, level);
         
-        ctx.getSource().sendSuccess(() -> Component.literal(targetPlayer.getScoreboardName() + "'s " + type.displayName + " level is: " + level + " (XP: " + String.format(java.util.Locale.US, "%.1f", xp) + "/" + String.format(java.util.Locale.US, "%.1f", needed) + ")"), true);
+        ctx.getSource().sendSuccess(() -> Component.translatable("eso.command.feedback.skill.get", targetPlayer.getDisplayName(), type.getDisplayName(), level, String.format(java.util.Locale.US, "%.1f", xp), String.format(java.util.Locale.US, "%.1f", needed)), true);
         return 1;
     }
 }

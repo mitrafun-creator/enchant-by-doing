@@ -119,8 +119,8 @@ public class SkillsTreeScreen extends Screen {
                 star.x = 0;
                 star.y = 0;
                 star.type = "start";
-                star.name = type.displayName;
-                star.description = "Стартовая точка созвездия " + type.displayName;
+                star.name = "";
+                star.description = "";
                 star.unlockLevel = 1;
                 constellation.stars.add(star);
                 CONSTELLATIONS.put(type.id, constellation);
@@ -143,7 +143,7 @@ public class SkillsTreeScreen extends Screen {
     private float targetPanX;
     
     public SkillsTreeScreen(float originalPitch) {
-        super(Component.literal("Skills Tree"));
+        super(Component.translatable("skill.enchant_by_doing.screen_title"));
         this.originalPitch = originalPitch;
         
         this.selectedSkillIndex = 0;
@@ -369,7 +369,7 @@ public class SkillsTreeScreen extends Screen {
         graphics.drawCenteredString(font, xpText, centerX, barY - 10, 0xFFE0E0E0);
 
         // Draw centered Skill Name and Level above the XP text
-        String skillNameWithLevel = skillType.displayName + ": " + skillLevel;
+        Component skillNameWithLevel = skillType.getDisplayName().copy().append(": " + skillLevel);
         graphics.drawCenteredString(font, skillNameWithLevel, centerX, barY - 20, skillType.color | 0xFF000000);
 
         // Tooltip checking for any star in any constellation
@@ -480,16 +480,28 @@ public class SkillsTreeScreen extends Screen {
 
     private List<Component> getStarTooltip(StarNode star, int currentLevel) {
         List<Component> tooltip = new ArrayList<>();
-        tooltip.add(Component.literal(star.name).withStyle(net.minecraft.ChatFormatting.GOLD, net.minecraft.ChatFormatting.BOLD));
+        
+        String nameKey = "star.enchant_by_doing." + star.id + ".name";
+        Component starTitle = net.minecraft.locale.Language.getInstance().has(nameKey) ?
+                Component.translatable(nameKey) :
+                Component.literal(star.name != null && !star.name.isEmpty() ? star.name : star.id);
+        tooltip.add(starTitle.copy().withStyle(net.minecraft.ChatFormatting.GOLD, net.minecraft.ChatFormatting.BOLD));
         
         boolean unlocked = currentLevel >= star.unlockLevel;
         if (unlocked) {
-            tooltip.add(Component.literal("Разблокировано (Требуется уровень: " + star.unlockLevel + ")").withStyle(net.minecraft.ChatFormatting.GREEN));
+            tooltip.add(Component.translatable("skill.enchant_by_doing.unlocked", star.unlockLevel).withStyle(net.minecraft.ChatFormatting.GREEN));
         } else {
-            tooltip.add(Component.literal("Заблокировано (Требуется уровень: " + star.unlockLevel + ")").withStyle(net.minecraft.ChatFormatting.RED));
+            tooltip.add(Component.translatable("skill.enchant_by_doing.locked", star.unlockLevel).withStyle(net.minecraft.ChatFormatting.RED));
         }
         
-        if (star.description != null && !star.description.isEmpty()) {
+        String descKey = "star.enchant_by_doing." + star.id + ".desc";
+        if (net.minecraft.locale.Language.getInstance().has(descKey)) {
+            String translatedDesc = net.minecraft.locale.Language.getInstance().getOrDefault(descKey);
+            String[] lines = translatedDesc.split("\n");
+            for (String line : lines) {
+                tooltip.add(Component.literal(line).withStyle(net.minecraft.ChatFormatting.YELLOW));
+            }
+        } else if (star.description != null && !star.description.isEmpty()) {
             String[] lines = star.description.split("\n");
             for (String line : lines) {
                 tooltip.add(Component.literal(line).withStyle(net.minecraft.ChatFormatting.YELLOW));
