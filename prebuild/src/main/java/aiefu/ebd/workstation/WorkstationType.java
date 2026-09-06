@@ -45,6 +45,14 @@ public enum WorkstationType {
         () -> new ItemStack(Items.SMITHING_TABLE),
         TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("enchant_by_doing", "requires_armorer")),
         List.of(Blocks.SMITHING_TABLE, Blocks.BLAST_FURNACE)
+    ),
+    CARTOGRAPHY_TABLE(
+        4,
+        "cartography_table",
+        "workstation.enchant_by_doing.cartography_table",
+        () -> new ItemStack(Items.CARTOGRAPHY_TABLE),
+        TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("enchant_by_doing", "requires_cartography_table")),
+        List.of(Blocks.CARTOGRAPHY_TABLE)
     );
 
     public final int bitIndex;

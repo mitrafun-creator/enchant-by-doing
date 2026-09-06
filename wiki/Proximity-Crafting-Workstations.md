@@ -14,6 +14,18 @@ Workstations scan a **5-block radius** around the Crafting Table or the player (
 | 🔮 **Enchanting Table** | `minecraft:enchanting_table` | **Diamond Equipment:** Diamond Swords, Pickaxes, Axes, Shovels, Hoes, Armor.<br>**Magical & Mystic Artifacts:** Eye of Ender (2x2), End Crystal, Beacon, Conduit, Respawn Anchor, Recovery Compass. | **Crafting the Enchanting Table itself** does NOT require an enchanting table. |
 | 🏹 **Fletching Table** | `minecraft:fletching_table` | **Ranged Weapons & Projectiles:** Bows, Crossbows, Regular Arrows (2x2), Spectral Arrows. | **Crafting the Fletching Table itself** does NOT require a fletching table. |
 | 🛡️ **Armorer / Smithing Station** | `minecraft:smithing_table`<br>`minecraft:blast_furnace` | **Heavy Armor & Defenses:** Iron Armor, Golden Armor, Diamond Armor, Chainmail Armor, Shields, Iron/Golden/Diamond Horse Armor, Wolf Armor. | **Crafting the Smithing Table or Blast Furnace** does NOT require an armorer station. |
+| 🗺️ **Cartography Table** | `minecraft:cartography_table` | **Maps & Navigation:** Empty Maps, Locator Maps, Compasses, Recovery Compasses, Spyglasses. | **Crafting the Cartography Table itself** does NOT require a cartography table. |
+
+---
+
+## ⛏️ Progression Softlock Solution: Emergency Obsidian Mining
+
+Because diamond tools require an **Enchanting Table**, and an Enchanting Table requires **4 Obsidian**, players without diamond tools can obtain obsidian using an **Iron Pickaxe**:
+
+* **Chipping Speed:** Mining Obsidian with an Iron Pickaxe is **very slow** (~30 seconds of continuous chipping per block).
+* **Guaranteed Drop:** The mined Obsidian block is guaranteed to drop as an item.
+* **Tool Shatter:** The Iron Pickaxe is **guaranteed to shatter/break completely** upon mining the obsidian block.
+* **Cost:** Exactly **1 Iron Pickaxe per 1 Obsidian** (crafting an Enchanting Table requires sacrificing 4 Iron Pickaxes).
 
 ---
 
@@ -29,47 +41,24 @@ Advanced recipes require **multiple** workstations simultaneously:
   * Requires: **🔨 Anvil** AND **🔮 Enchanting Table**
 * **🏹 Crossbow:**
   * Requires: **🏹 Fletching Table** AND **🔨 Anvil**
+* **🧭 Compass / Navigation:**
+  * Requires: **🔨 Anvil** AND **🗺️ Cartography Table**
 * **🛡️ Shield:**
   * Requires: **🔨 Anvil** AND **🛡️ Armorer / Smithing Station**
 
-> [!IMPORTANT]
-> If an item requires multiple workstations, **all** of them must be present within 5 blocks. Any missing workstation will simultaneously pulse with a red alert animation!
-
 ---
 
-## 🎒 2x2 Player Inventory Crafting Support
+## 🖥️ Vanilla-Style Crafting GUI & Minimalist Tooltips
 
-The proximity system also seamlessly governs the **2x2 player inventory grid**:
-* Crafting **Shears** or **Flint and Steel** requires standing near an **Anvil**.
-* Crafting **Arrows** requires standing near a **Fletching Table**.
-* Crafting an **Eye of Ender** requires standing near an **Enchanting Table**.
-* If the required station is not nearby, the craft is blocked, and the missing station's badge in your inventory window pulses red!
+The workstation panel in the Crafting Table and Inventory GUI features a clean, unobtrusive vanilla aesthetic:
 
----
-
-## 🖥️ Crafting GUI & Visual Indicators (3x3 Table & 2x2 Inventory)
-
-Whenever you open a **Crafting Table** or your **Inventory (`E`)**, the **Workstation Status Bar** renders on the right side of the window:
-
-```
-    ┌───────────────────────┐  ┌──────┐
-    │   CRAFTING WINDOW     │  │ [🔨] │ ◄── Anvil: Present (Green Outline)
-    │                       │  │ [🔮] │ ◄── Enchanting Table: Missing (Gray)
-    │  [Craft Grid] ──> [ ? ]│  │ [🏹] │ ◄── Fletching: Missing & REQUIRED (Pulsing Red !)
-    │                       │  │ [🛡️] │ ◄── Armorer: Present (Green Outline)
-    └───────────────────────┘  └──────┘
-```
-
-1. **Active/Detected Indicator (🟢 Green Outline):**
-   * Displays when the workstation is detected within 5 blocks.
-   * Features a vibrant green border and corner checkmark badge.
-2. **Inactive Indicator (⚪ Gray Outline):**
-   * Displays when the workstation is absent, but the recipe in the grid does not require it.
-3. **Missing & Required Alert (🔴 Pulsing Red Outline & Exclamation Badge):**
-   * If a recipe requires one or more stations that are missing, the crafting result slot remains **empty/locked**.
-   * Every missing required station **pulses with a red glow** and renders an **`!`** alert badge.
-4. **Interactive Tooltips:**
-   * Hovering over any station badge displays its name, status, and item categories.
+* **Vanilla Slot Framing:** Each workstation icon is housed in a clean, dark vanilla-style slot.
+* **Subtle Active Dot:** Stations present within 5 blocks feature a subtle green corner dot.
+* **Zero Tooltip Clutter:** Hovering over workstations in normal states produces **no tooltip popup**, keeping your screen clean and distraction-free.
+* **Missing & Required Alert:** If a craft is blocked because a station is missing:
+  * The missing station's slot pulses with a red warning animation and a `!` badge.
+  * Hovering over the missing station displays a concise, single-line tooltip:
+    `Для крафта требуется: [Название станции]` / `Requires for crafting: [Station Name]`.
 
 ---
 
@@ -89,3 +78,4 @@ Add or customize workstation requirements via item tags in `data/enchant_by_doin
 * `#enchant_by_doing:requires_enchanting_table`
 * `#enchant_by_doing:requires_fletching_table`
 * `#enchant_by_doing:requires_armorer`
+* `#enchant_by_doing:requires_cartography_table`
