@@ -116,9 +116,9 @@ public class ItemStackMixin {
     @Unique
     private static final ThreadLocal<net.minecraft.world.item.enchantment.ItemEnchantments> EBD$CAPTURED_ENCHANTS = new ThreadLocal<>();
 
-    @Inject(method = "hurtAndBreak(ILnet/minecraft/server/level/ServerLevel;Lnet/minecraft/server/level/ServerPlayer;Ljava/util/function/Consumer;)V", at = @At("HEAD"))
-    private void ebd$beforeHurtAndBreak(int amount, net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player, java.util.function.Consumer<net.minecraft.world.item.Item> onBroken, CallbackInfo ci) {
-        if (player == null || level == null || level.isClientSide()) {
+    @Inject(method = "hurtAndBreak(ILnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LivingEntity;Ljava/util/function/Consumer;)V", at = @At("HEAD"))
+    private void ebd$beforeHurtAndBreak(int amount, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.LivingEntity entity, java.util.function.Consumer<net.minecraft.world.item.Item> onBroken, CallbackInfo ci) {
+        if (!(entity instanceof net.minecraft.server.level.ServerPlayer player) || level == null || level.isClientSide()) {
             EBD$PREV_DAMAGE.remove();
             EBD$CAPTURED_ENCHANTS.remove();
             return;
@@ -133,14 +133,14 @@ public class ItemStackMixin {
         EBD$CAPTURED_ENCHANTS.set(self.getEnchantments());
     }
 
-    @Inject(method = "hurtAndBreak(ILnet/minecraft/server/level/ServerLevel;Lnet/minecraft/server/level/ServerPlayer;Ljava/util/function/Consumer;)V", at = @At("RETURN"))
-    private void ebd$afterHurtAndBreak(int amount, net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player, java.util.function.Consumer<net.minecraft.world.item.Item> onBroken, CallbackInfo ci) {
+    @Inject(method = "hurtAndBreak(ILnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LivingEntity;Ljava/util/function/Consumer;)V", at = @At("RETURN"))
+    private void ebd$afterHurtAndBreak(int amount, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.LivingEntity entity, java.util.function.Consumer<net.minecraft.world.item.Item> onBroken, CallbackInfo ci) {
         Integer prevDamage = EBD$PREV_DAMAGE.get();
         net.minecraft.world.item.enchantment.ItemEnchantments enchants = EBD$CAPTURED_ENCHANTS.get();
         EBD$PREV_DAMAGE.remove();
         EBD$CAPTURED_ENCHANTS.remove();
 
-        if (prevDamage == null || enchants == null || enchants.isEmpty() || player == null || level == null) {
+        if (prevDamage == null || enchants == null || enchants.isEmpty() || !(entity instanceof net.minecraft.server.level.ServerPlayer player) || level == null) {
             return;
         }
 
@@ -169,7 +169,7 @@ public class ItemStackMixin {
             net.minecraft.resources.ResourceLocation loc = holder.unwrapKey()
                     .map(net.minecraft.resources.ResourceKey::location)
                     .orElse(null);
-            if (loc != null && loc.getPath().equals("unbreaking")) {
+            if (loc != null && loc.getPath().contains("unbreaking")) {
                 unbreakingLevel = Math.max(unbreakingLevel, lvl);
             }
         }
@@ -189,6 +189,11 @@ public class ItemStackMixin {
         level.sendParticles(net.minecraft.core.particles.ParticleTypes.ENCHANT,
                 player.getX(), player.getY() + 1.0, player.getZ(),
                 6, 0.3, 0.4, 0.3, 0.05);
+
+        level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                net.minecraft.sounds.SoundEvents.EXPERIENCE_ORB_PICKUP,
+                net.minecraft.sounds.SoundSource.PLAYERS,
+                0.5F, 1.2F + player.getRandom().nextFloat() * 0.4F);
     }
 }
 

@@ -99,7 +99,11 @@ public class LBDConfig {
             xpItemDisenchanted = Double.parseDouble(map.getOrDefault("xp_item_disenchanted", "15.0"));
             xpDustyBookRead = Double.parseDouble(map.getOrDefault("xp_dusty_book_read", "50.0"));
 
-            xpEnchantedItemUseChance = Integer.parseInt(map.getOrDefault("xp_enchanted_item_use_chance", "25"));
+            try {
+                xpEnchantedItemUseChance = (int) Math.round(Double.parseDouble(map.getOrDefault("xp_enchanted_item_use_chance", "25")));
+            } catch (Exception e) {
+                xpEnchantedItemUseChance = 25;
+            }
             xpEnchantedItemUseBasePerEnchant = Double.parseDouble(map.getOrDefault("xp_enchanted_item_use_base_per_enchant", "2.0"));
             xpEnchantedItemUsePerLevel = Double.parseDouble(map.getOrDefault("xp_enchanted_item_use_per_level", "1.5"));
             xpEnchantedItemUseUnbreakingMultiplier = Double.parseDouble(map.getOrDefault("xp_enchanted_item_use_unbreaking_multiplier", "1.0"));
