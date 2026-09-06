@@ -183,6 +183,8 @@
   "workstation.enchant_by_doing.armorer.desc": "Required for forging heavy armor, shields, and barding.",
   "workstation.enchant_by_doing.cartography_table": "Cartography Table",
   "workstation.enchant_by_doing.cartography_table.desc": "Required for crafting maps, compasses, and navigational tools.",
+  "workstation.enchant_by_doing.grindstone": "Grindstone",
+  "workstation.enchant_by_doing.grindstone.desc": "Required for sharpening swords, cutting tools, and shears.",
   "workstation.enchant_by_doing.status.present": "✔ Detected nearby (within 5 blocks)",
   "workstation.enchant_by_doing.status.absent": "✖ Not detected nearby",
   "workstation.enchant_by_doing.status.required_missing": "⚠ REQUIRED for this craft, but missing nearby!",

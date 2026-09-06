@@ -38,7 +38,7 @@ public abstract class CraftingMenuMixin {
 
     @Inject(method = "<init>(ILnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/inventory/ContainerLevelAccess;)V", at = @At("TAIL"))
     private void onInit(int containerId, Inventory playerInventory, ContainerLevelAccess access, CallbackInfo ci) {
-        if (!this.player.level().isClientSide() && this.player instanceof ServerPlayer sp) {
+        if (!this.player.level().isClientSide() && this.player instanceof ServerPlayer sp && sp.connection != null && !(sp instanceof net.neoforged.neoforge.common.util.FakePlayer)) {
             if (!LBDConfig.INSTANCE.enableCraftingWorkstations) return;
             this.access.execute((level, pos) -> {
                 int radius = LBDConfig.INSTANCE.workstationDetectionRadius;
@@ -50,7 +50,7 @@ public abstract class CraftingMenuMixin {
 
     @Inject(method = "slotsChanged", at = @At("TAIL"))
     private void onSlotsChanged(Container container, CallbackInfo ci) {
-        if (!this.player.level().isClientSide() && this.player instanceof ServerPlayer sp) {
+        if (!this.player.level().isClientSide() && this.player instanceof ServerPlayer sp && sp.connection != null && !(sp instanceof net.neoforged.neoforge.common.util.FakePlayer)) {
             if (!LBDConfig.INSTANCE.enableCraftingWorkstations) return;
 
             this.access.execute((level, pos) -> {

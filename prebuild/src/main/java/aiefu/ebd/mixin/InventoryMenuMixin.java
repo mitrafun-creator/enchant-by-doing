@@ -34,21 +34,9 @@ public abstract class InventoryMenuMixin {
     @Shadow @Final private ResultContainer resultSlots;
     @Shadow @Final private Player owner;
 
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private void onInit(Inventory playerInventory, boolean active, final Player owner, CallbackInfo ci) {
-        if (!this.owner.level().isClientSide() && this.owner instanceof ServerPlayer sp) {
-            if (!LBDConfig.INSTANCE.enableCraftingWorkstations) return;
-            Level level = this.owner.level();
-            BlockPos pos = this.owner.blockPosition();
-            int radius = LBDConfig.INSTANCE.workstationDetectionRadius;
-            byte nearbyMask = WorkstationHelper.getNearbyWorkstationsMask(level, pos, radius);
-            PacketDistributor.sendToPlayer(sp, new S2CWorkstationStatusPayload(nearbyMask, (byte) 0));
-        }
-    }
-
     @Inject(method = "slotsChanged", at = @At("TAIL"))
     private void onSlotsChanged(Container container, CallbackInfo ci) {
-        if (!this.owner.level().isClientSide() && this.owner instanceof ServerPlayer sp) {
+        if (!this.owner.level().isClientSide() && this.owner instanceof ServerPlayer sp && sp.connection != null && !(sp instanceof net.neoforged.neoforge.common.util.FakePlayer)) {
             if (!LBDConfig.INSTANCE.enableCraftingWorkstations) return;
 
             Level level = this.owner.level();

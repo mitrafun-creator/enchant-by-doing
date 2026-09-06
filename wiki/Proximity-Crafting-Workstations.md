@@ -15,6 +15,7 @@ Workstations scan a **5-block radius** around the Crafting Table or the player (
 | 🏹 **Fletching Table** | `minecraft:fletching_table` | **Ranged Weapons & Projectiles:** Bows, Crossbows, Regular Arrows (2x2), Spectral Arrows. | **Crafting the Fletching Table itself** does NOT require a fletching table. |
 | 🛡️ **Armorer / Smithing Station** | `minecraft:smithing_table`<br>`minecraft:blast_furnace` | **Heavy Armor & Defenses:** Iron Armor, Golden Armor, Diamond Armor, Chainmail Armor, Shields, Iron/Golden/Diamond Horse Armor, Wolf Armor. | **Crafting the Smithing Table or Blast Furnace** does NOT require an armorer station. |
 | 🗺️ **Cartography Table** | `minecraft:cartography_table` | **Maps & Navigation:** Empty Maps, Locator Maps, Compasses, Recovery Compasses, Spyglasses. | **Crafting the Cartography Table itself** does NOT require a cartography table. |
+| 🪨 **Grindstone** | `minecraft:grindstone` | **Blades, Cutting Tools & Edges:** Stone/Iron/Golden/Diamond/Netherite Swords, Shears (2x2), Stone/Iron/Golden/Diamond/Netherite Axes. | **Crafting the Grindstone itself** does NOT require a grindstone. |
 
 ---
 
@@ -33,32 +34,26 @@ Because diamond tools require an **Enchanting Table**, and an Enchanting Table r
 
 Advanced recipes require **multiple** workstations simultaneously:
 
-* **🛡️ Iron Armor (Helmet, Chestplate, Leggings, Boots):**
-  * Requires: **🔨 Anvil** AND **🛡️ Armorer / Smithing Station**
-* **💎 Diamond Armor (Helmet, Chestplate, Leggings, Boots):**
-  * Requires: **🔨 Anvil** AND **🛡️ Armorer / Smithing Station** AND **🔮 Enchanting Table**
-* **⛏️ Diamond Tools & Weapons (Sword, Pickaxe, Axe, Shovel, Hoe):**
-  * Requires: **🔨 Anvil** AND **🔮 Enchanting Table**
-* **🏹 Crossbow:**
-  * Requires: **🏹 Fletching Table** AND **🔨 Anvil**
-* **🧭 Compass / Navigation:**
-  * Requires: **🔨 Anvil** AND **🗺️ Cartography Table**
-* **🛡️ Shield:**
-  * Requires: **🔨 Anvil** AND **🛡️ Armorer / Smithing Station**
+* **⚔️ Iron Sword:** Requires **🔨 Anvil** AND **🪨 Grindstone**
+* **💎 Diamond Sword:** Requires **🔨 Anvil** AND **🪨 Grindstone** AND **🔮 Enchanting Table**
+* **✂️ Shears:** Requires **🔨 Anvil** AND **🪨 Grindstone**
+* **🪓 Iron Axe:** Requires **🔨 Anvil** AND **🪨 Grindstone**
+* **🛡️ Iron Armor:** Requires **🔨 Anvil** AND **🛡️ Armorer / Smithing Station**
+* **💎 Diamond Armor:** Requires **🔨 Anvil** AND **🛡️ Armorer / Smithing Station** AND **🔮 Enchanting Table**
+* **⛏️ Diamond Pickaxe:** Requires **🔨 Anvil** AND **🔮 Enchanting Table**
+* **🏹 Crossbow:** Requires **🏹 Fletching Table** AND **🔨 Anvil**
+* **🧭 Compass:** Requires **🔨 Anvil** AND **🗺️ Cartography Table**
 
 ---
 
 ## 🖥️ Vanilla-Style Crafting GUI & Minimalist Tooltips
 
-The workstation panel in the Crafting Table and Inventory GUI features a clean, unobtrusive vanilla aesthetic:
-
-* **Vanilla Slot Framing:** Each workstation icon is housed in a clean, dark vanilla-style slot.
+* **Vanilla Slot Framing:** Workstation icons are rendered inside clean, dark vanilla-style slots.
 * **Subtle Active Dot:** Stations present within 5 blocks feature a subtle green corner dot.
-* **Zero Tooltip Clutter:** Hovering over workstations in normal states produces **no tooltip popup**, keeping your screen clean and distraction-free.
+* **Zero Tooltip Clutter:** Hovering over workstations in normal states produces **no tooltip popup**.
 * **Missing & Required Alert:** If a craft is blocked because a station is missing:
   * The missing station's slot pulses with a red warning animation and a `!` badge.
-  * Hovering over the missing station displays a concise, single-line tooltip:
-    `Для крафта требуется: [Название станции]` / `Requires for crafting: [Station Name]`.
+  * Hovering over the missing station displays: `Для крафта требуется: [Название станции]` / `Requires for crafting: [Station Name]`.
 
 ---
 
@@ -67,7 +62,6 @@ The workstation panel in the Crafting Table and Inventory GUI features a clean, 
 All workstation mechanics can be toggled and configured via `config/ebd/config.yml`:
 
 ```yaml
-# Proximity-based Crafting Workstations settings
 enable_crafting_workstations: true
 workstation_detection_radius: 5
 ```
@@ -79,3 +73,4 @@ Add or customize workstation requirements via item tags in `data/enchant_by_doin
 * `#enchant_by_doing:requires_fletching_table`
 * `#enchant_by_doing:requires_armorer`
 * `#enchant_by_doing:requires_cartography_table`
+* `#enchant_by_doing:requires_grindstone`

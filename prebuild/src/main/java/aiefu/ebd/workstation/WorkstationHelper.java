@@ -57,6 +57,7 @@ public class WorkstationHelper {
         if (item == Items.FLETCHING_TABLE) return 0;
         if (item == Items.SMITHING_TABLE || item == Items.BLAST_FURNACE) return 0;
         if (item == Items.CARTOGRAPHY_TABLE) return 0;
+        if (item == Items.GRINDSTONE) return 0;
 
         byte mask = 0;
         for (WorkstationType type : WorkstationType.values()) {

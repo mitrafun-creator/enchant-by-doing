@@ -53,6 +53,14 @@ public enum WorkstationType {
         () -> new ItemStack(Items.CARTOGRAPHY_TABLE),
         TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("enchant_by_doing", "requires_cartography_table")),
         List.of(Blocks.CARTOGRAPHY_TABLE)
+    ),
+    GRINDSTONE(
+        5,
+        "grindstone",
+        "workstation.enchant_by_doing.grindstone",
+        () -> new ItemStack(Items.GRINDSTONE),
+        TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("enchant_by_doing", "requires_grindstone")),
+        List.of(Blocks.GRINDSTONE)
     );
 
     public final int bitIndex;
