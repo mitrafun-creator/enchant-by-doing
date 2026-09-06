@@ -35,6 +35,14 @@ public class ServerPlayerMixins implements IServerPlayerAcc {
     private final Map<String, Integer> skillLevels = new HashMap<>();
     @Unique
     private final Map<String, Double> skillXPs = new HashMap<>();
+    @Unique
+    private int globalLevel = 1;
+    @Unique
+    private double globalXP = 0.0;
+    @Unique
+    private int skillPoints = 0;
+    @Unique
+    private final Map<String, Integer> perkLevels = new HashMap<>();
 
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
     private void saveUnlockedEnchantmentsDataEOVR(CompoundTag compound, CallbackInfo ci){
@@ -54,6 +62,15 @@ public class ServerPlayerMixins implements IServerPlayerAcc {
         tag.put("Skills", skillsTag);
         tag.putLong("SecondBreathCooldown", this.secondBreathCooldown);
 
+        CompoundTag globalTag = new CompoundTag();
+        globalTag.putInt("GlobalLevel", this.globalLevel);
+        globalTag.putDouble("GlobalXP", this.globalXP);
+        globalTag.putInt("SkillPoints", this.skillPoints);
+        CompoundTag perksTag = new CompoundTag();
+        perkLevels.forEach(perksTag::putInt);
+        globalTag.put("Perks", perksTag);
+        tag.put("Global", globalTag);
+
         compound.put("ebddata", tag);
     }
 
@@ -62,6 +79,10 @@ public class ServerPlayerMixins implements IServerPlayerAcc {
         this.unlockedEnchantments.clear();
         this.skillLevels.clear();
         this.skillXPs.clear();
+        this.globalLevel = 1;
+        this.globalXP = 0.0;
+        this.skillPoints = 0;
+        this.perkLevels.clear();
         Registry<Enchantment> registry = ((ServerPlayer)(Object)this).level().registryAccess().registryOrThrow(Registries.ENCHANTMENT);
 
         if(compound.contains("UnlockedEnchs", Tag.TAG_LIST)){
@@ -116,7 +137,41 @@ public class ServerPlayerMixins implements IServerPlayerAcc {
                     }
                 }
             }
+            if (ebdData.contains("Global", Tag.TAG_COMPOUND)) {
+                CompoundTag globalTag = ebdData.getCompound("Global");
+                this.globalLevel = Math.max(1, globalTag.getInt("GlobalLevel"));
+                this.globalXP = globalTag.getDouble("GlobalXP");
+                this.skillPoints = Math.max(0, globalTag.getInt("SkillPoints"));
+                if (globalTag.contains("Perks", Tag.TAG_COMPOUND)) {
+                    CompoundTag perksTag = globalTag.getCompound("Perks");
+                    for (String key : perksTag.getAllKeys()) {
+                        this.perkLevels.put(key, perksTag.getInt(key));
+                    }
+                }
+            } else {
+                double retroactiveXP = 0;
+                for (SkillType st : SkillType.values()) {
+                    int lvl = this.skillLevels.getOrDefault(st.id, 1);
+                    for (int l = 2; l <= lvl; l++) {
+                        retroactiveXP += l;
+                    }
+                }
+                if (retroactiveXP > 0) {
+                    this.globalLevel = 1;
+                    this.globalXP = 0.0;
+                    this.skillPoints = 0;
+                    double needed = aiefu.ebd.GlobalPerks.getNeededXPForLevel(this.globalLevel);
+                    while (retroactiveXP >= needed) {
+                        retroactiveXP -= needed;
+                        this.globalLevel++;
+                        this.skillPoints++;
+                        needed = aiefu.ebd.GlobalPerks.getNeededXPForLevel(this.globalLevel);
+                    }
+                    this.globalXP = retroactiveXP;
+                }
+            }
         }
+        ebd$applyGlobalPerkAttributes();
     }
 
     @Override
@@ -157,11 +212,13 @@ public class ServerPlayerMixins implements IServerPlayerAcc {
         double newXp = currentXp + amount;
         double needed = LBDConfig.INSTANCE.getXPNeededForLevel(skill, currentLevel);
         boolean levelUp = false;
+        double levelsGainedXP = 0;
         while (newXp >= needed) {
             newXp -= needed;
             currentLevel++;
             needed = LBDConfig.INSTANCE.getXPNeededForLevel(skill, currentLevel);
             levelUp = true;
+            levelsGainedXP += currentLevel;
         }
         ebd$setSkillLevel(skill, currentLevel);
         ebd$setSkillXP(skill, newXp);
@@ -171,9 +228,73 @@ public class ServerPlayerMixins implements IServerPlayerAcc {
             Component skillComp = sType != null ? sType.getDisplayName() : Component.literal(skill);
             player.sendSystemMessage(Component.literal("§6❖ ").append(Component.translatable("skill.enchant_by_doing.level_up", skillComp, currentLevel).withStyle(net.minecraft.ChatFormatting.YELLOW)));
             player.playNotifySound(net.minecraft.sounds.SoundEvents.PLAYER_LEVELUP, net.minecraft.sounds.SoundSource.PLAYERS, 0.5f, 1.2f);
+            ebd$addGlobalXP(levelsGainedXP, player);
         }
 
         aiefu.ebd.network.ServersideNetworkManager.sendSkillUpdate(player, skill, currentLevel, newXp, needed, amount);
+    }
+
+    @Override
+    public int ebd$getGlobalLevel() { return globalLevel; }
+    @Override
+    public void ebd$setGlobalLevel(int level) { this.globalLevel = Math.max(1, level); }
+    @Override
+    public double ebd$getGlobalXP() { return globalXP; }
+    @Override
+    public void ebd$setGlobalXP(double xp) { this.globalXP = xp; }
+    @Override
+    public int ebd$getSkillPoints() { return skillPoints; }
+    @Override
+    public void ebd$setSkillPoints(int points) { this.skillPoints = Math.max(0, points); }
+    @Override
+    public int ebd$getPerkLevel(String perkId) { return perkLevels.getOrDefault(perkId, 0); }
+    @Override
+    public void ebd$setPerkLevel(String perkId, int level) { perkLevels.put(perkId, level); }
+    @Override
+    public Map<String, Integer> ebd$getAllPerks() { return new HashMap<>(perkLevels); }
+
+    @Override
+    public void ebd$addGlobalXP(double amount, ServerPlayer player) {
+        if (!LBDConfig.INSTANCE.enableGlobalLevelSystem) return;
+        if (player.level().isClientSide() || amount <= 0) return;
+        double currentXp = this.globalXP + amount;
+        double needed = aiefu.ebd.GlobalPerks.getNeededXPForLevel(this.globalLevel);
+        boolean leveledUp = false;
+        while (currentXp >= needed) {
+            currentXp -= needed;
+            this.globalLevel++;
+            this.skillPoints++;
+            needed = aiefu.ebd.GlobalPerks.getNeededXPForLevel(this.globalLevel);
+            leveledUp = true;
+        }
+        this.globalXP = currentXp;
+
+        if (leveledUp) {
+            player.sendSystemMessage(Component.literal("§6❖ ").append(
+                Component.translatable("global_level.enchant_by_doing.level_up", this.globalLevel, this.skillPoints)
+                    .withStyle(net.minecraft.ChatFormatting.GOLD, net.minecraft.ChatFormatting.BOLD)
+            ));
+            player.playNotifySound(net.minecraft.sounds.SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, net.minecraft.sounds.SoundSource.PLAYERS, 0.7f, 1.0f);
+            player.playNotifySound(net.minecraft.sounds.SoundEvents.PLAYER_LEVELUP, net.minecraft.sounds.SoundSource.PLAYERS, 0.8f, 1.3f);
+        }
+
+        aiefu.ebd.network.ServersideNetworkManager.sendGlobalSync(player);
+    }
+
+    @Override
+    public void ebd$applyGlobalPerkAttributes() {
+        ServerPlayer player = (ServerPlayer) (Object) this;
+        var attr = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
+        if (attr != null) {
+            ResourceLocation modId = ResourceLocation.fromNamespaceAndPath(EBDCommon.MOD_ID, "global_perk_health");
+            attr.removeModifier(modId);
+            int healthRank = ebd$getPerkLevel("health_boost");
+            if (healthRank > 0) {
+                attr.addOrUpdateTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
+                    modId, healthRank * 1.0, net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE
+                ));
+            }
+        }
     }
 
     @Unique

@@ -160,4 +160,15 @@ public class ServersideNetworkManager {
     public static void sendSkillUpdate(ServerPlayer player, String skillId, int level, double xp, double neededXp, double xpGained) {
         PacketDistributor.sendToPlayer(player, new S2CSkillUpdatePayload(skillId, level, xp, neededXp, xpGained));
     }
+
+    public static void sendGlobalSync(ServerPlayer player) {
+        if (player instanceof aiefu.ebd.IServerPlayerAcc acc) {
+            int level = acc.ebd$getGlobalLevel();
+            double xp = acc.ebd$getGlobalXP();
+            double needed = aiefu.ebd.GlobalPerks.getNeededXPForLevel(level);
+            int points = acc.ebd$getSkillPoints();
+            java.util.Map<String, Integer> perks = acc.ebd$getAllPerks();
+            PacketDistributor.sendToPlayer(player, new S2CGlobalDataSyncPayload(level, xp, needed, points, perks));
+        }
+    }
 }

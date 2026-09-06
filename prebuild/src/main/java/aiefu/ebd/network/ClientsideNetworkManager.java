@@ -32,10 +32,28 @@ public class ClientsideNetworkManager {
     public static byte clientRequiredWorkstationsMask = 0;
     public static byte clientMissingWorkstationsMask = 0;
 
+    public static int clientGlobalLevel = 1;
+    public static double clientGlobalXp = 0.0;
+    public static double clientNeededGlobalXp = 100.0;
+    public static int clientSkillPoints = 0;
+    public static final java.util.Map<String, Integer> clientPerks = new java.util.HashMap<>();
+
     public static void handleWorkstationStatus(S2CWorkstationStatusPayload payload) {
         clientNearbyWorkstationsMask = payload.nearbyMask();
         clientRequiredWorkstationsMask = payload.requiredMask();
         clientMissingWorkstationsMask = (byte) (clientRequiredWorkstationsMask & ~clientNearbyWorkstationsMask);
+    }
+
+    public static void handleGlobalDataSync(S2CGlobalDataSyncPayload payload) {
+        Minecraft client = Minecraft.getInstance();
+        client.execute(() -> {
+            clientGlobalLevel = payload.globalLevel();
+            clientGlobalXp = payload.globalXp();
+            clientNeededGlobalXp = payload.neededGlobalXp();
+            clientSkillPoints = payload.skillPoints();
+            clientPerks.clear();
+            clientPerks.putAll(payload.perks());
+        });
     }
 
     public static void reset() {

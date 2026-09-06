@@ -60,15 +60,21 @@ public abstract class CraftingMenuMixin {
 
     @Inject(method = "quickMoveStack", at = @At("HEAD"), cancellable = true)
     private void onQuickMoveStack(Player player, int index, CallbackInfoReturnable<ItemStack> cir) {
-        if (index == 0 && LBDConfig.INSTANCE.enableCraftingWorkstations) {
+        if (index == 0) {
             ItemStack result = this.resultSlots.getItem(0);
             if (!result.isEmpty()) {
-                byte reqMask = WorkstationHelper.getRequiredWorkstationsMask(result);
-                if (reqMask != 0) {
-                    int radius = LBDConfig.INSTANCE.workstationDetectionRadius;
-                    byte nearbyMask = WorkstationHelper.getNearbyWorkstationsMask(player.level(), player.blockPosition(), radius);
-                    if ((reqMask & ~nearbyMask) != 0) {
-                        cir.setReturnValue(ItemStack.EMPTY);
+                if (aiefu.ebd.GlobalPerks.isItemLockedForPlayer(player, result)) {
+                    cir.setReturnValue(ItemStack.EMPTY);
+                    return;
+                }
+                if (LBDConfig.INSTANCE.enableCraftingWorkstations) {
+                    byte reqMask = WorkstationHelper.getRequiredWorkstationsMask(result);
+                    if (reqMask != 0) {
+                        int radius = LBDConfig.INSTANCE.workstationDetectionRadius;
+                        byte nearbyMask = WorkstationHelper.getNearbyWorkstationsMask(player.level(), player.blockPosition(), radius);
+                        if ((reqMask & ~nearbyMask) != 0) {
+                            cir.setReturnValue(ItemStack.EMPTY);
+                        }
                     }
                 }
             }
@@ -87,6 +93,26 @@ public abstract class CraftingMenuMixin {
     ) {
         if (level.isClientSide()) return;
         if (!(player instanceof ServerPlayer sp) || sp.connection == null || (sp instanceof net.neoforged.neoforge.common.util.FakePlayer)) return;
+
+        ItemStack currentResult = resultSlots.getItem(0);
+        if (!currentResult.isEmpty() && aiefu.ebd.GlobalPerks.isItemLockedForPlayer(sp, currentResult)) {
+            resultSlots.setItem(0, ItemStack.EMPTY);
+            menu.setRemoteSlot(0, ItemStack.EMPTY);
+            sp.connection.send(new net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket(
+                    menu.containerId, menu.incrementStateId(), 0, ItemStack.EMPTY
+            ));
+            aiefu.ebd.GlobalPerks.Perk perk = aiefu.ebd.GlobalPerks.getRequiredPerk(currentResult);
+            if (perk != null) {
+                sp.displayClientMessage(
+                        net.minecraft.network.chat.Component.literal("§c🔒 Для создания этого предмета требуется перк: §6")
+                                .append(perk.getDisplayName())
+                                .append(" §c(§e" + perk.costPerLevel + " очк.§c)"),
+                        true
+                );
+            }
+            return;
+        }
+
         if (!LBDConfig.INSTANCE.enableCraftingWorkstations) return;
 
         BlockPos pos = sp.blockPosition();
@@ -96,7 +122,7 @@ public abstract class CraftingMenuMixin {
         int radius = LBDConfig.INSTANCE.workstationDetectionRadius;
         byte nearbyMask = WorkstationHelper.getNearbyWorkstationsMask(level, pos, radius);
 
-        ItemStack currentResult = resultSlots.getItem(0);
+        currentResult = resultSlots.getItem(0);
         byte reqMask = 0;
 
         if (!currentResult.isEmpty()) {

@@ -307,5 +307,91 @@
             }
         ],
         "connections": []
+    },
+    "global": {
+        "stars": [
+            {
+                "id": "global_core",
+                "x": 0,
+                "y": 0,
+                "type": "start",
+                "name": "Душа героя",
+                "description": "Глобальный уровень персонажа.\nКаждый уровень любого навыка дарует опыт для развития героя.",
+                "unlockLevel": 1
+            },
+            {
+                "id": "health_boost",
+                "x": 0,
+                "y": -90,
+                "type": "perk",
+                "name": "Крепкое здоровье",
+                "description": "Увеличивает максимальный запас здоровья на +0.5 сердца (+1 HP) за каждый ранг.\nМаксимум 20 рангов (+10 сердец).\nСтоимость: 1 очко навыков за ранг.",
+                "unlockLevel": 1
+            },
+            {
+                "id": "perk_magic",
+                "x": 80,
+                "y": -65,
+                "type": "perk",
+                "name": "Магия",
+                "description": "Разблокирует создание стола зачарования.\nСтоимость: 3 очка навыков.",
+                "unlockLevel": 1
+            },
+            {
+                "id": "perk_alchemy",
+                "x": 110,
+                "y": 15,
+                "type": "perk",
+                "name": "Алхимия",
+                "description": "Разблокирует создание зельеварочной стойки.\nСтоимость: 2 очка навыков.",
+                "unlockLevel": 1
+            },
+            {
+                "id": "perk_ancient_knowledge",
+                "x": 75,
+                "y": 90,
+                "type": "perk",
+                "name": "Древние знания",
+                "description": "Разблокирует создание незеритового слитка на верстаке.\nСтоимость: 5 очков навыков.",
+                "unlockLevel": 1
+            },
+            {
+                "id": "perk_engineering",
+                "x": -75,
+                "y": 90,
+                "type": "perk",
+                "name": "Инженерия",
+                "description": "Разблокирует создание всех механизмов и компонентов редстоуна (поршни, повторители, компараторы, раздатчики, наблюдатели, воронки, рельсы и т.д.).\nСтоимость: 4 очка навыков.",
+                "unlockLevel": 1
+            },
+            {
+                "id": "perk_construction",
+                "x": -110,
+                "y": 15,
+                "type": "perk",
+                "name": "Строительство",
+                "description": "Разблокирует создание строительных лесов и всех видов сухих бетонов (цемента).\nСтоимость: 1 очко навыков.",
+                "unlockLevel": 1
+            },
+            {
+                "id": "perk_fisherman",
+                "x": -80,
+                "y": -65,
+                "type": "perk",
+                "name": "Рыбак",
+                "description": "Разблокирует создание лодок (включая лодки с сундуками и плоты) и удочки.\nСтоимость: 1 очко навыков.",
+                "unlockLevel": 1
+            }
+        ],
+        "connections": [
+            ["global_core", "health_boost"],
+            ["global_core", "perk_magic"],
+            ["perk_magic", "perk_alchemy"],
+            ["perk_alchemy", "perk_ancient_knowledge"],
+            ["global_core", "perk_engineering"],
+            ["perk_engineering", "perk_construction"],
+            ["perk_construction", "perk_fisherman"],
+            ["perk_fisherman", "health_boost"]
+        ]
     }
 }

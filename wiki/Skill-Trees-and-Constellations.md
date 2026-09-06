@@ -27,9 +27,11 @@ Pressing **`K`** (default keybind) transports the player into a celestial Skyrim
 ```
 
 ### 🎮 GUI Controls & Navigation
-* **`A` / `D` or `Left Arrow` / `Right Arrow`:** Smoothly rotate and pan between skill constellations in circular 360° carousel order.
+* **`A` / `D` or `Left Arrow` / `Right Arrow`:** Smoothly rotate and pan between the 6 skill constellations in circular 360° carousel order.
+* **`W` / `S` or `Up Arrow` / `Down Arrow`:** Glide between the horizontal Skills ribbon and the **Global Hero Constellation (Древо Героя)** via vertical looped navigation.
 * **`Mouse Drag` (Left Click Hold):** Pan freely across the celestial sky to inspect star arrangements.
-* **`Mouse Hover`:** Hovering over any star displays a detailed tooltip showing its perk name, unlock level, current status (`Unlocked` / `Locked`), and complete gameplay description.
+* **`Mouse Hover`:** Hovering over any star displays a detailed tooltip showing its perk name, unlock level, cost in skill points, current rank, and gameplay description.
+* **`Left Click on Perk Star`:** (In Global Hero layer) Purchase or upgrade the perk if you have available Skill Points.
 * **`Esc` or `K`:** Exit the sky screen and smoothly restore ambient game audio.
 
 ---
@@ -168,6 +170,40 @@ Experience requirements per level are governed by two distinct systems:
 | `enchanter_node3` | **Arcane Extraction** | **Lvl 50** | Disenchanting at a Grindstone has a **15% chance** to extract a removed enchantment back into an empty book in your inventory. Increases max item enchantment capacity by **+1**. |
 | `enchanter_node4` | **Alchemical Hurler** | **Lvl 75** | Beneficial potion durations increased by **+50%** (+100% at lvl 100), potion drink time cut in half. Drinking hurls the empty glass bottle as a kinetic projectile dealing **6 damage**. |
 | `enchanter_node5` | **Supreme Capacity** | **Lvl 100** | Expands item enchantment limit by an additional **+1** (total **+2 enchantments above vanilla limit**). |
+
+---
+
+## 🌟 7. Global Character Level & Hero Constellation (Древо Героя)
+
+Inspired by the Skyrim progression system, Enchant by Doing features a meta **Global Character Level** that ties together all individual disciplines.
+
+### 📈 Global Progression Formula
+* Whenever any of the 6 skills increases to Level $L$, the player earns **$+L$ Character XP**.
+* Experience required to reach the next character level $N$:
+  $$\text{XP}_{\text{needed}}(N) = (N + 3) \times 25$$
+* Each global level-up grants **+1 Skill Point** (Очко навыков) and triggers a celestial sound fanfare and chat announcement.
+* Existing player saves are automatically upgraded retroactively based on already earned skill levels.
+
+### 🌌 Navigation & Layer Switching
+In the sky GUI (`K`), press **`W` / `S`** or **`Up` / `Down` Arrow** to glide smoothly into the **Global Constellation (Древо Героя)**. The UI shows your total Hero Level, progress bar towards next level, and available Skill Points.
+
+### ⭐ Global Hero Perks & Recipe Unlocks
+
+Perks are purchased directly by clicking on their stars in the celestial sky. Several core recipes in the game are gated behind these perks; attempting to craft a locked item displays a red action bar prompt and prevents craft completion:
+
+| Perk ID | Name | Max Level | Cost (Points) | Description & Unlock Benefits |
+|---|---|:---:|:---:|---|
+| `health_boost` | **Крепкое здоровье** (Health Boost) | **20** | 1 per rank | Increases player Max Health by **+0.5 heart (+1 HP)** per level. Reaches **+10 extra hearts (+20 HP)** at rank 20. |
+| `perk_fisherman` | **Рыбак** (Fisherman) | 1 | 1 | Unlocks crafting for all **Boats** (including chest boats and rafts) and the **Fishing Rod**. |
+| `perk_magic` | **Магия** (Magic) | 1 | 3 | Unlocks crafting for the **Enchanting Table**. |
+| `perk_alchemy` | **Алхимия** (Alchemy) | 1 | 2 | Unlocks crafting for the **Brewing Stand**. |
+| `perk_engineering` | **Инженерия** (Engineering) | 1 | 4 | Unlocks crafting for all **Redstone mechanisms and components** (pistons, sticky pistons, redstone torches, repeaters, comparators, dispensers, droppers, observers, hoppers, target blocks, daylight detectors, redstone lamps, crafters, note blocks, redstone blocks, TNT, tripwire hooks, trapped chests, powered/detector/activator rails, minecarts with components). |
+| `perk_ancient_knowledge` | **Древние знания** (Ancient Knowledge) | 1 | 5 | Unlocks crafting of **Netherite Ingots** on the crafting table. |
+| `perk_construction` | **Строительство** (Construction) | 1 | 1 | Unlocks crafting for **Scaffolding** and all 16 colors of **Concrete Powder**. |
+
+> [!NOTE]
+> Locked items display a prominent red tooltip: `🔒 Требуется перк: <Название> (<Очки> очк.)`.
+> If a player attempts to pull a locked item from a Crafting Table or 2x2 grid, the result is cancelled and an action bar notification is shown.
 
 ---
 

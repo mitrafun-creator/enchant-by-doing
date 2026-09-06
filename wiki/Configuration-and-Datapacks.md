@@ -66,6 +66,9 @@ enchanter_discount_per_level: 1.0
 # Weapon tags and registry IDs for Warrior and Lumberjack XP
 warrior_weapons: "minecraft:wooden_sword,minecraft:stone_sword,minecraft:iron_sword,minecraft:golden_sword,minecraft:diamond_sword,minecraft:netherite_sword"
 lumberjack_weapons: "minecraft:wooden_axe,minecraft:stone_axe,minecraft:iron_axe,minecraft:golden_axe,minecraft:diamond_axe,minecraft:netherite_axe"
+
+# Global Skyrim-style Character Level & Perks system
+enable_global_level_system: true
 ```
 
 ---

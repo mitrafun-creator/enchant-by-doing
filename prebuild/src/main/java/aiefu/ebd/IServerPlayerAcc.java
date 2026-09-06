@@ -19,4 +19,16 @@ public interface IServerPlayerAcc {
     void ebd$setLumberjackPenaltyTime(long time);
     long ebd$getSecondBreathCooldown();
     void ebd$setSecondBreathCooldown(long time);
+
+    int ebd$getGlobalLevel();
+    void ebd$setGlobalLevel(int level);
+    double ebd$getGlobalXP();
+    void ebd$setGlobalXP(double xp);
+    int ebd$getSkillPoints();
+    void ebd$setSkillPoints(int points);
+    int ebd$getPerkLevel(String perkId);
+    void ebd$setPerkLevel(String perkId, int level);
+    java.util.Map<String, Integer> ebd$getAllPerks();
+    void ebd$addGlobalXP(double amount, net.minecraft.server.level.ServerPlayer player);
+    void ebd$applyGlobalPerkAttributes();
 }

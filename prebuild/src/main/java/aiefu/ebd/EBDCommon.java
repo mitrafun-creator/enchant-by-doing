@@ -289,6 +289,33 @@ public class EBDCommon {
                 }
             })
         );
+        registrar.playToServer(
+            C2SUnlockPerkPayload.TYPE,
+            C2SUnlockPerkPayload.CODEC,
+            (payload, context) -> context.enqueueWork(() -> {
+                net.minecraft.world.entity.player.Player player = context.player();
+                if (player instanceof ServerPlayer sp && sp instanceof IServerPlayerAcc acc) {
+                    GlobalPerks.Perk perk = GlobalPerks.getById(payload.perkId());
+                    if (perk != null) {
+                        int currentRank = acc.ebd$getPerkLevel(perk.id);
+                        if (currentRank < perk.maxLevel && acc.ebd$getSkillPoints() >= perk.costPerLevel) {
+                            acc.ebd$setSkillPoints(acc.ebd$getSkillPoints() - perk.costPerLevel);
+                            acc.ebd$setPerkLevel(perk.id, currentRank + 1);
+                            if (perk == GlobalPerks.Perk.HEALTH_BOOST) {
+                                acc.ebd$applyGlobalPerkAttributes();
+                                sp.heal(1.0f);
+                            }
+                            ServersideNetworkManager.sendGlobalSync(sp);
+                            sp.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.7f, 1.5f);
+                            sp.sendSystemMessage(Component.literal("§a✦ ").append(
+                                Component.translatable("perk.enchant_by_doing.unlocked", perk.getDisplayName())
+                                    .withStyle(net.minecraft.ChatFormatting.GREEN)
+                            ));
+                        }
+                    }
+                }
+            })
+        );
         
         // Server to Client
         registrar.playToClient(
@@ -326,6 +353,11 @@ public class EBDCommon {
             S2CWorkstationStatusPayload.CODEC,
             (payload, context) -> context.enqueueWork(() -> ClientsideNetworkManager.handleWorkstationStatus(payload))
         );
+        registrar.playToClient(
+            S2CGlobalDataSyncPayload.TYPE,
+            S2CGlobalDataSyncPayload.CODEC,
+            (payload, context) -> context.enqueueWork(() -> ClientsideNetworkManager.handleGlobalDataSync(payload))
+        );
     }
 
     @SubscribeEvent
@@ -349,6 +381,13 @@ public class EBDCommon {
                 np.ebd$setSkillLevel(type.id, old.ebd$getSkillLevel(type.id));
                 np.ebd$setSkillXP(type.id, old.ebd$getSkillXP(type.id));
             }
+            np.ebd$setGlobalLevel(old.ebd$getGlobalLevel());
+            np.ebd$setGlobalXP(old.ebd$getGlobalXP());
+            np.ebd$setSkillPoints(old.ebd$getSkillPoints());
+            for (java.util.Map.Entry<String, Integer> e : old.ebd$getAllPerks().entrySet()) {
+                np.ebd$setPerkLevel(e.getKey(), e.getValue());
+            }
+            np.ebd$applyGlobalPerkAttributes();
             if (event.getEntity() instanceof ServerPlayer sp) {
                 syncPlayerSkills(sp);
             }
@@ -362,6 +401,8 @@ public class EBDCommon {
             double needed = LBDConfig.INSTANCE.getXPNeededForLevel(type.id, level);
             ServersideNetworkManager.sendSkillUpdate(player, type.id, level, xp, needed, 0.0);
         }
+        ServersideNetworkManager.sendGlobalSync(player);
+        ((IServerPlayerAcc) player).ebd$applyGlobalPerkAttributes();
     }
 
     @SubscribeEvent

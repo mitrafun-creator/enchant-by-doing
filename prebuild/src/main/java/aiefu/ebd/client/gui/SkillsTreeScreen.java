@@ -126,6 +126,105 @@ public class SkillsTreeScreen extends Screen {
                 CONSTELLATIONS.put(type.id, constellation);
             }
         }
+
+        if (!CONSTELLATIONS.containsKey("global")) {
+            CONSTELLATIONS.put("global", buildDefaultGlobalConstellation());
+        }
+    }
+
+    private Constellation buildDefaultGlobalConstellation() {
+        Constellation constellation = new Constellation();
+
+        StarNode core = new StarNode();
+        core.id = "global_core";
+        core.x = 0;
+        core.y = 0;
+        core.type = "start";
+        core.name = "Душа героя";
+        core.description = "Глобальный уровень персонажа.\nКаждый уровень любого навыка дарует опыт для развития героя.";
+        core.unlockLevel = 1;
+        constellation.stars.add(core);
+
+        StarNode health = new StarNode();
+        health.id = "health_boost";
+        health.x = 0;
+        health.y = -90;
+        health.type = "perk";
+        health.name = "Крепкое здоровье";
+        health.description = "Увеличивает максимальный запас здоровья на +0.5 сердца (+1 HP) за каждый ранг.\nМаксимум 20 рангов (+10 сердец).\nСтоимость: 1 очко навыков за ранг.";
+        health.unlockLevel = 1;
+        constellation.stars.add(health);
+
+        StarNode magic = new StarNode();
+        magic.id = "perk_magic";
+        magic.x = 80;
+        magic.y = -65;
+        magic.type = "perk";
+        magic.name = "Магия";
+        magic.description = "Разблокирует создание стола зачарования.\nСтоимость: 3 очка навыков.";
+        magic.unlockLevel = 1;
+        constellation.stars.add(magic);
+
+        StarNode alchemy = new StarNode();
+        alchemy.id = "perk_alchemy";
+        alchemy.x = 110;
+        alchemy.y = 15;
+        alchemy.type = "perk";
+        alchemy.name = "Алхимия";
+        alchemy.description = "Разблокирует создание зельеварочной стойки.\nСтоимость: 2 очка навыков.";
+        alchemy.unlockLevel = 1;
+        constellation.stars.add(alchemy);
+
+        StarNode ancient = new StarNode();
+        ancient.id = "perk_ancient_knowledge";
+        ancient.x = 75;
+        ancient.y = 90;
+        ancient.type = "perk";
+        ancient.name = "Древние знания";
+        ancient.description = "Разблокирует создание незеритового слитка на верстаке.\nСтоимость: 5 очков навыков.";
+        ancient.unlockLevel = 1;
+        constellation.stars.add(ancient);
+
+        StarNode engineering = new StarNode();
+        engineering.id = "perk_engineering";
+        engineering.x = -75;
+        engineering.y = 90;
+        engineering.type = "perk";
+        engineering.name = "Инженерия";
+        engineering.description = "Разблокирует создание всех механизмов и компонентов редстоуна (поршни, повторители, компараторы, раздатчики, наблюдатели, воронки, рельсы и т.д.).\nСтоимость: 4 очка навыков.";
+        engineering.unlockLevel = 1;
+        constellation.stars.add(engineering);
+
+        StarNode construction = new StarNode();
+        construction.id = "perk_construction";
+        construction.x = -110;
+        construction.y = 15;
+        construction.type = "perk";
+        construction.name = "Строительство";
+        construction.description = "Разблокирует создание строительных лесов и всех видов сухих бетонов (цемента).\nСтоимость: 1 очко навыков.";
+        construction.unlockLevel = 1;
+        constellation.stars.add(construction);
+
+        StarNode fisherman = new StarNode();
+        fisherman.id = "perk_fisherman";
+        fisherman.x = -80;
+        fisherman.y = -65;
+        fisherman.type = "perk";
+        fisherman.name = "Рыбак";
+        fisherman.description = "Разблокирует создание лодок (включая лодки с сундуками и плоты) и удочки.\nСтоимость: 1 очко навыков.";
+        fisherman.unlockLevel = 1;
+        constellation.stars.add(fisherman);
+
+        constellation.connections.add(new String[]{"global_core", "health_boost"});
+        constellation.connections.add(new String[]{"global_core", "perk_magic"});
+        constellation.connections.add(new String[]{"perk_magic", "perk_alchemy"});
+        constellation.connections.add(new String[]{"perk_alchemy", "perk_ancient_knowledge"});
+        constellation.connections.add(new String[]{"global_core", "perk_engineering"});
+        constellation.connections.add(new String[]{"perk_engineering", "perk_construction"});
+        constellation.connections.add(new String[]{"perk_construction", "perk_fisherman"});
+        constellation.connections.add(new String[]{"perk_fisherman", "health_boost"});
+
+        return constellation;
     }
 
     private float bottomBarYOffset = 30.0f;
@@ -133,6 +232,7 @@ public class SkillsTreeScreen extends Screen {
     private CustomMusicSoundInstance musicInstance;
     private final Map<SoundSource, Float> originalVolumes = new HashMap<>();
     private final Map<SkillType, ItemStack> skillItemCache = new HashMap<>();
+    private ItemStack netherStarCache = null;
     
     private final List<Star> stars = new ArrayList<>();
     private final List<Particle> particles = new ArrayList<>();
@@ -141,6 +241,9 @@ public class SkillsTreeScreen extends Screen {
     private boolean transitioning = false;
     private float currentPanX;
     private float targetPanX;
+    private boolean inGlobalLayer = false;
+    private float currentPanY = 0.0f;
+    private float targetPanY = 0.0f;
     
     public SkillsTreeScreen(float originalPitch) {
         super(Component.translatable("skill.enchant_by_doing.screen_title"));
@@ -185,6 +288,7 @@ public class SkillsTreeScreen extends Screen {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         currentPanX += (targetPanX - currentPanX) * 0.15f;
+        currentPanY += (targetPanY - currentPanY) * 0.15f;
 
         // Draw solid background to overwrite the environment/world
         int bgGradientColor = 0xFF12041d;
@@ -196,10 +300,10 @@ public class SkillsTreeScreen extends Screen {
         float dx = mouseX - width / 2.0F;
         float dy = mouseY - height / 2.0F;
 
-        // Draw stars with parallax using currentPanX
+        // Draw stars with parallax using currentPanX and currentPanY
         for (Star star : stars) {
             float sx = (star.x * width + dx * 0.1f * star.speed + currentPanX * 0.3f * star.speed) % width;
-            float sy = (star.y * height + dy * 0.1f * star.speed) % height;
+            float sy = (star.y * height + dy * 0.1f * star.speed + currentPanY * 0.3f * star.speed) % height;
             if (sx < 0) sx += width;
             if (sy < 0) sy += height;
 
@@ -216,120 +320,122 @@ public class SkillsTreeScreen extends Screen {
             graphics.fill((int) p.x - 1, (int) p.y - 1, (int) p.x + 2, (int) p.y + 2, pColor);
         }
 
-        SkillType skillType = SkillType.values()[selectedSkillIndex];
-        
         int centerX = width / 2;
         int centerY = height / 2;
 
+        float skillsCenterY = centerY + currentPanY;
+        float globalCenterY = centerY + currentPanY + 350.0f;
+
         // Render all constellations side-by-side shifted by currentPanX with cyclical wrap
-        SkillType[] skills = SkillType.values();
-        float totalWidth = skills.length * 300.0f;
-        float halfWidth = totalWidth / 2.0f;
+        if (skillsCenterY > -200 && skillsCenterY < height + 200) {
+            SkillType[] skills = SkillType.values();
+            float totalWidth = skills.length * 300.0f;
+            float halfWidth = totalWidth / 2.0f;
 
-        for (int i = 0; i < skills.length; i++) {
-            SkillType skill = skills[i];
-            
-            float baseX = i * 300.0f;
-            float xDiff = baseX + currentPanX;
-            while (xDiff < -halfWidth) xDiff += totalWidth;
-            while (xDiff > halfWidth) xDiff -= totalWidth;
-            
-            float skillCenterX = centerX + xDiff;
-            
-            // Skip rendering if far off screen
-            if (skillCenterX < -150 || skillCenterX > width + 150) {
-                continue;
-            }
-
-            // Рендерим туманность на фоне созвездия с минимальным параллаксом
-            float nebulaX = skillCenterX + dx * 0.01f;
-            float nebulaY = centerY + dy * 0.01f;
-
-            ItemStack skillItem = getSkillItem(skill);
-            
-            graphics.pose().pushPose();
-            // Сдвигаем назад по оси Z, чтобы предмет гарантированно рисовался на заднем плане
-            graphics.pose().translate(nebulaX, nebulaY, -180.0f);
-            graphics.pose().scale(16.0f, 16.0f, 1.0f);
-            graphics.pose().translate(-8.0f, -8.0f, 0.0f);
-            
-            graphics.renderFakeItem(skillItem, 0, 0);
-            
-            graphics.pose().popPose();
-
-            // Render connections and loaded stars
-            int currentLevel = SkillHUDRenderer.CLIENT_SKILL_LEVELS.getOrDefault(skill.id, 1);
-            Constellation constellation = CONSTELLATIONS.get(skill.id);
-            if (constellation != null) {
-                // Connections (flowing glyph lines)
-                List<String[]> connectionsToRender = constellation.connections;
-                if (connectionsToRender.isEmpty() && constellation.stars.size() > 1) {
-                    connectionsToRender = new ArrayList<>();
-                    for (int idx = 0; idx < constellation.stars.size() - 1; idx++) {
-                        connectionsToRender.add(new String[]{constellation.stars.get(idx).id, constellation.stars.get(idx + 1).id});
-                    }
-                }
-                for (String[] conn : connectionsToRender) {
-                    StarNode starA = null;
-                    StarNode starB = null;
-                    for (StarNode s : constellation.stars) {
-                        if (s.id.equals(conn[0])) starA = s;
-                        if (s.id.equals(conn[1])) starB = s;
-                    }
-                    if (starA != null && starB != null) {
-                        float xA = skillCenterX + starA.x;
-                        float yA = centerY + starA.y;
-                        float xB = skillCenterX + starB.x;
-                        float yB = centerY + starB.y;
-                        
-                        boolean aUnlocked = currentLevel >= starA.unlockLevel;
-                        boolean bUnlocked = currentLevel >= starB.unlockLevel;
-                        
-                        drawGlyphLine(graphics, xA, yA, xB, yB, skill.color, aUnlocked && bUnlocked);
-                    }
+            for (int i = 0; i < skills.length; i++) {
+                SkillType skill = skills[i];
+                
+                float baseX = i * 300.0f;
+                float xDiff = baseX + currentPanX;
+                while (xDiff < -halfWidth) xDiff += totalWidth;
+                while (xDiff > halfWidth) xDiff -= totalWidth;
+                
+                float skillCenterX = centerX + xDiff;
+                
+                // Skip rendering if far off screen
+                if (skillCenterX < -150 || skillCenterX > width + 150) {
+                    continue;
                 }
 
-                // Stars
-                for (int starIdx = 0; starIdx < constellation.stars.size(); starIdx++) {
-                    StarNode star = constellation.stars.get(starIdx);
-                    float starX = skillCenterX + star.x;
-                    float starY = centerY + star.y;
-                    
-                    boolean unlocked = currentLevel >= star.unlockLevel;
-                    
-                    if (unlocked) {
-                        // Pulsing experience orb (XP Orb / Green sphere)
-                        float pulse = 0.8f + 0.2f * (float) Math.sin(System.currentTimeMillis() * 0.005f + starIdx * 1.5f);
-                        int outerSize = (int) (5 * pulse);
-                        int innerSize = (int) (2.5f * pulse);
-                        int xpColor = (((System.currentTimeMillis() + starIdx * 300) / 250) % 2 == 0) ? 0xFF55FF55 : 0xFFFFFF55;
-                        
-                        if (i == selectedSkillIndex && (star.type.equals("start") || starIdx == 0)) {
-                            outerSize += 1;
-                            innerSize += 0.5f;
+                // Рендерим туманность на фоне созвездия с минимальным параллаксом
+                float nebulaX = skillCenterX + dx * 0.01f;
+                float nebulaY = skillsCenterY + dy * 0.01f;
+
+                ItemStack skillItem = getSkillItem(skill);
+                
+                graphics.pose().pushPose();
+                graphics.pose().translate(nebulaX, nebulaY, -180.0f);
+                graphics.pose().scale(16.0f, 16.0f, 1.0f);
+                graphics.pose().translate(-8.0f, -8.0f, 0.0f);
+                
+                graphics.renderFakeItem(skillItem, 0, 0);
+                
+                graphics.pose().popPose();
+
+                // Render connections and loaded stars
+                int currentLevel = SkillHUDRenderer.CLIENT_SKILL_LEVELS.getOrDefault(skill.id, 1);
+                Constellation constellation = CONSTELLATIONS.get(skill.id);
+                if (constellation != null) {
+                    List<String[]> connectionsToRender = constellation.connections;
+                    if (connectionsToRender.isEmpty() && constellation.stars.size() > 1) {
+                        connectionsToRender = new ArrayList<>();
+                        for (int idx = 0; idx < constellation.stars.size() - 1; idx++) {
+                            connectionsToRender.add(new String[]{constellation.stars.get(idx).id, constellation.stars.get(idx + 1).id});
                         }
+                    }
+                    for (String[] conn : connectionsToRender) {
+                        StarNode starA = null;
+                        StarNode starB = null;
+                        for (StarNode s : constellation.stars) {
+                            if (s.id.equals(conn[0])) starA = s;
+                            if (s.id.equals(conn[1])) starB = s;
+                        }
+                        if (starA != null && starB != null) {
+                            float xA = skillCenterX + starA.x;
+                            float yA = skillsCenterY + starA.y;
+                            float xB = skillCenterX + starB.x;
+                            float yB = skillsCenterY + starB.y;
+                            
+                            boolean aUnlocked = currentLevel >= starA.unlockLevel;
+                            boolean bUnlocked = currentLevel >= starB.unlockLevel;
+                            
+                            drawGlyphLine(graphics, xA, yA, xB, yB, skill.color, aUnlocked && bUnlocked);
+                        }
+                    }
 
-                        graphics.pose().pushPose();
-                        graphics.pose().translate(0.0f, 0.0f, 100.0f);
-                        graphics.fill((int) starX - outerSize - 1, (int) starY - outerSize - 1, (int) starX + outerSize + 1, (int) starY + outerSize + 1, 0xAA000000);
-                        graphics.fill((int) starX - outerSize, (int) starY - outerSize, (int) starX + outerSize, (int) starY + outerSize, 0xFF44AA44);
-                        graphics.fill((int) starX - innerSize, (int) starY - innerSize, (int) starX + innerSize, (int) starY + innerSize, xpColor);
-                        graphics.pose().popPose();
-                    } else {
-                        // Locked star node (dark gray)
-                        graphics.pose().pushPose();
-                        graphics.pose().translate(0.0f, 0.0f, 100.0f);
-                        graphics.fill((int) starX - 4, (int) starY - 4, (int) starX + 4, (int) starY + 4, 0xAA000000);
-                        graphics.fill((int) starX - 3, (int) starY - 3, (int) starX + 3, (int) starY + 3, 0xFF555555);
-                        graphics.fill((int) starX - 1, (int) starY - 1, (int) starX + 1, (int) starY + 1, 0xFF888888);
-                        graphics.pose().popPose();
+                    // Stars
+                    for (int starIdx = 0; starIdx < constellation.stars.size(); starIdx++) {
+                        StarNode star = constellation.stars.get(starIdx);
+                        float starX = skillCenterX + star.x;
+                        float starY = skillsCenterY + star.y;
+                        
+                        boolean unlocked = currentLevel >= star.unlockLevel;
+                        
+                        if (unlocked) {
+                            float pulse = 0.8f + 0.2f * (float) Math.sin(System.currentTimeMillis() * 0.005f + starIdx * 1.5f);
+                            int outerSize = (int) (5 * pulse);
+                            int innerSize = (int) (2.5f * pulse);
+                            int xpColor = (((System.currentTimeMillis() + starIdx * 300) / 250) % 2 == 0) ? 0xFF55FF55 : 0xFFFFFF55;
+                            
+                            if (i == selectedSkillIndex && (star.type.equals("start") || starIdx == 0)) {
+                                outerSize += 1;
+                                innerSize += 0.5f;
+                            }
+
+                            graphics.pose().pushPose();
+                            graphics.pose().translate(0.0f, 0.0f, 100.0f);
+                            graphics.fill((int) starX - outerSize - 1, (int) starY - outerSize - 1, (int) starX + outerSize + 1, (int) starY + outerSize + 1, 0xAA000000);
+                            graphics.fill((int) starX - outerSize, (int) starY - outerSize, (int) starX + outerSize, (int) starY + outerSize, 0xFF44AA44);
+                            graphics.fill((int) starX - innerSize, (int) starY - innerSize, (int) starX + innerSize, (int) starY + innerSize, xpColor);
+                            graphics.pose().popPose();
+                        } else {
+                            graphics.pose().pushPose();
+                            graphics.pose().translate(0.0f, 0.0f, 100.0f);
+                            graphics.fill((int) starX - 4, (int) starY - 4, (int) starX + 4, (int) starY + 4, 0xAA000000);
+                            graphics.fill((int) starX - 3, (int) starY - 3, (int) starX + 3, (int) starY + 3, 0xFF555555);
+                            graphics.fill((int) starX - 1, (int) starY - 1, (int) starX + 1, (int) starY + 1, 0xFF888888);
+                            graphics.pose().popPose();
+                        }
                     }
                 }
             }
         }
 
-        int skillLevel = SkillHUDRenderer.CLIENT_SKILL_LEVELS.getOrDefault(skillType.id, 1);
-        
+        // Render global constellation if in view
+        if (globalCenterY > -200 && globalCenterY < height + 200) {
+            renderGlobalConstellation(graphics, centerX, globalCenterY, dx, dy, mouseX, mouseY);
+        }
+
         // Interpolate slide-up offset
         bottomBarYOffset += (0.0f - bottomBarYOffset) * 0.15f;
 
@@ -341,66 +447,110 @@ public class SkillsTreeScreen extends Screen {
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        // Draw background
-        graphics.blitSprite(SkillHUDRenderer.EXPERIENCE_BAR_BACKGROUND_SPRITE, barX, barY, barWidth, barHeight);
 
-        // Draw colored progress bar
-        double xp = SkillHUDRenderer.CLIENT_SKILL_XP.getOrDefault(skillType.id, 0.0);
-        double neededXp = SkillHUDRenderer.CLIENT_SKILL_NEEDED_XP.getOrDefault(skillType.id, 100.0 * Math.pow(1.07, skillLevel - 1));
-        
-        double progress;
-        String xpText;
-        if (skillLevel >= 100) {
-            progress = 1.0;
-            xpText = "MAX";
-        } else {
-            progress = Math.max(0.0, Math.min(1.0, xp / neededXp));
-            xpText = String.format(java.util.Locale.US, "%.1f / %.1f", xp, neededXp);
-        }
+        if (inGlobalLayer) {
+            graphics.blitSprite(SkillHUDRenderer.EXPERIENCE_BAR_BACKGROUND_SPRITE, barX, barY, barWidth, barHeight);
 
-        int progressWidth = (int) (progress * (barWidth - 2));
-        if (progressWidth > 0) {
-            int barAlpha = 0xBF000000; // ~75% opacity
-            int barColor = (skillType.color & 0x00FFFFFF) | barAlpha;
-            graphics.fill(barX + 1, barY + 1, barX + 1 + progressWidth, barY + 4, barColor);
-        }
-
-        // Draw centered XP text above the bar
-        graphics.drawCenteredString(font, xpText, centerX, barY - 10, 0xFFE0E0E0);
-
-        // Draw centered Skill Name and Level above the XP text
-        Component skillNameWithLevel = skillType.getDisplayName().copy().append(": " + skillLevel);
-        graphics.drawCenteredString(font, skillNameWithLevel, centerX, barY - 20, skillType.color | 0xFF000000);
-
-        // Tooltip checking for any star in any constellation
-        for (int i = 0; i < skills.length; i++) {
-            SkillType skill = skills[i];
-            float baseX = i * 300.0f;
-            float xDiff = baseX + currentPanX;
-            while (xDiff < -halfWidth) xDiff += totalWidth;
-            while (xDiff > halfWidth) xDiff -= totalWidth;
-            float skillCenterX = centerX + xDiff;
-            
-            if (skillCenterX < -150 || skillCenterX > width + 150) {
-                continue;
+            double xp = aiefu.ebd.network.ClientsideNetworkManager.clientGlobalXp;
+            double neededXp = aiefu.ebd.network.ClientsideNetworkManager.clientNeededGlobalXp;
+            double progress = Math.max(0.0, Math.min(1.0, xp / neededXp));
+            int progressWidth = (int) (progress * (barWidth - 2));
+            if (progressWidth > 0) {
+                graphics.fill(barX + 1, barY + 1, barX + 1 + progressWidth, barY + 4, 0xD0FFD700);
             }
+
+            String xpText = String.format(java.util.Locale.US, "%.1f / %.1f XP", xp, neededXp);
+            graphics.drawCenteredString(font, xpText, centerX, barY - 10, 0xFFE0E0E0);
+
+            Component levelText = Component.literal("§6Глобальный уровень: §e" + aiefu.ebd.network.ClientsideNetworkManager.clientGlobalLevel);
+            graphics.drawCenteredString(font, levelText, centerX, barY - 20, 0xFFFFA500);
+
+            int points = aiefu.ebd.network.ClientsideNetworkManager.clientSkillPoints;
+            Component pointsText = Component.literal("§6★ Очки навыков: §f" + points);
+            graphics.drawCenteredString(font, pointsText, centerX, barY - 32, 0xFFFFE066);
+
+            graphics.drawCenteredString(font, "§7▲ [Вверх / Вниз] Вернуться к навыкам ▼", centerX, height - 12, 0xFF888888);
+        } else {
+            SkillType skillType = SkillType.values()[selectedSkillIndex];
+            int skillLevel = SkillHUDRenderer.CLIENT_SKILL_LEVELS.getOrDefault(skillType.id, 1);
+
+            graphics.blitSprite(SkillHUDRenderer.EXPERIENCE_BAR_BACKGROUND_SPRITE, barX, barY, barWidth, barHeight);
+
+            double xp = SkillHUDRenderer.CLIENT_SKILL_XP.getOrDefault(skillType.id, 0.0);
+            double neededXp = SkillHUDRenderer.CLIENT_SKILL_NEEDED_XP.getOrDefault(skillType.id, 100.0 * Math.pow(1.07, skillLevel - 1));
             
-            int activeLevel = SkillHUDRenderer.CLIENT_SKILL_LEVELS.getOrDefault(skill.id, 1);
-            Constellation constellation = CONSTELLATIONS.get(skill.id);
-            if (constellation != null) {
-                boolean tooltipFound = false;
-                for (StarNode star : constellation.stars) {
-                    float starX = skillCenterX + star.x;
-                    float starY = centerY + star.y;
-                    
+            double progress;
+            String xpText;
+            if (skillLevel >= 100) {
+                progress = 1.0;
+                xpText = "MAX";
+            } else {
+                progress = Math.max(0.0, Math.min(1.0, xp / neededXp));
+                xpText = String.format(java.util.Locale.US, "%.1f / %.1f", xp, neededXp);
+            }
+
+            int progressWidth = (int) (progress * (barWidth - 2));
+            if (progressWidth > 0) {
+                int barAlpha = 0xBF000000;
+                int barColor = (skillType.color & 0x00FFFFFF) | barAlpha;
+                graphics.fill(barX + 1, barY + 1, barX + 1 + progressWidth, barY + 4, barColor);
+            }
+
+            graphics.drawCenteredString(font, xpText, centerX, barY - 10, 0xFFE0E0E0);
+
+            Component skillNameWithLevel = skillType.getDisplayName().copy().append(": " + skillLevel);
+            graphics.drawCenteredString(font, skillNameWithLevel, centerX, barY - 20, skillType.color | 0xFF000000);
+
+            graphics.drawCenteredString(font, "§8▲ [Вверх / Вниз: Глобальный уровень] ▼", centerX, height - 12, 0xFF666666);
+        }
+
+        // Tooltips
+        if (inGlobalLayer) {
+            Constellation gc = CONSTELLATIONS.get("global");
+            if (gc != null) {
+                for (StarNode star : gc.stars) {
+                    float starX = centerX + star.x;
+                    float starY = globalCenterY + star.y;
                     double distSq = (mouseX - starX) * (mouseX - starX) + (mouseY - starY) * (mouseY - starY);
                     if (distSq <= 64) {
-                        graphics.renderComponentTooltip(font, getStarTooltip(star, activeLevel), mouseX, mouseY);
-                        tooltipFound = true;
+                        graphics.renderComponentTooltip(font, getGlobalStarTooltip(star), mouseX, mouseY);
                         break;
                     }
                 }
-                if (tooltipFound) break;
+            }
+        } else {
+            SkillType[] skills = SkillType.values();
+            float totalWidth = skills.length * 300.0f;
+            float halfWidth = totalWidth / 2.0f;
+            for (int i = 0; i < skills.length; i++) {
+                SkillType skill = skills[i];
+                float baseX = i * 300.0f;
+                float xDiff = baseX + currentPanX;
+                while (xDiff < -halfWidth) xDiff += totalWidth;
+                while (xDiff > halfWidth) xDiff -= totalWidth;
+                float skillCenterX = centerX + xDiff;
+                
+                if (skillCenterX < -150 || skillCenterX > width + 150) {
+                    continue;
+                }
+                
+                int activeLevel = SkillHUDRenderer.CLIENT_SKILL_LEVELS.getOrDefault(skill.id, 1);
+                Constellation constellation = CONSTELLATIONS.get(skill.id);
+                if (constellation != null) {
+                    boolean tooltipFound = false;
+                    for (StarNode star : constellation.stars) {
+                        float starX = skillCenterX + star.x;
+                        float starY = skillsCenterY + star.y;
+                        
+                        double distSq = (mouseX - starX) * (mouseX - starX) + (mouseY - starY) * (mouseY - starY);
+                        if (distSq <= 64) {
+                            graphics.renderComponentTooltip(font, getStarTooltip(star, activeLevel), mouseX, mouseY);
+                            tooltipFound = true;
+                            break;
+                        }
+                    }
+                    if (tooltipFound) break;
+                }
             }
         }
     }
@@ -511,6 +661,166 @@ public class SkillsTreeScreen extends Screen {
         return tooltip;
     }
 
+    private void renderGlobalConstellation(GuiGraphics graphics, int centerX, float globalCenterY, float dx, float dy, int mouseX, int mouseY) {
+        float nebulaX = centerX + dx * 0.01f;
+        float nebulaY = globalCenterY + dy * 0.01f;
+
+        if (netherStarCache == null) {
+            netherStarCache = createEnchantedItem(net.minecraft.world.item.Items.NETHER_STAR);
+        }
+
+        graphics.pose().pushPose();
+        graphics.pose().translate(nebulaX, nebulaY, -180.0f);
+        graphics.pose().scale(16.0f, 16.0f, 1.0f);
+        graphics.pose().translate(-8.0f, -8.0f, 0.0f);
+        graphics.renderFakeItem(netherStarCache, 0, 0);
+        graphics.pose().popPose();
+
+        Constellation constellation = CONSTELLATIONS.get("global");
+        if (constellation == null) return;
+
+        for (String[] conn : constellation.connections) {
+            StarNode starA = null;
+            StarNode starB = null;
+            for (StarNode s : constellation.stars) {
+                if (s.id.equals(conn[0])) starA = s;
+                if (s.id.equals(conn[1])) starB = s;
+            }
+            if (starA != null && starB != null) {
+                float xA = centerX + starA.x;
+                float yA = globalCenterY + starA.y;
+                float xB = centerX + starB.x;
+                float yB = globalCenterY + starB.y;
+
+                boolean aActive = isStarActive(starA.id);
+                boolean bActive = isStarActive(starB.id);
+
+                drawGlyphLine(graphics, xA, yA, xB, yB, 0xFFD700, aActive && bActive);
+            }
+        }
+
+        for (int starIdx = 0; starIdx < constellation.stars.size(); starIdx++) {
+            StarNode star = constellation.stars.get(starIdx);
+            float starX = centerX + star.x;
+            float starY = globalCenterY + star.y;
+
+            if (star.id.equals("global_core")) {
+                float pulse = 0.9f + 0.2f * (float) Math.sin(System.currentTimeMillis() * 0.005f);
+                int outerSize = (int) (6 * pulse);
+                int innerSize = (int) (3.5f * pulse);
+
+                graphics.pose().pushPose();
+                graphics.pose().translate(0.0f, 0.0f, 100.0f);
+                graphics.fill((int) starX - outerSize - 1, (int) starY - outerSize - 1, (int) starX + outerSize + 1, (int) starY + outerSize + 1, 0xAA000000);
+                graphics.fill((int) starX - outerSize, (int) starY - outerSize, (int) starX + outerSize, (int) starY + outerSize, 0xFFFFA500);
+                graphics.fill((int) starX - innerSize, (int) starY - innerSize, (int) starX + innerSize, (int) starY + innerSize, 0xFFFFFF55);
+                graphics.pose().popPose();
+            } else {
+                aiefu.ebd.GlobalPerks.Perk perk = aiefu.ebd.GlobalPerks.getById(star.id);
+                int rank = aiefu.ebd.network.ClientsideNetworkManager.clientPerks.getOrDefault(star.id, 0);
+                boolean maxed = perk != null && rank >= perk.maxLevel;
+                boolean partiallyActive = rank > 0 && !maxed;
+                boolean canBuy = perk != null && !maxed && aiefu.ebd.network.ClientsideNetworkManager.clientSkillPoints >= perk.costPerLevel;
+
+                float pulse = 0.8f + 0.2f * (float) Math.sin(System.currentTimeMillis() * 0.005f + starIdx * 1.2f);
+                int outerSize = (int) (5 * pulse);
+                int innerSize = (int) (2.5f * pulse);
+
+                graphics.pose().pushPose();
+                graphics.pose().translate(0.0f, 0.0f, 100.0f);
+
+                if (maxed) {
+                    graphics.fill((int) starX - outerSize - 1, (int) starY - outerSize - 1, (int) starX + outerSize + 1, (int) starY + outerSize + 1, 0xAA000000);
+                    graphics.fill((int) starX - outerSize, (int) starY - outerSize, (int) starX + outerSize, (int) starY + outerSize, 0xFFFFA500);
+                    graphics.fill((int) starX - innerSize, (int) starY - innerSize, (int) starX + innerSize, (int) starY + innerSize, 0xFFFFFF55);
+                } else if (partiallyActive) {
+                    graphics.fill((int) starX - outerSize - 1, (int) starY - outerSize - 1, (int) starX + outerSize + 1, (int) starY + outerSize + 1, 0xAA000000);
+                    graphics.fill((int) starX - outerSize, (int) starY - outerSize, (int) starX + outerSize, (int) starY + outerSize, 0xFF00AAAA);
+                    graphics.fill((int) starX - innerSize, (int) starY - innerSize, (int) starX + innerSize, (int) starY + innerSize, 0xFF55FFFF);
+                } else if (canBuy) {
+                    graphics.fill((int) starX - outerSize - 1, (int) starY - outerSize - 1, (int) starX + outerSize + 1, (int) starY + outerSize + 1, 0xAA000000);
+                    graphics.fill((int) starX - outerSize, (int) starY - outerSize, (int) starX + outerSize, (int) starY + outerSize, 0xFF22AA22);
+                    graphics.fill((int) starX - innerSize, (int) starY - innerSize, (int) starX + innerSize, (int) starY + innerSize, 0xFF55FF55);
+                } else {
+                    graphics.fill((int) starX - 4, (int) starY - 4, (int) starX + 4, (int) starY + 4, 0xAA000000);
+                    graphics.fill((int) starX - 3, (int) starY - 3, (int) starX + 3, (int) starY + 3, 0xFF555555);
+                    graphics.fill((int) starX - 1, (int) starY - 1, (int) starX + 1, (int) starY + 1, 0xFF888888);
+                }
+
+                graphics.pose().popPose();
+
+                if (perk != null) {
+                    graphics.pose().pushPose();
+                    graphics.pose().translate(starX + 4, starY - 8, 105.0f);
+                    graphics.pose().scale(0.6f, 0.6f, 1.0f);
+                    graphics.renderFakeItem(new ItemStack(perk.icon), 0, 0);
+                    graphics.pose().popPose();
+                }
+            }
+        }
+    }
+
+    private boolean isStarActive(String starId) {
+        if ("global_core".equals(starId)) return true;
+        return aiefu.ebd.network.ClientsideNetworkManager.clientPerks.getOrDefault(starId, 0) > 0;
+    }
+
+    private List<Component> getGlobalStarTooltip(StarNode star) {
+        List<Component> tooltip = new ArrayList<>();
+        if (star.id.equals("global_core")) {
+            tooltip.add(Component.literal("§6★ Душа героя").withStyle(net.minecraft.ChatFormatting.BOLD));
+            tooltip.add(Component.literal("§eГлобальный уровень: §f" + aiefu.ebd.network.ClientsideNetworkManager.clientGlobalLevel));
+            tooltip.add(Component.literal(String.format(java.util.Locale.US, "§bОпыт: §f%.1f / %.1f XP",
+                    aiefu.ebd.network.ClientsideNetworkManager.clientGlobalXp,
+                    aiefu.ebd.network.ClientsideNetworkManager.clientNeededGlobalXp)));
+            tooltip.add(Component.literal("§6★ Очки навыков: §e" + aiefu.ebd.network.ClientsideNetworkManager.clientSkillPoints));
+            tooltip.add(Component.literal("§7Повышайте уровень любых навыков, чтобы развивать персонажа.").withStyle(net.minecraft.ChatFormatting.GRAY));
+            return tooltip;
+        }
+
+        aiefu.ebd.GlobalPerks.Perk perk = aiefu.ebd.GlobalPerks.getById(star.id);
+        if (perk == null) {
+            tooltip.add(Component.literal(star.name));
+            return tooltip;
+        }
+
+        int rank = aiefu.ebd.network.ClientsideNetworkManager.clientPerks.getOrDefault(perk.id, 0);
+        boolean maxed = rank >= perk.maxLevel;
+        boolean canBuy = !maxed && aiefu.ebd.network.ClientsideNetworkManager.clientSkillPoints >= perk.costPerLevel;
+
+        tooltip.add(Component.literal("§6★ ").append(perk.getDisplayName()).withStyle(net.minecraft.ChatFormatting.BOLD, net.minecraft.ChatFormatting.GOLD));
+
+        if (perk == aiefu.ebd.GlobalPerks.Perk.HEALTH_BOOST) {
+            tooltip.add(Component.literal("§eРанг: §f" + rank + " / " + perk.maxLevel + (rank > 0 ? " §a(+" + (rank * 0.5f) + " сердец)" : "")));
+        } else {
+            if (rank > 0) {
+                tooltip.add(Component.translatable("skill.enchant_by_doing.unlocked", 1).withStyle(net.minecraft.ChatFormatting.GREEN));
+            } else {
+                tooltip.add(Component.translatable("skill.enchant_by_doing.locked", 1).withStyle(net.minecraft.ChatFormatting.RED));
+            }
+        }
+
+        if (!maxed) {
+            tooltip.add(Component.literal("§bСтоимость: §e" + perk.costPerLevel + " §bочк. навыков"));
+        }
+
+        if (star.description != null && !star.description.isEmpty()) {
+            for (String line : star.description.split("\n")) {
+                tooltip.add(Component.literal(line).withStyle(net.minecraft.ChatFormatting.YELLOW));
+            }
+        }
+
+        if (maxed) {
+            tooltip.add(Component.literal("§6[Максимальный уровень]").withStyle(net.minecraft.ChatFormatting.GOLD));
+        } else if (canBuy) {
+            tooltip.add(Component.literal("§a✔ [Нажмите ЛКМ для изучения]").withStyle(net.minecraft.ChatFormatting.GREEN, net.minecraft.ChatFormatting.BOLD));
+        } else {
+            tooltip.add(Component.literal("§c✖ [Недостаточно очков навыков]").withStyle(net.minecraft.ChatFormatting.RED));
+        }
+
+        return tooltip;
+    }
+
     private void updateParticles() {
         particles.removeIf(p -> p.life <= 0);
         for (Particle p : particles) {
@@ -527,18 +837,27 @@ public class SkillsTreeScreen extends Screen {
             this.onClose();
             return true;
         }
-        if (keyCode == 262) { // Right Arrow
-            selectedSkillIndex = (selectedSkillIndex + 1) % SkillType.values().length;
-            targetPanX -= 300.0f;
+        if (keyCode == 265 || keyCode == 264 || keyCode == 87 || keyCode == 83) { // Up / Down / W / S
+            inGlobalLayer = !inGlobalLayer;
+            targetPanY = inGlobalLayer ? -350.0f : 0.0f;
             bottomBarYOffset = 30.0f;
-            playSkillSwitchEffects();
+            playLayerSwitchEffects(keyCode == 265 || keyCode == 87);
             return true;
-        } else if (keyCode == 263) { // Left Arrow
-            selectedSkillIndex = (selectedSkillIndex - 1 + SkillType.values().length) % SkillType.values().length;
-            targetPanX += 300.0f;
-            bottomBarYOffset = 30.0f;
-            playSkillSwitchEffects();
-            return true;
+        }
+        if (!inGlobalLayer) {
+            if (keyCode == 262 || keyCode == 68) { // Right Arrow or D
+                selectedSkillIndex = (selectedSkillIndex + 1) % SkillType.values().length;
+                targetPanX -= 300.0f;
+                bottomBarYOffset = 30.0f;
+                playSkillSwitchEffects();
+                return true;
+            } else if (keyCode == 263 || keyCode == 65) { // Left Arrow or A
+                selectedSkillIndex = (selectedSkillIndex - 1 + SkillType.values().length) % SkillType.values().length;
+                targetPanX += 300.0f;
+                bottomBarYOffset = 30.0f;
+                playSkillSwitchEffects();
+                return true;
+            }
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
@@ -546,23 +865,81 @@ public class SkillsTreeScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) { // Left Click
-            if (mouseX < width * 0.15f) {
-                // Switch left
-                selectedSkillIndex = (selectedSkillIndex - 1 + SkillType.values().length) % SkillType.values().length;
-                targetPanX += 300.0f;
-                bottomBarYOffset = 30.0f;
-                playSkillSwitchEffects();
-                return true;
-            } else if (mouseX > width * 0.85f) {
-                // Switch right
-                selectedSkillIndex = (selectedSkillIndex + 1) % SkillType.values().length;
-                targetPanX -= 300.0f;
-                bottomBarYOffset = 30.0f;
-                playSkillSwitchEffects();
-                return true;
+            int centerX = width / 2;
+            int centerY = height / 2;
+            if (inGlobalLayer) {
+                float globalCenterY = centerY + currentPanY + 350.0f;
+                Constellation gc = CONSTELLATIONS.get("global");
+                if (gc != null) {
+                    for (StarNode star : gc.stars) {
+                        if (star.id.equals("global_core")) continue;
+                        aiefu.ebd.GlobalPerks.Perk perk = aiefu.ebd.GlobalPerks.getById(star.id);
+                        if (perk == null) continue;
+                        float starX = centerX + star.x;
+                        float starY = globalCenterY + star.y;
+                        double distSq = (mouseX - starX) * (mouseX - starX) + (mouseY - starY) * (mouseY - starY);
+                        if (distSq <= 100) {
+                            int currentRank = aiefu.ebd.network.ClientsideNetworkManager.clientPerks.getOrDefault(perk.id, 0);
+                            if (currentRank < perk.maxLevel && aiefu.ebd.network.ClientsideNetworkManager.clientSkillPoints >= perk.costPerLevel) {
+                                net.neoforged.neoforge.network.PacketDistributor.sendToServer(new aiefu.ebd.network.C2SUnlockPerkPayload(perk.id));
+                                aiefu.ebd.network.ClientsideNetworkManager.clientSkillPoints -= perk.costPerLevel;
+                                aiefu.ebd.network.ClientsideNetworkManager.clientPerks.put(perk.id, currentRank + 1);
+                                playPerkUnlockEffects(starX, starY);
+                            } else {
+                                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 0.6F));
+                            }
+                            return true;
+                        }
+                    }
+                }
+            } else {
+                if (mouseX < width * 0.15f) {
+                    // Switch left
+                    selectedSkillIndex = (selectedSkillIndex - 1 + SkillType.values().length) % SkillType.values().length;
+                    targetPanX += 300.0f;
+                    bottomBarYOffset = 30.0f;
+                    playSkillSwitchEffects();
+                    return true;
+                } else if (mouseX > width * 0.85f) {
+                    // Switch right
+                    selectedSkillIndex = (selectedSkillIndex + 1) % SkillType.values().length;
+                    targetPanX -= 300.0f;
+                    bottomBarYOffset = 30.0f;
+                    playSkillSwitchEffects();
+                    return true;
+                }
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private void playLayerSwitchEffects(boolean upward) {
+        Minecraft mc = Minecraft.getInstance();
+        mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.AMETHYST_BLOCK_CHIME, 1.2F));
+        mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 0.9F));
+        
+        int centerX = width / 2;
+        int centerY = height / 2;
+        java.util.Random rand = new java.util.Random();
+        for (int i = 0; i < 30; i++) {
+            float vx = (rand.nextFloat() - 0.5f) * 4.0f;
+            float vy = (upward ? -1.0f : 1.0f) * (2.0f + rand.nextFloat() * 4.0f);
+            particles.add(new Particle(centerX + (rand.nextFloat() - 0.5f) * width * 0.6f, centerY, vx, vy, 35));
+        }
+    }
+
+    private void playPerkUnlockEffects(float x, float y) {
+        Minecraft mc = Minecraft.getInstance();
+        mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.PLAYER_LEVELUP, 1.5F));
+        mc.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
+        java.util.Random rand = new java.util.Random();
+        for (int i = 0; i < 35; i++) {
+            float angle = rand.nextFloat() * 2.0F * (float) Math.PI;
+            float speed = 1.5F + rand.nextFloat() * 3.0F;
+            float vx = (float) Math.cos(angle) * speed;
+            float vy = (float) Math.sin(angle) * speed;
+            particles.add(new Particle(x, y, vx, vy, 40));
+        }
     }
 
     private void playSkillSwitchEffects() {

@@ -44,6 +44,8 @@ public class LBDConfig {
     public boolean enableCraftingWorkstations = true;
     public int workstationDetectionRadius = 5;
 
+    public boolean enableGlobalLevelSystem = true;
+
     public float enchanterDiscountPerLevel = 1.0f;
 
     public Set<String> warriorWeapons = new HashSet<>();
@@ -118,6 +120,8 @@ public class LBDConfig {
 
             enableCraftingWorkstations = Boolean.parseBoolean(map.getOrDefault("enable_crafting_workstations", "true"));
             workstationDetectionRadius = Integer.parseInt(map.getOrDefault("workstation_detection_radius", "5"));
+
+            enableGlobalLevelSystem = Boolean.parseBoolean(map.getOrDefault("enable_global_level_system", "true"));
 
             enchanterDiscountPerLevel = Float.parseFloat(map.getOrDefault("enchanter_discount_per_level", "1.0"));
 
@@ -258,6 +262,8 @@ public class LBDConfig {
                "# Proximity-based Crafting Workstations (requires Anvil, Enchanting Table, Fletching Table, etc. nearby)\n" +
                "enable_crafting_workstations: true\n" +
                "workstation_detection_radius: 5\n\n" +
+               "# Global Character Level and Perk System (Skyrim-style)\n" +
+               "enable_global_level_system: true\n\n" +
                "# Default Multipliers for non-configured blocks/mobs\n" +
                "block_xp_hardness_multiplier: 1.0\n" +
                "mob_xp_health_multiplier: 1.0\n\n" +

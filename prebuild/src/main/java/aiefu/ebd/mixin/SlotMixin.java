@@ -19,11 +19,17 @@ public abstract class SlotMixin {
 
     @Inject(method = "mayPickup", at = @At("HEAD"), cancellable = true)
     private void onSlotMayPickup(Player player, CallbackInfoReturnable<Boolean> cir) {
-        if (!LBDConfig.INSTANCE.enableCraftingWorkstations) return;
         if (!((Object) this instanceof ResultSlot)) return;
 
         ItemStack stack = this.getItem();
         if (stack.isEmpty()) return;
+
+        if (aiefu.ebd.GlobalPerks.isItemLockedForPlayer(player, stack)) {
+            cir.setReturnValue(false);
+            return;
+        }
+
+        if (!LBDConfig.INSTANCE.enableCraftingWorkstations) return;
 
         byte reqMask = WorkstationHelper.getRequiredWorkstationsMask(stack);
         if (reqMask != 0) {
