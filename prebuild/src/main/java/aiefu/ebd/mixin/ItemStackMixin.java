@@ -109,5 +109,54 @@ public class ItemStackMixin {
             }
         }
     }
+
+    @Inject(method = "hurtAndBreak(ILnet/minecraft/server/level/ServerLevel;Lnet/minecraft/server/level/ServerPlayer;Ljava/util/function/Consumer;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;setDamageValue(I)V"))
+    private void ebd$onDurabilityDamageEnchanterXp(int amount, net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player, java.util.function.Consumer<net.minecraft.world.item.Item> onBroken, CallbackInfo ci) {
+        if (player == null || level == null || level.isClientSide()) return;
+
+        ItemStack self = (ItemStack) (Object) this;
+        net.minecraft.world.item.enchantment.ItemEnchantments enchants = self.getEnchantments();
+        if (enchants.isEmpty()) return;
+
+        int chance = aiefu.ebd.LBDConfig.INSTANCE.xpEnchantedItemUseChance;
+        if (chance <= 0) return;
+        if (chance > 1 && player.getRandom().nextInt(chance) != 0) {
+            return;
+        }
+
+        int count = 0;
+        int levelSum = 0;
+        int unbreakingLevel = 0;
+
+        for (net.minecraft.core.Holder<net.minecraft.world.item.enchantment.Enchantment> holder : enchants.keySet()) {
+            int lvl = enchants.getLevel(holder);
+            count++;
+            levelSum += lvl;
+
+            net.minecraft.resources.ResourceLocation loc = holder.unwrapKey()
+                    .map(net.minecraft.resources.ResourceKey::location)
+                    .orElse(null);
+            if (loc != null && loc.getPath().equals("unbreaking")) {
+                unbreakingLevel = Math.max(unbreakingLevel, lvl);
+            }
+        }
+
+        if (count == 0) return;
+
+        double basePerEnchant = aiefu.ebd.LBDConfig.INSTANCE.xpEnchantedItemUseBasePerEnchant;
+        double perLevel = aiefu.ebd.LBDConfig.INSTANCE.xpEnchantedItemUsePerLevel;
+        double unbreakingMultPerLevel = aiefu.ebd.LBDConfig.INSTANCE.xpEnchantedItemUseUnbreakingMultiplier;
+
+        double baseXp = (count * basePerEnchant) + (levelSum * perLevel);
+        double unbreakingMultiplier = 1.0 + (unbreakingLevel * unbreakingMultPerLevel);
+        double totalXp = Math.max(0.1, baseXp * unbreakingMultiplier);
+
+        ((aiefu.ebd.IServerPlayerAcc) player).ebd$addSkillXP("enchanter", totalXp, player);
+
+        level.sendParticles(net.minecraft.core.particles.ParticleTypes.ENCHANT,
+                player.getX(), player.getY() + 1.0, player.getZ(),
+                6, 0.3, 0.4, 0.3, 0.05);
+    }
 }
 

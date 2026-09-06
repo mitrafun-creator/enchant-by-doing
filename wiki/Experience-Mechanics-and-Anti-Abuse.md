@@ -23,6 +23,25 @@ Every in-game action awards experience directly to its corresponding skill:
 | 🔮 **Enchanter** | Crafting an Enchantment at Table | **30.0 XP** | `xp_item_enchanted` | Awarded upon successful enchantment craft |
 | 🔮 **Enchanter** | Repairing / Combining on Anvil | **15.0 XP** | `xp_item_repaired` | Awarded on `AnvilRepairEvent` |
 | 🔮 **Enchanter** | Disenchanting at Grindstone | **15.0 XP** | `xp_item_disenchanted`| Awarded on grindstone result removal |
+| 🔮 **Enchanter** | Using Enchanted Gear (Durability Loss) | **Dynamic** | `xp_enchanted_item_use_*` | ~1 in 25 chance per durability hit; scales with enchant count, levels & Unbreaking |
+
+### 🔮 Enchanted Gear Usage Experience Breakdown
+When using enchanted tools, weapons, or wearing enchanted armor, players have a chance to channel magical resonance into their **Enchanter** skill:
+* **Trigger Condition:** Whenever an enchanted item actually loses durability (`hurtAndBreak`).
+* **Chance:** **1 in 25 (4%)** by default (`xp_enchanted_item_use_chance: 25`).
+* **Base Experience Formula:**
+  $$\text{XP}_{\text{base}} = (\text{EnchantmentCount} \times 2.0) + (\sum \text{EnchantmentLevels} \times 1.5)$$
+* **Unbreaking (Прочность) Multiplier:**
+  Because the Unbreaking enchantment reduces how frequently items take durability damage, having Unbreaking applies a proportional multiplier to the final experience yield:
+  $$\text{Multiplier}_{\text{unbreaking}} = 1.0 + (\text{UnbreakingLevel} \times 1.0)$$
+  * *No Unbreaking:* **1.0x**
+  * *Unbreaking I:* **2.0x**
+  * *Unbreaking II:* **3.0x**
+  * *Unbreaking III:* **4.0x**
+* **Final Experience Calculation:**
+  $$\text{XP}_{\text{total}} = \text{XP}_{\text{base}} \times \text{Multiplier}_{\text{unbreaking}}$$
+  *(e.g., God Pickaxe with 4 enchantments, 12 total levels, and Unbreaking III grants $(4 \times 2.0 + 12 \times 1.5) \times 4.0 = \mathbf{104.0\text{ XP}}$).*
+* **Visual FX:** Emits enchanting table rune particles (`ParticleTypes.ENCHANT`) around the player upon each proc.
 
 ### ⛏️ Ore Mining Experience Breakdown
 Ores award specialized Miner experience scaled to their rarity and preciousness:

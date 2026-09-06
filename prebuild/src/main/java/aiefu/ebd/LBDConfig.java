@@ -30,6 +30,10 @@ public class LBDConfig {
     public double xpItemRepaired = 15.0;
     public double xpItemDisenchanted = 15.0;
     public double xpDustyBookRead = 50.0;
+    public int xpEnchantedItemUseChance = 25;
+    public double xpEnchantedItemUseBasePerEnchant = 2.0;
+    public double xpEnchantedItemUsePerLevel = 1.5;
+    public double xpEnchantedItemUseUnbreakingMultiplier = 1.0;
 
     public double dustyBookArchaeologyChance = 0.20;
     public double dustyBookFishingChance = 0.10;
@@ -94,6 +98,11 @@ public class LBDConfig {
             xpItemRepaired = Double.parseDouble(map.getOrDefault("xp_item_repaired", "15.0"));
             xpItemDisenchanted = Double.parseDouble(map.getOrDefault("xp_item_disenchanted", "15.0"));
             xpDustyBookRead = Double.parseDouble(map.getOrDefault("xp_dusty_book_read", "50.0"));
+
+            xpEnchantedItemUseChance = Integer.parseInt(map.getOrDefault("xp_enchanted_item_use_chance", "25"));
+            xpEnchantedItemUseBasePerEnchant = Double.parseDouble(map.getOrDefault("xp_enchanted_item_use_base_per_enchant", "2.0"));
+            xpEnchantedItemUsePerLevel = Double.parseDouble(map.getOrDefault("xp_enchanted_item_use_per_level", "1.5"));
+            xpEnchantedItemUseUnbreakingMultiplier = Double.parseDouble(map.getOrDefault("xp_enchanted_item_use_unbreaking_multiplier", "1.0"));
 
             dustyBookArchaeologyChance = Double.parseDouble(map.getOrDefault("dusty_book_archaeology_chance", "0.20"));
             dustyBookFishingChance = Double.parseDouble(map.getOrDefault("dusty_book_fishing_chance", "0.10"));
@@ -221,6 +230,12 @@ public class LBDConfig {
                "xp_item_repaired: 15.0\n" +
                "xp_item_disenchanted: 15.0\n" +
                "xp_dusty_book_read: 50.0\n\n" +
+               "# Enchanter Experience for Using Enchanted Items (when tool, weapon, or armor loses durability)\n" +
+               "# xp_enchanted_item_use_chance: 1 in N chance (e.g. 25 = 1 in 25 / 4%)\n" +
+               "xp_enchanted_item_use_chance: 25\n" +
+               "xp_enchanted_item_use_base_per_enchant: 2.0\n" +
+               "xp_enchanted_item_use_per_level: 1.5\n" +
+               "xp_enchanted_item_use_unbreaking_multiplier: 1.0\n\n" +
                "# Dusty Book Discovery Chances in Archaeology and Fishing (0.0 to 1.0)\n" +
                "dusty_book_archaeology_chance: 0.20\n" +
                "dusty_book_fishing_chance: 0.10\n" +
