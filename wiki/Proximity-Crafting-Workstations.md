@@ -55,6 +55,7 @@ Advanced recipes require **multiple** workstations simultaneously:
   * Hovering over the missing station displays a red alert tooltip: `Для крафта требуется: [Название станции]` / `Requires for crafting: [Station Name]`.
 * **Zero Clutter:** No tooltips are displayed for normal nearby stations.
 * **📖 Recipe Book Tooltips:** When browsing recipes in the vanilla Recipe Book, hovering over any item requiring functional workstations clearly lists the necessary stations: green (`✔`) if the station is already placed nearby, and red (`✖`) if missing.
+* **🛡️ Recipe Book Exploit Protection:** Auto-placing ingredients by clicking recipes in the vanilla Recipe Book strictly respects workstation proximity. If any workstation is missing, the craft result is immediately cleared and pickup is blocked across both 3x3 Crafting Tables and 2x2 player inventories.
 * **Persistent Crafting Compatibility:** Closing the crafting menu or player inventory immediately resets all workstation alerts, preventing stuck notifications when using mods like FastWorkbench or Crafting Tweaks.
 
 ---

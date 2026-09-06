@@ -4,10 +4,12 @@ import aiefu.ebd.LBDConfig;
 import aiefu.ebd.network.S2CWorkstationStatusPayload;
 import aiefu.ebd.workstation.WorkstationHelper;
 import aiefu.ebd.workstation.WorkstationType;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.CraftingMenu;
@@ -25,6 +27,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 
@@ -55,38 +58,68 @@ public abstract class CraftingMenuMixin {
         }
     }
 
-    @Inject(method = "slotsChanged", at = @At("TAIL"))
-    private void onSlotsChanged(Container container, CallbackInfo ci) {
-        if (!this.player.level().isClientSide() && this.player instanceof ServerPlayer sp && sp.connection != null && !(sp instanceof net.neoforged.neoforge.common.util.FakePlayer)) {
-            if (!LBDConfig.INSTANCE.enableCraftingWorkstations) return;
-
-            this.access.execute((level, pos) -> {
-                int radius = LBDConfig.INSTANCE.workstationDetectionRadius;
-                byte nearbyMask = WorkstationHelper.getNearbyWorkstationsMask(level, pos, radius);
-
-                ItemStack currentResult = this.resultSlots.getItem(0);
-                byte reqMask = 0;
-
-                if (!currentResult.isEmpty()) {
-                    reqMask = WorkstationHelper.getRequiredWorkstationsMask(currentResult);
-                    byte missingMask = (byte) (reqMask & ~nearbyMask);
-                    if (missingMask != 0) {
-                        this.resultSlots.setItem(0, ItemStack.EMPTY);
-                    }
-                } else {
-                    // Check if craftSlots match a recipe whose result was blocked
-                    CraftingInput input = this.craftSlots.asCraftInput();
-                    if (!input.isEmpty()) {
-                        Optional<RecipeHolder<CraftingRecipe>> match = level.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level);
-                        if (match.isPresent()) {
-                            ItemStack potentialResult = match.get().value().assemble(input, level.registryAccess());
-                            reqMask = WorkstationHelper.getRequiredWorkstationsMask(potentialResult);
-                        }
+    @Inject(method = "quickMoveStack", at = @At("HEAD"), cancellable = true)
+    private void onQuickMoveStack(Player player, int index, CallbackInfoReturnable<ItemStack> cir) {
+        if (index == 0 && LBDConfig.INSTANCE.enableCraftingWorkstations) {
+            ItemStack result = this.resultSlots.getItem(0);
+            if (!result.isEmpty()) {
+                byte reqMask = WorkstationHelper.getRequiredWorkstationsMask(result);
+                if (reqMask != 0) {
+                    int radius = LBDConfig.INSTANCE.workstationDetectionRadius;
+                    byte nearbyMask = WorkstationHelper.getNearbyWorkstationsMask(player.level(), player.blockPosition(), radius);
+                    if ((reqMask & ~nearbyMask) != 0) {
+                        cir.setReturnValue(ItemStack.EMPTY);
                     }
                 }
-
-                PacketDistributor.sendToPlayer(sp, new S2CWorkstationStatusPayload(nearbyMask, reqMask));
-            });
+            }
         }
+    }
+
+    @Inject(method = "slotChangedCraftingGrid", at = @At("TAIL"))
+    private static void onSlotChangedCraftingGrid(
+            AbstractContainerMenu menu,
+            net.minecraft.world.level.Level level,
+            Player player,
+            CraftingContainer craftSlots,
+            ResultContainer resultSlots,
+            RecipeHolder<CraftingRecipe> recipe,
+            CallbackInfo ci
+    ) {
+        if (level.isClientSide()) return;
+        if (!(player instanceof ServerPlayer sp) || sp.connection == null || (sp instanceof net.neoforged.neoforge.common.util.FakePlayer)) return;
+        if (!LBDConfig.INSTANCE.enableCraftingWorkstations) return;
+
+        BlockPos pos = sp.blockPosition();
+        if (menu instanceof CraftingMenu) {
+            pos = ((CraftingMenuMixin) (Object) menu).access.evaluate((lvl, p) -> p).orElse(sp.blockPosition());
+        }
+        int radius = LBDConfig.INSTANCE.workstationDetectionRadius;
+        byte nearbyMask = WorkstationHelper.getNearbyWorkstationsMask(level, pos, radius);
+
+        ItemStack currentResult = resultSlots.getItem(0);
+        byte reqMask = 0;
+
+        if (!currentResult.isEmpty()) {
+            reqMask = WorkstationHelper.getRequiredWorkstationsMask(currentResult);
+            byte missingMask = (byte) (reqMask & ~nearbyMask);
+            if (missingMask != 0) {
+                resultSlots.setItem(0, ItemStack.EMPTY);
+                menu.setRemoteSlot(0, ItemStack.EMPTY);
+                sp.connection.send(new net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket(
+                        menu.containerId, menu.incrementStateId(), 0, ItemStack.EMPTY
+                ));
+            }
+        } else {
+            CraftingInput input = craftSlots.asCraftInput();
+            if (!input.isEmpty()) {
+                Optional<RecipeHolder<CraftingRecipe>> match = level.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level);
+                if (match.isPresent()) {
+                    ItemStack potentialResult = match.get().value().assemble(input, level.registryAccess());
+                    reqMask = WorkstationHelper.getRequiredWorkstationsMask(potentialResult);
+                }
+            }
+        }
+
+        PacketDistributor.sendToPlayer(sp, new S2CWorkstationStatusPayload(nearbyMask, reqMask));
     }
 }

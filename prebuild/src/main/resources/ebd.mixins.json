@@ -31,7 +31,7 @@
     "LivingEntityTickerAccessor",
     "LivingEntityMixin",
     "CraftingMenuMixin",
-    "InventoryMenuMixin"
+    "SlotMixin"
   ],
   "injectors": {
     "defaultRequire": 1
