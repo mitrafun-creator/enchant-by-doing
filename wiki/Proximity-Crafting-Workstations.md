@@ -60,6 +60,28 @@ Advanced recipes require **multiple** workstations simultaneously:
 
 ---
 
+## 🔊 Immersive Artisan Crafting Soundscapes (Sequential Audio)
+
+Whenever a player crafts an item requiring functional workstations, dynamic audio effects trigger at the workstation to immerse the player in the crafting process:
+
+* **🔨 Anvil:** Resonant metallic hammer blow on hot iron (`SoundEvents.ANVIL_USE`).
+* **🏹 Fletching Table:** Wood carving and string stretching (`SoundEvents.VILLAGER_WORK_FLETCHER`).
+* **🛡️ Armorer / Smithing Station:** Heavy smithing table clink and metal fitting (`SoundEvents.SMITHING_TABLE_USE`).
+* **🪨 Grindstone:** Grinding wheel friction and spark shower (`SoundEvents.GRINDSTONE_USE`).
+* **🗺️ Cartography Table:** Crisp drafting, parchment rustle and compass calibration (`SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT`).
+* **🔮 Enchanting Table:** Deep mystical enchantment hum (`SoundEvents.ENCHANTMENT_TABLE_USE`) seamlessly followed by a sparkling experience orb chime (`SoundEvents.EXPERIENCE_ORB_PICKUP`).
+
+### 🎶 Sequential Audio Progression
+When an item requires **multiple** workstations (e.g. Diamond Sword, Diamond Armor, Crossbow), sounds play in an authentic artisan sequence spaced ~300ms (6 ticks) apart:
+* **⚔️ Iron Sword:** 1. Anvil hammer blow (`0ms`) ➔ 2. Grindstone blade sharpening (`300ms`).
+* **💎 Diamond Sword:** 1. Anvil forging (`0ms`) ➔ 2. Grindstone sharpening (`300ms`) ➔ 3. Enchanting Table imbuing with XP chime (`600ms`).
+* **🛡️ Diamond Armor:** 1. Anvil plate shaping (`0ms`) ➔ 2. Smithing assembly (`300ms`) ➔ 3. Enchanting imbuing (`600ms`).
+* **🏹 Crossbow:** 1. Fletching wood carving (`0ms`) ➔ 2. Anvil iron stirrup forging (`300ms`).
+
+*Smart sound debouncing automatically prevents volume distortion during rapid shift-click batch crafting.*
+
+---
+
 ## ⚙️ Configuration & Datapacks
 
 All workstation mechanics can be toggled and configured via `config/ebd/config.yml`:

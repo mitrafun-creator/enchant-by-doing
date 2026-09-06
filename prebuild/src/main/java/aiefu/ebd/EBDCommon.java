@@ -237,6 +237,7 @@ public class EBDCommon {
         NeoForge.EVENT_BUS.addListener(this::onBabySpawn);
         NeoForge.EVENT_BUS.addListener(this::onAnvilRepair);
         NeoForge.EVENT_BUS.addListener(this::onRegisterBrewingRecipes);
+        NeoForge.EVENT_BUS.addListener(aiefu.ebd.workstation.WorkstationSoundHelper::onServerTick);
 
         EBDGameplayEvents gameplayEvents = new EBDGameplayEvents();
         NeoForge.EVENT_BUS.addListener(gameplayEvents::onLivingDamage);
