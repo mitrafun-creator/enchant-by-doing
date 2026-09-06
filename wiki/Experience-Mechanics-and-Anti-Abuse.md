@@ -134,10 +134,24 @@ Experience needed to progress from level $L$ to $L+1$ is calculated using either
 ### A. Exponential Curve (Default):
 $$\text{XP}_{\text{required}}(L) = \text{xpBase} \times (\text{xpMultiplier})^{L - 1}$$
 * *Default Values:* $\text{xpBase} = 100.0$, $\text{xpMultiplier} = 1.07$.
-* *Example:* Level 1 $\rightarrow$ 100 XP, Level 10 $\rightarrow$ 183 XP, Level 50 $\rightarrow$ 2,759 XP, Level 99 $\rightarrow$ 77,596 XP.
+* *Example (Standard Skills):* Level 1 $\rightarrow$ 100 XP, Level 10 $\rightarrow$ 183.8 XP, Level 50 $\rightarrow$ 2,753.0 XP, Level 100 $\rightarrow$ 81,095.0 XP.
+* *🔮 Enchanter Progression (5x Reduced):* To balance the rarity of enchanting interactions, the Enchanter skill curve is **reduced 5-fold** across all 100 levels:
+  * Level 1 $\rightarrow$ **20.0 XP**
+  * Level 10 $\rightarrow$ **36.8 XP**
+  * Level 50 $\rightarrow$ **550.6 XP**
+  * Level 100 $\rightarrow$ **16,219.0 XP**
 
 ### B. Linear Curve:
 $$\text{XP}_{\text{required}}(L) = \text{xpBase} \times L$$
 
 ### C. Flat Table Configuration (`config/ebd/skills_xp.yml`):
 Modpack creators can override all formulas and specify the exact XP required for every level from 1 to 100 on a per-skill basis.
+
+---
+
+## 📜 Dusty Book Discovery Sources
+Players can discover rare **Dusty Books** (`ebd:dusty_book`) to absorb for **+50 Enchanter XP**:
+* **Archaeology:** **20% chance** (`dusty_book_archaeology_chance: 0.20`) when brushing suspicious gravel / sand.
+* **Fishing:** **10% chance** (`dusty_book_fishing_chance: 0.10`) on common catches, **35% chance** (`dusty_book_fishing_treasure_chance: 0.35`) in treasure pool.
+* **Undead Monster Drops (Skeletons, Zombies, Drowned, Husks):** **3% base chance** (`dusty_book_monster_drop_chance: 0.03`) + **1% per Looting level**.
+* **Wither Skeleton Drop:** **5% base chance** (`dusty_book_wither_skeleton_drop_chance: 0.05`) + **1% per Looting level**.

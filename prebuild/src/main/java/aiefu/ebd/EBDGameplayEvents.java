@@ -201,6 +201,52 @@ public class EBDGameplayEvents {
             }
         }
 
+        // Rare Dusty Book drop from Skeletons, Zombies, Wither Skeletons, Drowned, Husks
+        LivingEntity victim = event.getEntity();
+        if (!victim.level().isClientSide()) {
+            boolean isWitherSkeleton = victim instanceof net.minecraft.world.entity.monster.WitherSkeleton;
+            boolean isEligible = isWitherSkeleton
+                    || victim instanceof net.minecraft.world.entity.monster.Skeleton
+                    || victim instanceof net.minecraft.world.entity.monster.Zombie
+                    || victim instanceof net.minecraft.world.entity.monster.Husk
+                    || victim instanceof net.minecraft.world.entity.monster.Drowned;
+
+            if (isEligible && (event.isRecentlyHit() || killer instanceof Player)) {
+                double baseChance = isWitherSkeleton
+                        ? LBDConfig.INSTANCE.dustyBookWitherSkeletonDropChance
+                        : LBDConfig.INSTANCE.dustyBookMonsterDropChance;
+
+                int looting = 0;
+                if (killer instanceof LivingEntity livingKiller) {
+                    ItemStack killerWeapon = livingKiller.getItemInHand(InteractionHand.MAIN_HAND);
+                    Entity directEntity = event.getSource().getDirectEntity();
+                    if (directEntity instanceof ThrownAxeEntity thrownAxe) {
+                        killerWeapon = thrownAxe.getAxeItem();
+                    }
+                    if (!killerWeapon.isEmpty()) {
+                        var regOpt = victim.level().registryAccess().registry(net.minecraft.core.registries.Registries.ENCHANTMENT);
+                        if (regOpt.isPresent()) {
+                            var lootingHolderOpt = regOpt.get().getHolder(net.minecraft.world.item.enchantment.Enchantments.LOOTING);
+                            if (lootingHolderOpt.isPresent()) {
+                                looting = killerWeapon.getEnchantments().getLevel(lootingHolderOpt.get());
+                            }
+                        }
+                    }
+                }
+
+                double finalChance = baseChance + (looting * 0.01);
+                if (victim.level().random.nextFloat() < finalChance) {
+                    event.getDrops().add(new ItemEntity(
+                            victim.level(),
+                            victim.getX(),
+                            victim.getY() + 0.5,
+                            victim.getZ(),
+                            new ItemStack(EBDCommon.DUSTY_BOOK.get())
+                    ));
+                }
+            }
+        }
+
         if (killer instanceof LivingEntity livingKiller) {
             ItemStack weapon = livingKiller.getItemInHand(InteractionHand.MAIN_HAND);
             Entity direct = event.getSource().getDirectEntity();
@@ -210,7 +256,6 @@ public class EBDGameplayEvents {
             if (weapon.isEmpty()) return;
 
             if (Utils.containsEnchantment(weapon, "executioner") && EBDCommon.isEnchantmentEnabled(ResourceLocation.fromNamespaceAndPath(EBDCommon.MOD_ID, "executioner"))) {
-                LivingEntity victim = event.getEntity();
                 double x = victim.getX();
                 double y = victim.getY();
                 double z = victim.getZ();

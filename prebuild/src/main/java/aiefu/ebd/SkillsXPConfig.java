@@ -71,8 +71,9 @@ public class SkillsXPConfig {
 
         for (SkillType type : SkillType.values()) {
             sb.append("# ").append(type.displayName).append(" (").append(type.id).append(")\n");
+            double divisor = (type == SkillType.ENCHANTER) ? 5.0 : 1.0;
             for (int lvl = 1; lvl <= 100; lvl++) {
-                double xpNeeded = 100.0 * Math.pow(1.07, lvl - 1);
+                double xpNeeded = (100.0 * Math.pow(1.07, lvl - 1)) / divisor;
                 sb.append(type.id).append(".").append(lvl).append(": ").append(String.format(java.util.Locale.US, "%.1f", xpNeeded)).append("\n");
             }
             sb.append("\n");

@@ -38,6 +38,8 @@ public class LBDConfig {
     public double dustyBookArchaeologyChance = 0.20;
     public double dustyBookFishingChance = 0.10;
     public double dustyBookFishingTreasureChance = 0.35;
+    public double dustyBookMonsterDropChance = 0.03;
+    public double dustyBookWitherSkeletonDropChance = 0.05;
 
     public boolean enableCraftingWorkstations = true;
     public int workstationDetectionRadius = 5;
@@ -111,6 +113,8 @@ public class LBDConfig {
             dustyBookArchaeologyChance = Double.parseDouble(map.getOrDefault("dusty_book_archaeology_chance", "0.20"));
             dustyBookFishingChance = Double.parseDouble(map.getOrDefault("dusty_book_fishing_chance", "0.10"));
             dustyBookFishingTreasureChance = Double.parseDouble(map.getOrDefault("dusty_book_fishing_treasure_chance", "0.35"));
+            dustyBookMonsterDropChance = Double.parseDouble(map.getOrDefault("dusty_book_monster_drop_chance", "0.03"));
+            dustyBookWitherSkeletonDropChance = Double.parseDouble(map.getOrDefault("dusty_book_wither_skeleton_drop_chance", "0.05"));
 
             enableCraftingWorkstations = Boolean.parseBoolean(map.getOrDefault("enable_crafting_workstations", "true"));
             workstationDetectionRadius = Integer.parseInt(map.getOrDefault("workstation_detection_radius", "5"));
@@ -198,11 +202,16 @@ public class LBDConfig {
         if (custom != null) {
             return custom;
         }
+        double base;
         if ("linear".equalsIgnoreCase(xpGrowthType)) {
-            return xpBase + (level - 1) * xpMultiplier;
+            base = xpBase + (level - 1) * xpMultiplier;
         } else {
-            return xpBase * Math.pow(xpMultiplier, level - 1);
+            base = xpBase * Math.pow(xpMultiplier, level - 1);
         }
+        if ("enchanter".equalsIgnoreCase(skillId)) {
+            base /= 5.0;
+        }
+        return base;
     }
 
     public double getXPNeededForLevel(int level) {
@@ -240,10 +249,12 @@ public class LBDConfig {
                "xp_enchanted_item_use_base_per_enchant: 2.0\n" +
                "xp_enchanted_item_use_per_level: 1.5\n" +
                "xp_enchanted_item_use_unbreaking_multiplier: 1.0\n\n" +
-               "# Dusty Book Discovery Chances in Archaeology and Fishing (0.0 to 1.0)\n" +
+               "# Dusty Book Discovery Chances in Archaeology, Fishing, and Monster Drops (0.0 to 1.0)\n" +
                "dusty_book_archaeology_chance: 0.20\n" +
                "dusty_book_fishing_chance: 0.10\n" +
-               "dusty_book_fishing_treasure_chance: 0.35\n\n" +
+               "dusty_book_fishing_treasure_chance: 0.35\n" +
+               "dusty_book_monster_drop_chance: 0.03\n" +
+               "dusty_book_wither_skeleton_drop_chance: 0.05\n\n" +
                "# Proximity-based Crafting Workstations (requires Anvil, Enchanting Table, Fletching Table, etc. nearby)\n" +
                "enable_crafting_workstations: true\n" +
                "workstation_detection_radius: 5\n\n" +
