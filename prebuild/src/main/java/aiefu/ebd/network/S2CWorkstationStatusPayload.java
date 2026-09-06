@@ -7,14 +7,14 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
-public record S2CWorkstationStatusPayload(byte nearbyMask, String missingWorkstationId) implements CustomPacketPayload {
+public record S2CWorkstationStatusPayload(byte nearbyMask, byte missingMask) implements CustomPacketPayload {
     public static final Type<S2CWorkstationStatusPayload> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(EBDCommon.MOD_ID, "workstation_status"));
 
     public static final StreamCodec<ByteBuf, S2CWorkstationStatusPayload> CODEC = StreamCodec.composite(
         ByteBufCodecs.BYTE,
         S2CWorkstationStatusPayload::nearbyMask,
-        ByteBufCodecs.STRING_UTF8,
-        S2CWorkstationStatusPayload::missingWorkstationId,
+        ByteBufCodecs.BYTE,
+        S2CWorkstationStatusPayload::missingMask,
         S2CWorkstationStatusPayload::new
     );
 

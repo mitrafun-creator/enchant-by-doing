@@ -30,7 +30,8 @@
     "LivingEntityAccessor",
     "LivingEntityTickerAccessor",
     "LivingEntityMixin",
-    "CraftingMenuMixin"
+    "CraftingMenuMixin",
+    "InventoryMenuMixin"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -38,6 +39,7 @@
   "client": [
     "IClientLanguageAcc",
     "GuiMixin",
-    "CraftingScreenMixin"
+    "CraftingScreenMixin",
+    "InventoryScreenMixin"
   ]
 }

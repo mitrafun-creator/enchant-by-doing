@@ -43,7 +43,7 @@ public abstract class CraftingMenuMixin {
             this.access.execute((level, pos) -> {
                 int radius = LBDConfig.INSTANCE.workstationDetectionRadius;
                 byte nearbyMask = WorkstationHelper.getNearbyWorkstationsMask(level, pos, radius);
-                PacketDistributor.sendToPlayer(sp, new S2CWorkstationStatusPayload(nearbyMask, ""));
+                PacketDistributor.sendToPlayer(sp, new S2CWorkstationStatusPayload(nearbyMask, (byte) 0));
             });
         }
     }
@@ -58,13 +58,13 @@ public abstract class CraftingMenuMixin {
                 byte nearbyMask = WorkstationHelper.getNearbyWorkstationsMask(level, pos, radius);
 
                 ItemStack currentResult = this.resultSlots.getItem(0);
-                String missingId = "";
+                byte missingMask = 0;
 
                 if (!currentResult.isEmpty()) {
-                    WorkstationType req = WorkstationHelper.getRequiredWorkstation(currentResult);
-                    if (req != null && !WorkstationHelper.isWorkstationPresent(nearbyMask, req)) {
+                    byte reqMask = WorkstationHelper.getRequiredWorkstationsMask(currentResult);
+                    missingMask = (byte) (reqMask & ~nearbyMask);
+                    if (missingMask != 0) {
                         this.resultSlots.setItem(0, ItemStack.EMPTY);
-                        missingId = req.id;
                     }
                 } else {
                     // Check if craftSlots match a recipe whose result was blocked
@@ -73,15 +73,13 @@ public abstract class CraftingMenuMixin {
                         Optional<RecipeHolder<CraftingRecipe>> match = level.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level);
                         if (match.isPresent()) {
                             ItemStack potentialResult = match.get().value().assemble(input, level.registryAccess());
-                            WorkstationType req = WorkstationHelper.getRequiredWorkstation(potentialResult);
-                            if (req != null && !WorkstationHelper.isWorkstationPresent(nearbyMask, req)) {
-                                missingId = req.id;
-                            }
+                            byte reqMask = WorkstationHelper.getRequiredWorkstationsMask(potentialResult);
+                            missingMask = (byte) (reqMask & ~nearbyMask);
                         }
                     }
                 }
 
-                PacketDistributor.sendToPlayer(sp, new S2CWorkstationStatusPayload(nearbyMask, missingId));
+                PacketDistributor.sendToPlayer(sp, new S2CWorkstationStatusPayload(nearbyMask, missingMask));
             });
         }
     }

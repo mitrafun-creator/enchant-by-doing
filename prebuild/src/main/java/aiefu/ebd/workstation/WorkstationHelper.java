@@ -43,21 +43,26 @@ public class WorkstationHelper {
         return (mask & (1 << type.bitIndex)) != 0;
     }
 
-    public static WorkstationType getRequiredWorkstation(ItemStack resultStack) {
-        if (resultStack.isEmpty()) return null;
+    public static boolean isWorkstationRequiredAndMissing(byte missingMask, WorkstationType type) {
+        return (missingMask & (1 << type.bitIndex)) != 0;
+    }
+
+    public static byte getRequiredWorkstationsMask(ItemStack resultStack) {
+        if (resultStack.isEmpty()) return 0;
 
         // Exceptions: crafting the workstations themselves does NOT require having one nearby!
         Item item = resultStack.getItem();
-        if (item == Items.ANVIL || item == Items.CHIPPED_ANVIL || item == Items.DAMAGED_ANVIL) return null;
-        if (item == Items.ENCHANTING_TABLE) return null;
-        if (item == Items.FLETCHING_TABLE) return null;
-        if (item == Items.SMITHING_TABLE || item == Items.BLAST_FURNACE) return null;
+        if (item == Items.ANVIL || item == Items.CHIPPED_ANVIL || item == Items.DAMAGED_ANVIL) return 0;
+        if (item == Items.ENCHANTING_TABLE) return 0;
+        if (item == Items.FLETCHING_TABLE) return 0;
+        if (item == Items.SMITHING_TABLE || item == Items.BLAST_FURNACE) return 0;
 
+        byte mask = 0;
         for (WorkstationType type : WorkstationType.values()) {
             if (resultStack.is(type.requiredItemTag)) {
-                return type;
+                mask |= (byte) (1 << type.bitIndex);
             }
         }
-        return null;
+        return mask;
     }
 }
