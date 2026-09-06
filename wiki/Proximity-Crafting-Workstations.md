@@ -54,6 +54,7 @@ Advanced recipes require **multiple** workstations simultaneously:
   * The missing required station displays with a **pulsing red outline** around its icon.
   * Hovering over the missing station displays a red alert tooltip: `Для крафта требуется: [Название станции]` / `Requires for crafting: [Station Name]`.
 * **Zero Clutter:** No tooltips are displayed for normal nearby stations.
+* **📖 Recipe Book Tooltips:** When browsing recipes in the vanilla Recipe Book, hovering over any item requiring functional workstations clearly lists the necessary stations: green (`✔`) if the station is already placed nearby, and red (`✖`) if missing.
 * **Persistent Crafting Compatibility:** Closing the crafting menu or player inventory immediately resets all workstation alerts, preventing stuck notifications when using mods like FastWorkbench or Crafting Tweaks.
 
 ---

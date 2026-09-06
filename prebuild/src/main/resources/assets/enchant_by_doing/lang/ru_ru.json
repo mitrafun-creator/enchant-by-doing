@@ -187,6 +187,6 @@
   "workstation.enchant_by_doing.grindstone.desc": "Требуется для заточки клинков, мечей, топоров и ножниц.",
   "workstation.enchant_by_doing.status.present": "✔ Найдена поблизости (в пределах 5 блоков)",
   "workstation.enchant_by_doing.status.absent": "✖ Не обнаружена рядом",
-  "workstation.enchant_by_doing.status.required_missing": "⚠ ТРЕБУЕТСЯ для этого крафта, но отсутствует рядом!",
-  "workstation.enchant_by_doing.required_tooltip": "Для крафта требуется: %s"
+  "workstation.enchant_by_doing.required_tooltip": "Для крафта требуется: %s",
+  "workstation.enchant_by_doing.recipe_book_header": "Требуемые станции:"
 }
