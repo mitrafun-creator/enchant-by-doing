@@ -149,30 +149,30 @@ public class LBDConfig {
 
     private void initDefaultBlockXp() {
         customBlockXp.putIfAbsent("minecraft:coal_ore", 5.0);
-        customBlockXp.putIfAbsent("minecraft:deepslate_coal_ore", 7.5);
+        customBlockXp.putIfAbsent("minecraft:deepslate_coal_ore", 10.0);
         customBlockXp.putIfAbsent("minecraft:copper_ore", 5.0);
-        customBlockXp.putIfAbsent("minecraft:deepslate_copper_ore", 7.5);
+        customBlockXp.putIfAbsent("minecraft:deepslate_copper_ore", 10.0);
         customBlockXp.putIfAbsent("minecraft:iron_ore", 10.0);
-        customBlockXp.putIfAbsent("minecraft:deepslate_iron_ore", 15.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate_iron_ore", 20.0);
         customBlockXp.putIfAbsent("minecraft:gold_ore", 15.0);
-        customBlockXp.putIfAbsent("minecraft:deepslate_gold_ore", 20.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate_gold_ore", 30.0);
         customBlockXp.putIfAbsent("minecraft:redstone_ore", 10.0);
-        customBlockXp.putIfAbsent("minecraft:deepslate_redstone_ore", 15.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate_redstone_ore", 20.0);
         customBlockXp.putIfAbsent("minecraft:lapis_ore", 10.0);
-        customBlockXp.putIfAbsent("minecraft:deepslate_lapis_ore", 15.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate_lapis_ore", 20.0);
         customBlockXp.putIfAbsent("minecraft:nether_quartz_ore", 10.0);
         customBlockXp.putIfAbsent("minecraft:nether_gold_ore", 10.0);
 
-        // Diamond ore: 4x base ore (10.0 * 4 = 40.0)
-        customBlockXp.putIfAbsent("minecraft:diamond_ore", 40.0);
-        customBlockXp.putIfAbsent("minecraft:deepslate_diamond_ore", 60.0);
+        // Diamond: 100.0 (deepslate x2: 200.0)
+        customBlockXp.putIfAbsent("minecraft:diamond_ore", 100.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate_diamond_ore", 200.0);
 
-        // Emerald ore: 4x diamond ore (40.0 * 4 = 160.0)
-        customBlockXp.putIfAbsent("minecraft:emerald_ore", 160.0);
-        customBlockXp.putIfAbsent("minecraft:deepslate_emerald_ore", 240.0);
+        // Emerald: 400.0 (deepslate x2: 800.0)
+        customBlockXp.putIfAbsent("minecraft:emerald_ore", 400.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate_emerald_ore", 800.0);
 
-        // Ancient Debris: 2x emerald ore (160.0 * 2 = 320.0)
-        customBlockXp.putIfAbsent("minecraft:ancient_debris", 320.0);
+        // Ancient Debris: 1000.0
+        customBlockXp.putIfAbsent("minecraft:ancient_debris", 1000.0);
 
         customBlockXp.putIfAbsent("minecraft:stone", 1.0);
         customBlockXp.putIfAbsent("minecraft:cobblestone", 1.0);
@@ -193,7 +193,7 @@ public class LBDConfig {
     }
 
     public double getXPNeededForLevel(int level) {
-        return getXPNeededForLevel("", level);
+        return getXPNeededForLevel("default", level);
     }
 
     private String getDefaultsContent() {
@@ -238,24 +238,24 @@ public class LBDConfig {
                "lumberjack_weapons: minecraft:wooden_axe,minecraft:stone_axe,minecraft:iron_axe,minecraft:golden_axe,minecraft:diamond_axe,minecraft:netherite_axe\n\n" +
                "# Custom Experience for specific Blocks (format: block:namespace:block_name: xp_value)\n" +
                "block:minecraft:coal_ore: 5.0\n" +
-               "block:minecraft:deepslate_coal_ore: 7.5\n" +
+               "block:minecraft:deepslate_coal_ore: 10.0\n" +
                "block:minecraft:copper_ore: 5.0\n" +
-               "block:minecraft:deepslate_copper_ore: 7.5\n" +
+               "block:minecraft:deepslate_copper_ore: 10.0\n" +
                "block:minecraft:iron_ore: 10.0\n" +
-               "block:minecraft:deepslate_iron_ore: 15.0\n" +
+               "block:minecraft:deepslate_iron_ore: 20.0\n" +
                "block:minecraft:gold_ore: 15.0\n" +
-               "block:minecraft:deepslate_gold_ore: 20.0\n" +
+               "block:minecraft:deepslate_gold_ore: 30.0\n" +
                "block:minecraft:redstone_ore: 10.0\n" +
-               "block:minecraft:deepslate_redstone_ore: 15.0\n" +
+               "block:minecraft:deepslate_redstone_ore: 20.0\n" +
                "block:minecraft:lapis_ore: 10.0\n" +
-               "block:minecraft:deepslate_lapis_ore: 15.0\n" +
+               "block:minecraft:deepslate_lapis_ore: 20.0\n" +
                "block:minecraft:nether_quartz_ore: 10.0\n" +
                "block:minecraft:nether_gold_ore: 10.0\n" +
-               "block:minecraft:diamond_ore: 40.0\n" +
-               "block:minecraft:deepslate_diamond_ore: 60.0\n" +
-               "block:minecraft:emerald_ore: 160.0\n" +
-               "block:minecraft:deepslate_emerald_ore: 240.0\n" +
-               "block:minecraft:ancient_debris: 320.0\n" +
+               "block:minecraft:diamond_ore: 100.0\n" +
+               "block:minecraft:deepslate_diamond_ore: 200.0\n" +
+               "block:minecraft:emerald_ore: 400.0\n" +
+               "block:minecraft:deepslate_emerald_ore: 800.0\n" +
+               "block:minecraft:ancient_debris: 1000.0\n" +
                "block:minecraft:stone: 1.0\n" +
                "block:minecraft:cobblestone: 1.0\n" +
                "block:minecraft:deepslate: 1.2\n" +
