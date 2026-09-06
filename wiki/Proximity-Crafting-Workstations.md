@@ -72,13 +72,14 @@ Whenever a player crafts an item requiring functional workstations, dynamic audi
 * **🔮 Enchanting Table:** Deep mystical enchantment hum (`SoundEvents.ENCHANTMENT_TABLE_USE`) seamlessly followed by a sparkling experience orb chime (`SoundEvents.EXPERIENCE_ORB_PICKUP`).
 
 ### 🎶 Sequential Audio Progression
-When an item requires **multiple** workstations (e.g. Diamond Sword, Diamond Armor, Crossbow), sounds play in an authentic artisan sequence spaced ~300ms (6 ticks) apart:
-* **⚔️ Iron Sword:** 1. Anvil hammer blow (`0ms`) ➔ 2. Grindstone blade sharpening (`300ms`).
-* **💎 Diamond Sword:** 1. Anvil forging (`0ms`) ➔ 2. Grindstone sharpening (`300ms`) ➔ 3. Enchanting Table imbuing with XP chime (`600ms`).
-* **🛡️ Diamond Armor:** 1. Anvil plate shaping (`0ms`) ➔ 2. Smithing assembly (`300ms`) ➔ 3. Enchanting imbuing (`600ms`).
-* **🏹 Crossbow:** 1. Fletching wood carving (`0ms`) ➔ 2. Anvil iron stirrup forging (`300ms`).
+When an item requires **multiple** workstations (e.g. Diamond Sword, Diamond Armor, Crossbow), sounds play in an authentic artisan sequence spaced comfortably ~700–900ms apart so each stage's sound resonates fully without overlapping:
+* **⚔️ Iron Sword:** 1. Anvil hammer blow (`0ms`) ➔ 2. Grindstone blade sharpening (`800ms`).
+* **💎 Diamond Sword:** 1. Anvil forging (`0ms`) ➔ 2. Grindstone sharpening (`800ms`) ➔ 3. Enchanting Table imbuing (`1600ms`) with crystal XP chime (`2050ms`).
+* **🛡️ Diamond Armor:** 1. Anvil plate shaping (`0ms`) ➔ 2. Smithing assembly (`800ms`) ➔ 3. Enchanting imbuing (`1500ms`) with crystal XP chime (`1950ms`).
+* **🏹 Crossbow:** 1. Fletching wood carving (`0ms`) ➔ 2. Anvil iron stirrup forging (`700ms`).
+* **🧭 Compass:** 1. Anvil metal casing (`0ms`) ➔ 2. Cartography dial calibration (`800ms`).
 
-*Smart sound debouncing automatically prevents volume distortion during rapid shift-click batch crafting.*
+*Smart sound limiter (`PLAYER_BUSY_UNTIL_TICK`) locks the player's crafting audio channel for the duration of the sequence, guaranteeing that rapid clicking or shift-click batch crafting never overlaps sounds or creates audio distortion.*
 
 ---
 

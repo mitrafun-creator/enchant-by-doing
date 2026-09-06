@@ -15,7 +15,7 @@ import java.util.*;
 public class WorkstationSoundHelper {
 
     private static final List<QueuedSound> PENDING_SOUNDS = new ArrayList<>();
-    private static final Map<UUID, Long> LAST_CRAFT_TICK = new HashMap<>();
+    private static final Map<UUID, Long> PLAYER_BUSY_UNTIL_TICK = new HashMap<>();
 
     private static class QueuedSound {
         final ServerLevel level;
@@ -66,11 +66,10 @@ public class WorkstationSoundHelper {
         if (reqMask == 0) return;
 
         long currentTick = player.server.getTickCount();
-        Long lastTick = LAST_CRAFT_TICK.get(player.getUUID());
-        if (lastTick != null && currentTick - lastTick < 6) {
+        Long busyUntil = PLAYER_BUSY_UNTIL_TICK.get(player.getUUID());
+        if (busyUntil != null && currentTick < busyUntil) {
             return;
         }
-        LAST_CRAFT_TICK.put(player.getUUID(), currentTick);
 
         ServerLevel level = player.serverLevel();
         Vec3 pos = new Vec3(player.getX(), player.getY() + 0.5, player.getZ());
@@ -93,7 +92,6 @@ public class WorkstationSoundHelper {
         );
 
         int currentDelay = 0;
-        int delayStep = 6; // 6 ticks = 300 ms between sequential workstation sounds
 
         for (WorkstationType type : executionOrder) {
             if ((reqMask & (1 << type.bitIndex)) == 0) continue;
@@ -102,36 +100,38 @@ public class WorkstationSoundHelper {
                 case FLETCHING_TABLE -> {
                     float pitch = 0.95F + random.nextFloat() * 0.1F;
                     queueOrPlay(level, pos, SoundEvents.VILLAGER_WORK_FLETCHER, 0.75F, pitch, currentDelay);
-                    currentDelay += delayStep;
+                    currentDelay += 14; // 14 ticks = 700 ms
                 }
                 case ANVIL -> {
                     float pitch = 0.95F + random.nextFloat() * 0.1F;
                     queueOrPlay(level, pos, SoundEvents.ANVIL_USE, 0.6F, pitch, currentDelay);
-                    currentDelay += delayStep;
+                    currentDelay += 16; // 16 ticks = 800 ms for anvil resonance to decay
                 }
                 case ARMORER -> {
                     float pitch = 0.95F + random.nextFloat() * 0.1F;
                     queueOrPlay(level, pos, SoundEvents.SMITHING_TABLE_USE, 0.75F, pitch, currentDelay);
-                    currentDelay += delayStep;
+                    currentDelay += 14; // 14 ticks = 700 ms
                 }
                 case GRINDSTONE -> {
                     float pitch = 1.0F + random.nextFloat() * 0.1F;
                     queueOrPlay(level, pos, SoundEvents.GRINDSTONE_USE, 0.65F, pitch, currentDelay);
-                    currentDelay += delayStep;
+                    currentDelay += 16; // 16 ticks = 800 ms for grinding scrape
                 }
                 case CARTOGRAPHY_TABLE -> {
                     float pitch = 0.95F + random.nextFloat() * 0.1F;
                     queueOrPlay(level, pos, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, 0.75F, pitch, currentDelay);
-                    currentDelay += delayStep;
+                    currentDelay += 12; // 12 ticks = 600 ms
                 }
                 case ENCHANTING_TABLE -> {
-                    // Mystical enchanting whoosh + sparkling experience orb pickup chime
+                    // Mystical enchanting whoosh, followed by a sparkling experience orb pickup chime at its crescendo
                     queueOrPlay(level, pos, SoundEvents.ENCHANTMENT_TABLE_USE, 0.7F, 1.1F, currentDelay);
-                    queueOrPlay(level, pos, SoundEvents.EXPERIENCE_ORB_PICKUP, 0.6F, 0.9F + random.nextFloat() * 0.15F, currentDelay + 2);
-                    currentDelay += delayStep;
+                    queueOrPlay(level, pos, SoundEvents.EXPERIENCE_ORB_PICKUP, 0.65F, 0.9F + random.nextFloat() * 0.15F, currentDelay + 9);
+                    currentDelay += 18; // 18 ticks = 900 ms
                 }
             }
         }
+
+        PLAYER_BUSY_UNTIL_TICK.put(player.getUUID(), currentTick + currentDelay);
     }
 
     private static void queueOrPlay(ServerLevel level, Vec3 pos, SoundEvent sound, float volume, float pitch, int delay) {
@@ -144,6 +144,6 @@ public class WorkstationSoundHelper {
 
     public static void clear() {
         PENDING_SOUNDS.clear();
-        LAST_CRAFT_TICK.clear();
+        PLAYER_BUSY_UNTIL_TICK.clear();
     }
 }
