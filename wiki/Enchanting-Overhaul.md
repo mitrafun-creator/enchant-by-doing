@@ -20,9 +20,11 @@ Knowledge of enchantments must be discovered out in the world before you can app
 
 ### 🔍 How to Discover Enchantments
 1. **Explore World Structures:** **Dusty Books** generate naturally in dungeon chests, abandoned mineshafts, ancient cities, desert pyramids, bastion remnants, and end cities.
-2. **Absorb Knowledge:** Hold right-click while holding a Dusty Book. Particles will swirl, the book's ancient glyphs dissolve into your consciousness, and the book crumbles to dust or empty parchment.
-3. **Permanent Knowledge:** Once learned, the enchantment is permanently registered to your player profile and becomes selectable at any Enchanting Table.
-4. **Vanilla Enchanted Books:** Absorbing or reading vanilla enchanted books also teaches you their contained enchantment.
+2. **Archaeological Excavation:** Brushing **Suspicious Sand** or **Suspicious Gravel** in Desert Pyramids, Desert Wells, Ocean Ruins, and Trail Ruins has a **20% chance** to uncover an ancient Dusty Book!
+3. **Fishing & Deep Waters:** Reeling in catches with a fishing rod has a **10% chance** (and **35% chance on Treasure catches**) to haul up a waterlogged Dusty Book from the deep!
+4. **Absorb Knowledge:** Hold right-click while holding a Dusty Book. Particles will swirl, the book's ancient glyphs dissolve into your consciousness, and the book crumbles to dust or empty parchment.
+5. **Permanent Knowledge:** Once learned, the enchantment is permanently registered to your player profile and becomes selectable at any Enchanting Table.
+6. **Vanilla Enchanted Books:** Absorbing or reading vanilla enchanted books also teaches you their contained enchantment.
 
 > [!NOTE]
 > Server operators can toggle the discovery requirement off by setting `"disableDiscoverySystem": true` in `config/ebd/config.json`, making all enchantments instantly available.

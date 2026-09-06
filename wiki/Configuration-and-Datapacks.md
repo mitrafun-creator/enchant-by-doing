@@ -55,6 +55,11 @@ xp_item_repaired: 15.0
 xp_item_disenchanted: 15.0
 xp_dusty_book_read: 50.0
 
+# Dusty Book Discovery Chances in Archaeology and Fishing (0.0 to 1.0)
+dusty_book_archaeology_chance: 0.20
+dusty_book_fishing_chance: 0.10
+dusty_book_fishing_treasure_chance: 0.35
+
 # Enchanter material discount scaling per level (percentage)
 enchanter_discount_per_level: 1.0
 

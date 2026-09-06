@@ -31,6 +31,10 @@ public class LBDConfig {
     public double xpItemDisenchanted = 15.0;
     public double xpDustyBookRead = 50.0;
 
+    public double dustyBookArchaeologyChance = 0.20;
+    public double dustyBookFishingChance = 0.10;
+    public double dustyBookFishingTreasureChance = 0.35;
+
     public float enchanterDiscountPerLevel = 1.0f;
 
     public Set<String> warriorWeapons = new HashSet<>();
@@ -87,6 +91,10 @@ public class LBDConfig {
             xpItemRepaired = Double.parseDouble(map.getOrDefault("xp_item_repaired", "15.0"));
             xpItemDisenchanted = Double.parseDouble(map.getOrDefault("xp_item_disenchanted", "15.0"));
             xpDustyBookRead = Double.parseDouble(map.getOrDefault("xp_dusty_book_read", "50.0"));
+
+            dustyBookArchaeologyChance = Double.parseDouble(map.getOrDefault("dusty_book_archaeology_chance", "0.20"));
+            dustyBookFishingChance = Double.parseDouble(map.getOrDefault("dusty_book_fishing_chance", "0.10"));
+            dustyBookFishingTreasureChance = Double.parseDouble(map.getOrDefault("dusty_book_fishing_treasure_chance", "0.35"));
 
             enchanterDiscountPerLevel = Float.parseFloat(map.getOrDefault("enchanter_discount_per_level", "1.0"));
 
@@ -172,6 +180,10 @@ public class LBDConfig {
                "xp_item_repaired: 15.0\n" +
                "xp_item_disenchanted: 15.0\n" +
                "xp_dusty_book_read: 50.0\n\n" +
+               "# Dusty Book Discovery Chances in Archaeology and Fishing (0.0 to 1.0)\n" +
+               "dusty_book_archaeology_chance: 0.20\n" +
+               "dusty_book_fishing_chance: 0.10\n" +
+               "dusty_book_fishing_treasure_chance: 0.35\n\n" +
                "# Default Multipliers for non-configured blocks/mobs\n" +
                "block_xp_hardness_multiplier: 1.0\n" +
                "mob_xp_health_multiplier: 1.0\n\n" +
