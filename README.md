@@ -41,6 +41,7 @@ A complete RPG progression and enchanting overhaul for Minecraft (NeoForge 1.21.
 ## 📚 Documentation & Wiki
 Comprehensive documentation, game mechanics, and configuration guides are available in the [**Project Wiki**](wiki/Home.md):
 * [🌌 Skill Trees & Constellations](wiki/Skill-Trees-and-Constellations.md)
+* [🛠️ Proximity Crafting Workstations](wiki/Proximity-Crafting-Workstations.md)
 * [🛡️ Experience Mechanics & Anti-Abuse System](wiki/Experience-Mechanics-and-Anti-Abuse.md)
 * [🔮 Deterministic Enchanting Overhaul](wiki/Enchanting-Overhaul.md)
 * [✨ Custom Enchantments, Items & Status Effects](wiki/Custom-Enchantments-and-Effects.md)

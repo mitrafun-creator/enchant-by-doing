@@ -35,6 +35,9 @@ public class LBDConfig {
     public double dustyBookFishingChance = 0.10;
     public double dustyBookFishingTreasureChance = 0.35;
 
+    public boolean enableCraftingWorkstations = true;
+    public int workstationDetectionRadius = 5;
+
     public float enchanterDiscountPerLevel = 1.0f;
 
     public Set<String> warriorWeapons = new HashSet<>();
@@ -95,6 +98,9 @@ public class LBDConfig {
             dustyBookArchaeologyChance = Double.parseDouble(map.getOrDefault("dusty_book_archaeology_chance", "0.20"));
             dustyBookFishingChance = Double.parseDouble(map.getOrDefault("dusty_book_fishing_chance", "0.10"));
             dustyBookFishingTreasureChance = Double.parseDouble(map.getOrDefault("dusty_book_fishing_treasure_chance", "0.35"));
+
+            enableCraftingWorkstations = Boolean.parseBoolean(map.getOrDefault("enable_crafting_workstations", "true"));
+            workstationDetectionRadius = Integer.parseInt(map.getOrDefault("workstation_detection_radius", "5"));
 
             enchanterDiscountPerLevel = Float.parseFloat(map.getOrDefault("enchanter_discount_per_level", "1.0"));
 
@@ -184,6 +190,9 @@ public class LBDConfig {
                "dusty_book_archaeology_chance: 0.20\n" +
                "dusty_book_fishing_chance: 0.10\n" +
                "dusty_book_fishing_treasure_chance: 0.35\n\n" +
+               "# Proximity-based Crafting Workstations (requires Anvil, Enchanting Table, Fletching Table, etc. nearby)\n" +
+               "enable_crafting_workstations: true\n" +
+               "workstation_detection_radius: 5\n\n" +
                "# Default Multipliers for non-configured blocks/mobs\n" +
                "block_xp_hardness_multiplier: 1.0\n" +
                "mob_xp_health_multiplier: 1.0\n\n" +

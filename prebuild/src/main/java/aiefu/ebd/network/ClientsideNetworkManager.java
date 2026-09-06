@@ -28,6 +28,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ClientsideNetworkManager {
 
+    public static byte clientNearbyWorkstationsMask = 0;
+    public static String clientMissingWorkstationId = "";
+
+    public static void handleWorkstationStatus(S2CWorkstationStatusPayload payload) {
+        clientNearbyWorkstationsMask = payload.nearbyMask();
+        clientMissingWorkstationId = payload.missingWorkstationId();
+    }
+
     public static final java.util.Map<Integer, CompoundTag> PENDING_BOAT_ENCHANTMENTS = new java.util.concurrent.ConcurrentHashMap<>();
 
     public static void handleBoatSync(S2CBoatSyncPayload payload) {

@@ -54,6 +54,7 @@ EbD removes the frustrating random number generator (RNG) and endless AFK XP mob
 | Section | Description |
 |---|---|
 | 🌌 **[Skill Trees & Constellations](Skill-Trees-and-Constellations)** | In-depth breakdown of all 6 skills, 30+ constellation star perks, GUI controls, and the visual editor. |
+| 🛠️ **[Proximity Crafting Workstations](Proximity-Crafting-Workstations)** | Nearby functional workshop requirements for the Crafting Table (Anvil, Enchanting, Fletching, Armorer) and visual status indicators. |
 | 🛡️ **[Experience & Anti-Abuse System](Experience-Mechanics-and-Anti-Abuse)** | Exact XP gain values, formula math, Silk Touch nullification, placement penalty timers, and the World-Saved Melon Tracker. |
 | 🔮 **[Enchanting Overhaul](Enchanting-Overhaul)** | The deterministic Enchanting Table, Dusty Book discovery, material formulas, anvil mechanics, and capacity limits. |
 | ✨ **[Custom Enchantments & Effects](Custom-Enchantments-and-Effects)** | Full catalog of weapon, bow, and boat enchantments, status effects (`Shrinking`, `Growing`, `Experience Surge`), and gilded crops. |

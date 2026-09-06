@@ -318,6 +318,11 @@ public class EBDCommon {
             S2CSkillUpdatePayload.CODEC,
             (payload, context) -> context.enqueueWork(() -> ClientsideNetworkManager.handleSkillUpdate(payload))
         );
+        registrar.playToClient(
+            S2CWorkstationStatusPayload.TYPE,
+            S2CWorkstationStatusPayload.CODEC,
+            (payload, context) -> context.enqueueWork(() -> ClientsideNetworkManager.handleWorkstationStatus(payload))
+        );
     }
 
     @SubscribeEvent

@@ -172,5 +172,16 @@
   "item.minecraft.potion.effect.strong_xp_boost": "Зелье прилива опыта II",
   "item.minecraft.splash_potion.effect.strong_xp_boost": "Взрывное зелье прилива опыта II",
   "item.minecraft.lingering_potion.effect.strong_xp_boost": "Оседающее зелье прилива опыта II",
-  "item.minecraft.tipped_arrow.effect.strong_xp_boost": "Стрела прилива опыта II"
+  "item.minecraft.tipped_arrow.effect.strong_xp_boost": "Стрела прилива опыта II",
+  "workstation.enchant_by_doing.anvil": "Наковальня",
+  "workstation.enchant_by_doing.anvil.desc": "Требуется для ковки металлического оружия, инструментов и фурнитуры.",
+  "workstation.enchant_by_doing.enchanting_table": "Стол зачарования",
+  "workstation.enchant_by_doing.enchanting_table.desc": "Требуется для алмазного/незеритового снаряжения и магических предметов.",
+  "workstation.enchant_by_doing.fletching_table": "Стол лучника",
+  "workstation.enchant_by_doing.fletching_table.desc": "Требуется для создания луков, арбалетов и стрел.",
+  "workstation.enchant_by_doing.armorer": "Стол бронника / Кузнеца",
+  "workstation.enchant_by_doing.armorer.desc": "Требуется для ковки тяжёлой брони, щитов и конской брони.",
+  "workstation.enchant_by_doing.status.present": "✔ Найдена поблизости (в пределах 5 блоков)",
+  "workstation.enchant_by_doing.status.absent": "✖ Не обнаружена рядом",
+  "workstation.enchant_by_doing.status.required_missing": "⚠ ТРЕБУЕТСЯ для этого крафта, но отсутствует рядом!"
 }

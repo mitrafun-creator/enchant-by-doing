@@ -3,6 +3,7 @@
 ### 📖 Core Guides
 * **[Home / Overview](Home)**
 * **[Skill Trees & Constellations](Skill-Trees-and-Constellations)**
+* **[Proximity Crafting Workstations](Proximity-Crafting-Workstations)**
 * **[Experience & Anti-Abuse](Experience-Mechanics-and-Anti-Abuse)**
 * **[Enchanting Overhaul](Enchanting-Overhaul)**
 * **[Custom Enchantments & Effects](Custom-Enchantments-and-Effects)**

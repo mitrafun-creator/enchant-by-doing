@@ -29,13 +29,15 @@
     "BarrelBlockEntityMixin",
     "LivingEntityAccessor",
     "LivingEntityTickerAccessor",
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "CraftingMenuMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
     "IClientLanguageAcc",
-    "GuiMixin"
+    "GuiMixin",
+    "CraftingScreenMixin"
   ]
 }
