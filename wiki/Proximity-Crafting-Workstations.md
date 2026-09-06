@@ -46,14 +46,15 @@ Advanced recipes require **multiple** workstations simultaneously:
 
 ---
 
-## 🖥️ Vanilla-Style Crafting GUI & Minimalist Tooltips
+## 🖥️ Dynamic Vanilla-Style Crafting GUI & Minimalist Tooltips
 
-* **Vanilla Slot Framing:** Workstation icons are rendered inside clean, dark vanilla-style slots.
-* **Subtle Active Dot:** Stations present within 5 blocks feature a subtle green corner dot.
-* **Zero Tooltip Clutter:** Hovering over workstations in normal states produces **no tooltip popup**.
-* **Missing & Required Alert:** If a craft is blocked because a station is missing:
-  * The missing station's slot pulses with a red warning animation and a `!` badge.
-  * Hovering over the missing station displays: `Для крафта требуется: [Название станции]` / `Requires for crafting: [Station Name]`.
+* **Dynamic Context Filtering:** Only workstations that are **either nearby** OR **required for the current craft** are rendered. If no stations are nearby and none are needed, the crafting GUI remains completely clean and unmodified.
+* **Clean Present Stations:** Stations present nearby are displayed cleanly without extra borders or colored dots.
+* **Missing & Required Red Outline:** If a craft is blocked because a station is missing:
+  * The missing required station displays with a **pulsing red outline** around its icon.
+  * Hovering over the missing station displays a red alert tooltip: `Для крафта требуется: [Название станции]` / `Requires for crafting: [Station Name]`.
+* **Zero Clutter:** No tooltips are displayed for normal nearby stations.
+* **Persistent Crafting Compatibility:** Closing the crafting menu or player inventory immediately resets all workstation alerts, preventing stuck notifications when using mods like FastWorkbench or Crafting Tweaks.
 
 ---
 

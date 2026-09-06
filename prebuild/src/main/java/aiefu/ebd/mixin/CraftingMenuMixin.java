@@ -48,6 +48,13 @@ public abstract class CraftingMenuMixin {
         }
     }
 
+    @Inject(method = "removed", at = @At("HEAD"))
+    private void onRemoved(Player player, CallbackInfo ci) {
+        if (!player.level().isClientSide() && player instanceof ServerPlayer sp && sp.connection != null && !(sp instanceof net.neoforged.neoforge.common.util.FakePlayer)) {
+            PacketDistributor.sendToPlayer(sp, new S2CWorkstationStatusPayload((byte) 0, (byte) 0));
+        }
+    }
+
     @Inject(method = "slotsChanged", at = @At("TAIL"))
     private void onSlotsChanged(Container container, CallbackInfo ci) {
         if (!this.player.level().isClientSide() && this.player instanceof ServerPlayer sp && sp.connection != null && !(sp instanceof net.neoforged.neoforge.common.util.FakePlayer)) {
@@ -58,11 +65,11 @@ public abstract class CraftingMenuMixin {
                 byte nearbyMask = WorkstationHelper.getNearbyWorkstationsMask(level, pos, radius);
 
                 ItemStack currentResult = this.resultSlots.getItem(0);
-                byte missingMask = 0;
+                byte reqMask = 0;
 
                 if (!currentResult.isEmpty()) {
-                    byte reqMask = WorkstationHelper.getRequiredWorkstationsMask(currentResult);
-                    missingMask = (byte) (reqMask & ~nearbyMask);
+                    reqMask = WorkstationHelper.getRequiredWorkstationsMask(currentResult);
+                    byte missingMask = (byte) (reqMask & ~nearbyMask);
                     if (missingMask != 0) {
                         this.resultSlots.setItem(0, ItemStack.EMPTY);
                     }
@@ -73,13 +80,12 @@ public abstract class CraftingMenuMixin {
                         Optional<RecipeHolder<CraftingRecipe>> match = level.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level);
                         if (match.isPresent()) {
                             ItemStack potentialResult = match.get().value().assemble(input, level.registryAccess());
-                            byte reqMask = WorkstationHelper.getRequiredWorkstationsMask(potentialResult);
-                            missingMask = (byte) (reqMask & ~nearbyMask);
+                            reqMask = WorkstationHelper.getRequiredWorkstationsMask(potentialResult);
                         }
                     }
                 }
 
-                PacketDistributor.sendToPlayer(sp, new S2CWorkstationStatusPayload(nearbyMask, missingMask));
+                PacketDistributor.sendToPlayer(sp, new S2CWorkstationStatusPayload(nearbyMask, reqMask));
             });
         }
     }

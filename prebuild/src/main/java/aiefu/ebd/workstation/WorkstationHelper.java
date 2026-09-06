@@ -43,6 +43,10 @@ public class WorkstationHelper {
         return (mask & (1 << type.bitIndex)) != 0;
     }
 
+    public static boolean isWorkstationRequired(byte reqMask, WorkstationType type) {
+        return (reqMask & (1 << type.bitIndex)) != 0;
+    }
+
     public static boolean isWorkstationRequiredAndMissing(byte missingMask, WorkstationType type) {
         return (missingMask & (1 << type.bitIndex)) != 0;
     }

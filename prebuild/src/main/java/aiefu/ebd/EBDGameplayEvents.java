@@ -589,9 +589,9 @@ public class EBDGameplayEvents {
             return;
         }
 
-        // Emergency Obsidian Mining with Iron Pickaxe (very slow: ~30 seconds)
+        // Emergency Obsidian Mining with Iron Pickaxe (very slow: ~25-30 seconds)
         if (tool.is(Items.IRON_PICKAXE) && (event.getState().is(net.minecraft.world.level.block.Blocks.OBSIDIAN) || event.getState().is(net.minecraft.world.level.block.Blocks.CRYING_OBSIDIAN))) {
-            event.setNewSpeed(25.0F);
+            event.setNewSpeed(9.0F);
             return;
         }
 
@@ -818,23 +818,6 @@ public class EBDGameplayEvents {
     public void onBlockDrops(BlockDropsEvent event) {
         if (event.getLevel().isClientSide()) return;
         if (event.getBreaker() instanceof ServerPlayer player) {
-            ItemStack heldTool = event.getTool();
-            net.minecraft.world.level.block.state.BlockState blockState = event.getState();
-
-            // Emergency Obsidian Mining: Iron pickaxe drops obsidian, but breaks completely
-            if (heldTool.is(Items.IRON_PICKAXE) && (blockState.is(net.minecraft.world.level.block.Blocks.OBSIDIAN) || blockState.is(net.minecraft.world.level.block.Blocks.CRYING_OBSIDIAN))) {
-                Item droppedItem = blockState.is(net.minecraft.world.level.block.Blocks.CRYING_OBSIDIAN) ? Items.CRYING_OBSIDIAN : Items.OBSIDIAN;
-                ItemEntity dropEntity = new ItemEntity(player.level(), event.getPos().getX() + 0.5, event.getPos().getY() + 0.5, event.getPos().getZ() + 0.5, new ItemStack(droppedItem));
-                dropEntity.setDefaultPickUpDelay();
-                event.getDrops().add(dropEntity);
-
-                // Guaranteed destruction of the iron pickaxe
-                ItemStack mainHand = player.getMainHandItem();
-                if (mainHand.is(Items.IRON_PICKAXE)) {
-                    mainHand.hurtAndBreak(mainHand.getMaxDamage() + 10, player, EquipmentSlot.MAINHAND);
-                }
-            }
-
             int lumberjackLevel = Utils.getSkillLevel(player, "lumberjack");
             if (lumberjackLevel >= 40) {
                 net.minecraft.world.level.block.state.BlockState state = event.getState();

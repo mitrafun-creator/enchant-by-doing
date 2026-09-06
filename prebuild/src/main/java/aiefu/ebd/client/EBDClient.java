@@ -115,6 +115,26 @@ public class EBDClient {
         }
 
         @SubscribeEvent
+        public static void onScreenOpening(net.neoforged.neoforge.client.event.ScreenEvent.Opening event) {
+            if (event.getNewScreen() instanceof net.minecraft.client.gui.screens.inventory.CraftingScreen ||
+                event.getNewScreen() instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen) {
+                Minecraft mc = Minecraft.getInstance();
+                if (mc.level != null && mc.player != null) {
+                    aiefu.ebd.network.ClientsideNetworkManager.clientNearbyWorkstationsMask = aiefu.ebd.workstation.WorkstationHelper.getNearbyWorkstationsMask(
+                        mc.level, mc.player.blockPosition(), aiefu.ebd.LBDConfig.INSTANCE.workstationDetectionRadius
+                    );
+                    aiefu.ebd.network.ClientsideNetworkManager.clientRequiredWorkstationsMask = 0;
+                    aiefu.ebd.network.ClientsideNetworkManager.clientMissingWorkstationsMask = 0;
+                }
+            }
+        }
+
+        @SubscribeEvent
+        public static void onScreenClosing(net.neoforged.neoforge.client.event.ScreenEvent.Closing event) {
+            aiefu.ebd.network.ClientsideNetworkManager.reset();
+        }
+
+        @SubscribeEvent
         public static void onClientTick(net.neoforged.neoforge.client.event.ClientTickEvent.Post event) {
             net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
             if (mc.player != null && mc.screen == null) {

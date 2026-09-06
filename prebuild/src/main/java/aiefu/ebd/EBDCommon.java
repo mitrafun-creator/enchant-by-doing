@@ -57,7 +57,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.Item;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.ItemParticleOption;
 import java.util.ArrayList;
 import java.util.Optional;
 import org.jetbrains.annotations.Nullable;
@@ -387,6 +389,17 @@ public class EBDCommon {
         BlockState state = event.getState();
         Block block = state.getBlock();
         ItemStack tool = sp.getMainHandItem();
+
+        // Emergency Obsidian Mining with Iron Pickaxe: guaranteed drop and pickaxe destruction
+        if (!sp.getAbilities().instabuild && tool.is(Items.IRON_PICKAXE) && (state.is(Blocks.OBSIDIAN) || state.is(Blocks.CRYING_OBSIDIAN))) {
+            Item dropItem = state.is(Blocks.CRYING_OBSIDIAN) ? Items.CRYING_OBSIDIAN : Items.OBSIDIAN;
+            Block.popResource(sp.serverLevel(), event.getPos(), new ItemStack(dropItem));
+
+            // Guaranteed complete destruction of the iron pickaxe
+            sp.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+            sp.level().playSound(null, sp.getX(), sp.getY(), sp.getZ(), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1.0F, 1.0F);
+            sp.serverLevel().sendParticles(new ItemParticleOption(ParticleTypes.ITEM, new ItemStack(Items.IRON_PICKAXE)), sp.getX(), sp.getY() + 1.0, sp.getZ(), 15, 0.2, 0.2, 0.2, 0.05);
+        }
 
         String blockKey = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(block).toString();
         boolean inConfig = LBDConfig.INSTANCE.customBlockXp.containsKey(blockKey);

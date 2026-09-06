@@ -45,27 +45,27 @@ public abstract class InventoryMenuMixin {
             byte nearbyMask = WorkstationHelper.getNearbyWorkstationsMask(level, pos, radius);
 
             ItemStack currentResult = this.resultSlots.getItem(0);
-            byte missingMask = 0;
+            byte reqMask = 0;
 
             if (!currentResult.isEmpty()) {
-                byte reqMask = WorkstationHelper.getRequiredWorkstationsMask(currentResult);
-                missingMask = (byte) (reqMask & ~nearbyMask);
+                byte potentialReq = WorkstationHelper.getRequiredWorkstationsMask(currentResult);
+                byte missingMask = (byte) (potentialReq & ~nearbyMask);
                 if (missingMask != 0) {
                     this.resultSlots.setItem(0, ItemStack.EMPTY);
                 }
+                reqMask = potentialReq;
             } else {
                 CraftingInput input = this.craftSlots.asCraftInput();
                 if (!input.isEmpty()) {
                     Optional<RecipeHolder<CraftingRecipe>> match = level.getServer().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level);
                     if (match.isPresent()) {
                         ItemStack potentialResult = match.get().value().assemble(input, level.registryAccess());
-                        byte reqMask = WorkstationHelper.getRequiredWorkstationsMask(potentialResult);
-                        missingMask = (byte) (reqMask & ~nearbyMask);
+                        reqMask = WorkstationHelper.getRequiredWorkstationsMask(potentialResult);
                     }
                 }
             }
 
-            PacketDistributor.sendToPlayer(sp, new S2CWorkstationStatusPayload(nearbyMask, missingMask));
+            PacketDistributor.sendToPlayer(sp, new S2CWorkstationStatusPayload(nearbyMask, reqMask));
         }
     }
 }
