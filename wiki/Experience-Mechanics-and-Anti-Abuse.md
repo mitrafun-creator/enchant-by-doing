@@ -24,6 +24,20 @@ Every in-game action awards experience directly to its corresponding skill:
 | 🔮 **Enchanter** | Repairing / Combining on Anvil | **15.0 XP** | `xp_item_repaired` | Awarded on `AnvilRepairEvent` |
 | 🔮 **Enchanter** | Disenchanting at Grindstone | **15.0 XP** | `xp_item_disenchanted`| Awarded on grindstone result removal |
 
+### ⛏️ Ore Mining Experience Breakdown
+Ores award specialized Miner experience scaled to their rarity and preciousness:
+
+| Ore Tier | Stone Variant | Deepslate Variant | Progression Multiplier |
+|---|:---:|:---:|---|
+| **Coal / Copper Ore** | **5.0 XP** | **7.5 XP** | Common surface ores |
+| **Iron / Redstone / Lapis Ore** | **10.0 XP** | **15.0 XP** | Standard base ore (`xp_ore_mined: 10.0`) |
+| **Gold / Nether Quartz / Nether Gold** | **15.0 XP** | **20.0 XP** | Precious conductive ores |
+| **Diamond Ore** | **40.0 XP** | **60.0 XP** | **4x** standard base ore |
+| **Emerald Ore** | **160.0 XP** | **240.0 XP** | **4x** diamond ore tier |
+| **Ancient Debris** | **320.0 XP** | — | **2x** emerald ore tier |
+
+*Mining with Silk Touch awards **0.0 XP** to prevent placing and re-mining loops.*
+
 ---
 
 ## 🛡️ Anti-Abuse Security Architecture

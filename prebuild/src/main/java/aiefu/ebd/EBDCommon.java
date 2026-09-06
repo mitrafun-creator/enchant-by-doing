@@ -412,7 +412,8 @@ public class EBDCommon {
         // 1. Miner checks
         if (tool.getItem() instanceof net.minecraft.world.item.PickaxeItem && !isFarmerBlock) {
             boolean isOre = state.is(net.neoforged.neoforge.common.Tags.Blocks.ORES) 
-                || block.getDescriptionId().contains("ore");
+                || block.getDescriptionId().contains("ore")
+                || block == Blocks.ANCIENT_DEBRIS;
             
             boolean isStone = state.is(net.minecraft.tags.BlockTags.BASE_STONE_OVERWORLD)
                 || state.is(net.minecraft.tags.BlockTags.BASE_STONE_NETHER)

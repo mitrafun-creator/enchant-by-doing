@@ -140,9 +140,44 @@ public class LBDConfig {
                 }
             }
 
+            initDefaultBlockXp();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void initDefaultBlockXp() {
+        customBlockXp.putIfAbsent("minecraft:coal_ore", 5.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate_coal_ore", 7.5);
+        customBlockXp.putIfAbsent("minecraft:copper_ore", 5.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate_copper_ore", 7.5);
+        customBlockXp.putIfAbsent("minecraft:iron_ore", 10.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate_iron_ore", 15.0);
+        customBlockXp.putIfAbsent("minecraft:gold_ore", 15.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate_gold_ore", 20.0);
+        customBlockXp.putIfAbsent("minecraft:redstone_ore", 10.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate_redstone_ore", 15.0);
+        customBlockXp.putIfAbsent("minecraft:lapis_ore", 10.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate_lapis_ore", 15.0);
+        customBlockXp.putIfAbsent("minecraft:nether_quartz_ore", 10.0);
+        customBlockXp.putIfAbsent("minecraft:nether_gold_ore", 10.0);
+
+        // Diamond ore: 4x base ore (10.0 * 4 = 40.0)
+        customBlockXp.putIfAbsent("minecraft:diamond_ore", 40.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate_diamond_ore", 60.0);
+
+        // Emerald ore: 4x diamond ore (40.0 * 4 = 160.0)
+        customBlockXp.putIfAbsent("minecraft:emerald_ore", 160.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate_emerald_ore", 240.0);
+
+        // Ancient Debris: 2x emerald ore (160.0 * 2 = 320.0)
+        customBlockXp.putIfAbsent("minecraft:ancient_debris", 320.0);
+
+        customBlockXp.putIfAbsent("minecraft:stone", 1.0);
+        customBlockXp.putIfAbsent("minecraft:cobblestone", 1.0);
+        customBlockXp.putIfAbsent("minecraft:deepslate", 1.2);
+        customBlockXp.putIfAbsent("minecraft:cobbled_deepslate", 1.2);
     }
 
     public double getXPNeededForLevel(String skillId, int level) {
@@ -202,11 +237,25 @@ public class LBDConfig {
                "warrior_weapons: minecraft:wooden_sword,minecraft:stone_sword,minecraft:iron_sword,minecraft:golden_sword,minecraft:diamond_sword,minecraft:netherite_sword\n" +
                "lumberjack_weapons: minecraft:wooden_axe,minecraft:stone_axe,minecraft:iron_axe,minecraft:golden_axe,minecraft:diamond_axe,minecraft:netherite_axe\n\n" +
                "# Custom Experience for specific Blocks (format: block:namespace:block_name: xp_value)\n" +
-               "block:minecraft:diamond_ore: 50.0\n" +
-               "block:minecraft:emerald_ore: 50.0\n" +
-               "block:minecraft:gold_ore: 20.0\n" +
-               "block:minecraft:iron_ore: 10.0\n" +
                "block:minecraft:coal_ore: 5.0\n" +
+               "block:minecraft:deepslate_coal_ore: 7.5\n" +
+               "block:minecraft:copper_ore: 5.0\n" +
+               "block:minecraft:deepslate_copper_ore: 7.5\n" +
+               "block:minecraft:iron_ore: 10.0\n" +
+               "block:minecraft:deepslate_iron_ore: 15.0\n" +
+               "block:minecraft:gold_ore: 15.0\n" +
+               "block:minecraft:deepslate_gold_ore: 20.0\n" +
+               "block:minecraft:redstone_ore: 10.0\n" +
+               "block:minecraft:deepslate_redstone_ore: 15.0\n" +
+               "block:minecraft:lapis_ore: 10.0\n" +
+               "block:minecraft:deepslate_lapis_ore: 15.0\n" +
+               "block:minecraft:nether_quartz_ore: 10.0\n" +
+               "block:minecraft:nether_gold_ore: 10.0\n" +
+               "block:minecraft:diamond_ore: 40.0\n" +
+               "block:minecraft:deepslate_diamond_ore: 60.0\n" +
+               "block:minecraft:emerald_ore: 160.0\n" +
+               "block:minecraft:deepslate_emerald_ore: 240.0\n" +
+               "block:minecraft:ancient_debris: 320.0\n" +
                "block:minecraft:stone: 1.0\n" +
                "block:minecraft:cobblestone: 1.0\n" +
                "block:minecraft:deepslate: 1.2\n" +
