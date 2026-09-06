@@ -12,6 +12,7 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -110,14 +111,45 @@ public class ItemStackMixin {
         }
     }
 
-    @Inject(method = "hurtAndBreak(ILnet/minecraft/server/level/ServerLevel;Lnet/minecraft/server/level/ServerPlayer;Ljava/util/function/Consumer;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;setDamageValue(I)V"))
-    private void ebd$onDurabilityDamageEnchanterXp(int amount, net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player, java.util.function.Consumer<net.minecraft.world.item.Item> onBroken, CallbackInfo ci) {
-        if (player == null || level == null || level.isClientSide()) return;
+    @Unique
+    private static final ThreadLocal<Integer> EBD$PREV_DAMAGE = new ThreadLocal<>();
+    @Unique
+    private static final ThreadLocal<net.minecraft.world.item.enchantment.ItemEnchantments> EBD$CAPTURED_ENCHANTS = new ThreadLocal<>();
+
+    @Inject(method = "hurtAndBreak(ILnet/minecraft/server/level/ServerLevel;Lnet/minecraft/server/level/ServerPlayer;Ljava/util/function/Consumer;)V", at = @At("HEAD"))
+    private void ebd$beforeHurtAndBreak(int amount, net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player, java.util.function.Consumer<net.minecraft.world.item.Item> onBroken, CallbackInfo ci) {
+        if (player == null || level == null || level.isClientSide()) {
+            EBD$PREV_DAMAGE.remove();
+            EBD$CAPTURED_ENCHANTS.remove();
+            return;
+        }
+        ItemStack self = (ItemStack) (Object) this;
+        if (!self.isDamageableItem() || self.getEnchantments().isEmpty()) {
+            EBD$PREV_DAMAGE.remove();
+            EBD$CAPTURED_ENCHANTS.remove();
+            return;
+        }
+        EBD$PREV_DAMAGE.set(self.getDamageValue());
+        EBD$CAPTURED_ENCHANTS.set(self.getEnchantments());
+    }
+
+    @Inject(method = "hurtAndBreak(ILnet/minecraft/server/level/ServerLevel;Lnet/minecraft/server/level/ServerPlayer;Ljava/util/function/Consumer;)V", at = @At("RETURN"))
+    private void ebd$afterHurtAndBreak(int amount, net.minecraft.server.level.ServerLevel level, net.minecraft.server.level.ServerPlayer player, java.util.function.Consumer<net.minecraft.world.item.Item> onBroken, CallbackInfo ci) {
+        Integer prevDamage = EBD$PREV_DAMAGE.get();
+        net.minecraft.world.item.enchantment.ItemEnchantments enchants = EBD$CAPTURED_ENCHANTS.get();
+        EBD$PREV_DAMAGE.remove();
+        EBD$CAPTURED_ENCHANTS.remove();
+
+        if (prevDamage == null || enchants == null || enchants.isEmpty() || player == null || level == null) {
+            return;
+        }
 
         ItemStack self = (ItemStack) (Object) this;
-        net.minecraft.world.item.enchantment.ItemEnchantments enchants = self.getEnchantments();
-        if (enchants.isEmpty()) return;
+        // Verify durability was actually reduced (either damage increased, or item broke and is now empty)
+        boolean durabilityLost = self.isEmpty() || (self.getDamageValue() > prevDamage);
+        if (!durabilityLost) {
+            return;
+        }
 
         int chance = aiefu.ebd.LBDConfig.INSTANCE.xpEnchantedItemUseChance;
         if (chance <= 0) return;
