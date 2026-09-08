@@ -12,7 +12,7 @@ public class GlobalPerks {
         HEALTH_BOOST("health_boost", "perk.enchant_by_doing.health_boost", 20, 1, Items.GOLDEN_APPLE),
         LIGHT_STEP("light_step", "perk.enchant_by_doing.light_step", 3, 1, Items.FEATHER),
         WELL_FED("well_fed", "perk.enchant_by_doing.well_fed", 3, 1, Items.COOKED_BEEF),
-        SOUL_MAGNET("soul_magnet", "perk.enchant_by_doing.soul_magnet", 2, 2, Items.EXPERIENCE_BOTTLE),
+        LOOT_MAGNET("loot_magnet", "perk.enchant_by_doing.loot_magnet", 2, 2, Items.HOPPER),
         IRON_WILL("iron_will", "perk.enchant_by_doing.iron_will", 3, 1, Items.SHIELD),
         WAVE_RIDER("wave_rider", "perk.enchant_by_doing.wave_rider", 2, 1, Items.HEART_OF_THE_SEA),
         SILVER_TONGUE("silver_tongue", "perk.enchant_by_doing.silver_tongue", 2, 2, Items.EMERALD);

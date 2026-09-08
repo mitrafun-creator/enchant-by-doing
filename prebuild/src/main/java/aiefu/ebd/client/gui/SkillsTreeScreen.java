@@ -175,15 +175,15 @@ public class SkillsTreeScreen extends Screen {
         wellFed.unlockLevel = 1;
         constellation.stars.add(wellFed);
 
-        StarNode soulMagnet = new StarNode();
-        soulMagnet.id = "soul_magnet";
-        soulMagnet.x = 45;
-        soulMagnet.y = 95;
-        soulMagnet.type = "perk";
-        soulMagnet.name = "Магнит опыта";
-        soulMagnet.description = "Увеличивает радиус притяжения сфер опыта на +2.5 / +5.0 блоков.\nНа 2 ранге сферы опыта притягиваются быстрее и моментально поглощаются.\nСтоимость: 2 очка навыков за ранг.";
-        soulMagnet.unlockLevel = 1;
-        constellation.stars.add(soulMagnet);
+        StarNode lootMagnet = new StarNode();
+        lootMagnet.id = "loot_magnet";
+        lootMagnet.x = 45;
+        lootMagnet.y = 95;
+        lootMagnet.type = "perk";
+        lootMagnet.name = "Магнит добычи";
+        lootMagnet.description = "Притягивает выпавшие предметы в радиусе +2.0 / +4.0 блоков.\nПрисед (Shift) временно отключает притяжение.\nСтоимость: 2 очка навыков за ранг.";
+        lootMagnet.unlockLevel = 1;
+        constellation.stars.add(lootMagnet);
 
         StarNode ironWill = new StarNode();
         ironWill.id = "iron_will";
@@ -218,14 +218,14 @@ public class SkillsTreeScreen extends Screen {
         constellation.connections.add(new String[]{"global_core", "health_boost"});
         constellation.connections.add(new String[]{"global_core", "light_step"});
         constellation.connections.add(new String[]{"global_core", "well_fed"});
-        constellation.connections.add(new String[]{"global_core", "soul_magnet"});
+        constellation.connections.add(new String[]{"global_core", "loot_magnet"});
         constellation.connections.add(new String[]{"global_core", "iron_will"});
         constellation.connections.add(new String[]{"global_core", "wave_rider"});
         constellation.connections.add(new String[]{"global_core", "silver_tongue"});
         constellation.connections.add(new String[]{"health_boost", "light_step"});
         constellation.connections.add(new String[]{"light_step", "well_fed"});
-        constellation.connections.add(new String[]{"well_fed", "soul_magnet"});
-        constellation.connections.add(new String[]{"soul_magnet", "iron_will"});
+        constellation.connections.add(new String[]{"well_fed", "loot_magnet"});
+        constellation.connections.add(new String[]{"loot_magnet", "iron_will"});
         constellation.connections.add(new String[]{"iron_will", "wave_rider"});
         constellation.connections.add(new String[]{"wave_rider", "silver_tongue"});
         constellation.connections.add(new String[]{"silver_tongue", "health_boost"});
@@ -805,8 +805,8 @@ public class SkillsTreeScreen extends Screen {
                 bonusText = " §a(-" + (rank * 20) + "% падения)";
             } else if (perk == aiefu.ebd.GlobalPerks.Perk.WELL_FED && rank > 0) {
                 bonusText = " §a(+" + (rank * 25) + "% насыщения)";
-            } else if (perk == aiefu.ebd.GlobalPerks.Perk.SOUL_MAGNET && rank > 0) {
-                bonusText = " §a(+" + (rank * 2.5f) + "м радиус)";
+            } else if (perk == aiefu.ebd.GlobalPerks.Perk.LOOT_MAGNET && rank > 0) {
+                bonusText = " §a(+" + (rank * 2.0f) + "м радиус)";
             } else if (perk == aiefu.ebd.GlobalPerks.Perk.IRON_WILL && rank > 0) {
                 bonusText = " §a(-" + (rank * 15) + "% урона)";
             } else if (perk == aiefu.ebd.GlobalPerks.Perk.WAVE_RIDER && rank > 0) {

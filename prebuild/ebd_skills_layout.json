@@ -347,12 +347,12 @@
                 "unlockLevel": 1
             },
             {
-                "id": "soul_magnet",
+                "id": "loot_magnet",
                 "x": 45,
                 "y": 95,
                 "type": "perk",
-                "name": "Магнит опыта",
-                "description": "Увеличивает радиус притяжения сфер опыта на +2.5 / +5.0 блоков.\nНа 2 ранге сферы опыта притягиваются быстрее и моментально поглощаются.\nСтоимость: 2 очка навыков за ранг.",
+                "name": "Магнит добычи",
+                "description": "Притягивает выпавшие предметы в радиусе +2.0 / +4.0 блоков.\nПрисед (Shift) временно отключает притяжение.\nСтоимость: 2 очка навыков за ранг.",
                 "unlockLevel": 1
             },
             {
@@ -387,14 +387,14 @@
             ["global_core", "health_boost"],
             ["global_core", "light_step"],
             ["global_core", "well_fed"],
-            ["global_core", "soul_magnet"],
+            ["global_core", "loot_magnet"],
             ["global_core", "iron_will"],
             ["global_core", "wave_rider"],
             ["global_core", "silver_tongue"],
             ["health_boost", "light_step"],
             ["light_step", "well_fed"],
-            ["well_fed", "soul_magnet"],
-            ["soul_magnet", "iron_will"],
+            ["well_fed", "loot_magnet"],
+            ["loot_magnet", "iron_will"],
             ["iron_will", "wave_rider"],
             ["wave_rider", "silver_tongue"],
             ["silver_tongue", "health_boost"]

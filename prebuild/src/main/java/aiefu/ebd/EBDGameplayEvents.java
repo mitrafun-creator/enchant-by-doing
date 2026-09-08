@@ -462,23 +462,20 @@ public class EBDGameplayEvents {
 
             // Global Perks: Soul Magnet, Iron Will, Wave Rider, Well-Fed
             if (sp instanceof IServerPlayerAcc acc) {
-                int magnetRank = acc.ebd$getPerkLevel("soul_magnet");
-                if (magnetRank > 0 && !sp.isSpectator()) {
-                    double radius = 1.5 + magnetRank * 2.5;
-                    java.util.List<net.minecraft.world.entity.ExperienceOrb> orbs = sp.level().getEntitiesOfClass(
-                        net.minecraft.world.entity.ExperienceOrb.class,
+                int magnetRank = acc.ebd$getPerkLevel("loot_magnet");
+                if (magnetRank > 0 && !sp.isSpectator() && !sp.isShiftKeyDown()) {
+                    double radius = 1.5 + magnetRank * 2.0;
+                    java.util.List<net.minecraft.world.entity.item.ItemEntity> items = sp.level().getEntitiesOfClass(
+                        net.minecraft.world.entity.item.ItemEntity.class,
                         sp.getBoundingBox().inflate(radius)
                     );
-                    for (var orb : orbs) {
-                        if (orb.isAlive() && orb.getValue() > 0) {
-                            Vec3 toPlayer = sp.position().add(0, 0.5, 0).subtract(orb.position());
+                    for (var item : items) {
+                        if (item.isAlive() && !item.hasPickUpDelay()) {
+                            Vec3 toPlayer = sp.position().add(0, 0.5, 0).subtract(item.position());
                             double dist = toPlayer.length();
                             if (dist > 0.2) {
-                                Vec3 motion = toPlayer.normalize().scale(0.35 * (magnetRank == 2 ? 1.5 : 1.0));
-                                orb.setDeltaMovement(orb.getDeltaMovement().scale(0.5).add(motion));
-                            }
-                            if (magnetRank >= 2 && dist < 1.5) {
-                                orb.playerTouch(sp);
+                                Vec3 motion = toPlayer.normalize().scale(0.30 * (magnetRank == 2 ? 1.4 : 1.0));
+                                item.setDeltaMovement(item.getDeltaMovement().scale(0.6).add(motion));
                             }
                         }
                     }
