@@ -301,9 +301,11 @@ public class EBDCommon {
                         if (currentRank < perk.maxLevel && acc.ebd$getSkillPoints() >= perk.costPerLevel) {
                             acc.ebd$setSkillPoints(acc.ebd$getSkillPoints() - perk.costPerLevel);
                             acc.ebd$setPerkLevel(perk.id, currentRank + 1);
-                            if (perk == GlobalPerks.Perk.HEALTH_BOOST) {
+                            if (perk == GlobalPerks.Perk.HEALTH_BOOST || perk == GlobalPerks.Perk.WAVE_RIDER) {
                                 acc.ebd$applyGlobalPerkAttributes();
-                                sp.heal(1.0f);
+                                if (perk == GlobalPerks.Perk.HEALTH_BOOST) {
+                                    sp.heal(1.0f);
+                                }
                             }
                             ServersideNetworkManager.sendGlobalSync(sp);
                             sp.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.7f, 1.5f);

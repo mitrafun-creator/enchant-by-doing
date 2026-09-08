@@ -81,6 +81,24 @@ public class EBDGameplayEvents {
                     }
                 }
             }
+
+            if (player instanceof IServerPlayerAcc acc) {
+                int lightStep = acc.ebd$getPerkLevel("light_step");
+                if (lightStep > 0 && event.getSource().is(net.minecraft.tags.DamageTypeTags.IS_FALL)) {
+                    float mult = Math.max(0.0f, 1.0f - lightStep * 0.20f);
+                    event.setAmount(event.getAmount() * mult);
+                }
+                int ironWill = acc.ebd$getPerkLevel("iron_will");
+                if (ironWill > 0) {
+                    if (event.getSource().is(net.minecraft.tags.DamageTypeTags.IS_FIRE)
+                            || event.getSource().is(net.minecraft.world.damagesource.DamageTypes.WITHER)
+                            || player.hasEffect(MobEffects.POISON)
+                            || player.hasEffect(MobEffects.WITHER)) {
+                        float mult = Math.max(0.0f, 1.0f - ironWill * 0.15f);
+                        event.setAmount(event.getAmount() * mult);
+                    }
+                }
+            }
         }
 
         if (victim.getVehicle() instanceof Boat boat) {
@@ -438,6 +456,52 @@ public class EBDGameplayEvents {
                     );
                     for (net.minecraft.world.entity.PathfinderMob mob : mobs) {
                         mob.getNavigation().moveTo(sp, 1.25D);
+                    }
+                }
+            }
+
+            // Global Perks: Soul Magnet, Iron Will, Wave Rider, Well-Fed
+            if (sp instanceof IServerPlayerAcc acc) {
+                int magnetRank = acc.ebd$getPerkLevel("soul_magnet");
+                if (magnetRank > 0 && !sp.isSpectator()) {
+                    double radius = 1.5 + magnetRank * 2.5;
+                    java.util.List<net.minecraft.world.entity.ExperienceOrb> orbs = sp.level().getEntitiesOfClass(
+                        net.minecraft.world.entity.ExperienceOrb.class,
+                        sp.getBoundingBox().inflate(radius)
+                    );
+                    for (var orb : orbs) {
+                        if (orb.isAlive() && orb.getValue() > 0) {
+                            Vec3 toPlayer = sp.position().add(0, 0.5, 0).subtract(orb.position());
+                            double dist = toPlayer.length();
+                            if (dist > 0.2) {
+                                Vec3 motion = toPlayer.normalize().scale(0.35 * (magnetRank == 2 ? 1.5 : 1.0));
+                                orb.setDeltaMovement(orb.getDeltaMovement().scale(0.5).add(motion));
+                            }
+                            if (magnetRank >= 2 && dist < 1.5) {
+                                orb.playerTouch(sp);
+                            }
+                        }
+                    }
+                }
+
+                int ironWillRank = acc.ebd$getPerkLevel("iron_will");
+                if (ironWillRank >= 3 && sp.isOnFire()) {
+                    int remainingFire = sp.getRemainingFireTicks();
+                    if (remainingFire > 2) {
+                        sp.setRemainingFireTicks(remainingFire - 1);
+                    }
+                }
+
+                int waveRank = acc.ebd$getPerkLevel("wave_rider");
+                if (waveRank >= 2 && sp.isUnderWater()) {
+                    sp.addEffect(new MobEffectInstance(MobEffects.CONDUIT_POWER, 60, 0, false, false, false));
+                }
+
+                int wellFedRank = acc.ebd$getPerkLevel("well_fed");
+                if (wellFedRank >= 3 && sp.isSprinting() && sp.tickCount % 40 == 0) {
+                    float currentSat = sp.getFoodData().getSaturationLevel();
+                    if (currentSat > 0 && currentSat < 20.0f) {
+                        sp.getFoodData().setSaturation(Math.min(20.0f, currentSat + 0.1f));
                     }
                 }
             }
@@ -826,6 +890,14 @@ public class EBDGameplayEvents {
     public void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
         Player player = event.getEntity();
         if (player.level().isClientSide()) return;
+
+        if (player instanceof ServerPlayer sp && sp instanceof IServerPlayerAcc acc) {
+            int silverTongue = acc.ebd$getPerkLevel("silver_tongue");
+            if (silverTongue > 0 && event.getTarget() instanceof net.minecraft.world.entity.npc.Villager villager) {
+                villager.getGossips().add(sp.getUUID(), net.minecraft.world.entity.ai.gossip.GossipType.MINOR_POSITIVE, silverTongue * 25);
+            }
+        }
+
         ItemStack stack = event.getItemStack();
         if (stack.is(EBDCommon.GOLDEN_WHEAT.get())) {
             if (event.getTarget() instanceof net.minecraft.world.entity.animal.Animal animal) {
@@ -923,6 +995,30 @@ public class EBDGameplayEvents {
                 if (!IS_PERFORMING_OFFHAND_ATTACK.get()) {
                     SCHEDULED_OFFHAND_ATTACKS.put(player.getUUID(), new OffhandAttackScheduled(target.getId(), 4));
                 }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onItemUseFinish(net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent.Finish event) {
+        if (event.getEntity() instanceof ServerPlayer player && player instanceof IServerPlayerAcc acc) {
+            int wellFed = acc.ebd$getPerkLevel("well_fed");
+            if (wellFed > 0) {
+                ItemStack stack = event.getItem();
+                var food = stack.get(DataComponents.FOOD);
+                if (food != null) {
+                    float extraSat = food.saturation() * (wellFed * 0.25f);
+                    player.getFoodData().setSaturation(Math.min(20.0f, player.getFoodData().getSaturationLevel() + extraSat));
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onFarmlandTrample(net.neoforged.neoforge.event.level.BlockEvent.FarmlandTrampleEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player && player instanceof IServerPlayerAcc acc) {
+            if (acc.ebd$getPerkLevel("light_step") >= 3) {
+                event.setCanceled(true);
             }
         }
     }

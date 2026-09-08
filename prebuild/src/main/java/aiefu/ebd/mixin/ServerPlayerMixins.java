@@ -295,6 +295,28 @@ public class ServerPlayerMixins implements IServerPlayerAcc {
                 ));
             }
         }
+        var waterAttr = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.WATER_MOVEMENT_EFFICIENCY);
+        if (waterAttr != null) {
+            ResourceLocation waveModId = ResourceLocation.fromNamespaceAndPath(EBDCommon.MOD_ID, "global_perk_water_movement");
+            waterAttr.removeModifier(waveModId);
+            int waveRank = ebd$getPerkLevel("wave_rider");
+            if (waveRank > 0) {
+                waterAttr.addOrUpdateTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
+                    waveModId, waveRank * 0.5, net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE
+                ));
+            }
+        }
+        var oxygenAttr = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.OXYGEN_BONUS);
+        if (oxygenAttr != null) {
+            ResourceLocation oxyModId = ResourceLocation.fromNamespaceAndPath(EBDCommon.MOD_ID, "global_perk_oxygen");
+            oxygenAttr.removeModifier(oxyModId);
+            int waveRank = ebd$getPerkLevel("wave_rider");
+            if (waveRank > 0) {
+                oxygenAttr.addOrUpdateTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
+                    oxyModId, waveRank * 2.0, net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE
+                ));
+            }
+        }
     }
 
     @Unique

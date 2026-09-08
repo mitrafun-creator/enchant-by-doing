@@ -63,10 +63,6 @@ public abstract class CraftingMenuMixin {
         if (index == 0) {
             ItemStack result = this.resultSlots.getItem(0);
             if (!result.isEmpty()) {
-                if (aiefu.ebd.GlobalPerks.isItemLockedForPlayer(player, result)) {
-                    cir.setReturnValue(ItemStack.EMPTY);
-                    return;
-                }
                 if (LBDConfig.INSTANCE.enableCraftingWorkstations) {
                     byte reqMask = WorkstationHelper.getRequiredWorkstationsMask(result);
                     if (reqMask != 0) {
@@ -94,25 +90,6 @@ public abstract class CraftingMenuMixin {
         if (level.isClientSide()) return;
         if (!(player instanceof ServerPlayer sp) || sp.connection == null || (sp instanceof net.neoforged.neoforge.common.util.FakePlayer)) return;
 
-        ItemStack currentResult = resultSlots.getItem(0);
-        if (!currentResult.isEmpty() && aiefu.ebd.GlobalPerks.isItemLockedForPlayer(sp, currentResult)) {
-            resultSlots.setItem(0, ItemStack.EMPTY);
-            menu.setRemoteSlot(0, ItemStack.EMPTY);
-            sp.connection.send(new net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket(
-                    menu.containerId, menu.incrementStateId(), 0, ItemStack.EMPTY
-            ));
-            aiefu.ebd.GlobalPerks.Perk perk = aiefu.ebd.GlobalPerks.getRequiredPerk(currentResult);
-            if (perk != null) {
-                sp.displayClientMessage(
-                        net.minecraft.network.chat.Component.literal("§c🔒 Для создания этого предмета требуется перк: §6")
-                                .append(perk.getDisplayName())
-                                .append(" §c(§e" + perk.costPerLevel + " очк.§c)"),
-                        true
-                );
-            }
-            return;
-        }
-
         if (!LBDConfig.INSTANCE.enableCraftingWorkstations) return;
 
         BlockPos pos = sp.blockPosition();
@@ -122,7 +99,7 @@ public abstract class CraftingMenuMixin {
         int radius = LBDConfig.INSTANCE.workstationDetectionRadius;
         byte nearbyMask = WorkstationHelper.getNearbyWorkstationsMask(level, pos, radius);
 
-        currentResult = resultSlots.getItem(0);
+        ItemStack currentResult = resultSlots.getItem(0);
         byte reqMask = 0;
 
         if (!currentResult.isEmpty()) {

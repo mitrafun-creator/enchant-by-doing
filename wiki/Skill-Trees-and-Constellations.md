@@ -187,23 +187,19 @@ Inspired by the Skyrim progression system, Enchant by Doing features a meta **Gl
 ### 🌌 Navigation & Layer Switching
 In the sky GUI (`K`), press **`W` / `S`** or **`Up` / `Down` Arrow** to glide smoothly into the **Global Constellation (Древо Героя)**. The UI shows your total Hero Level, progress bar towards next level, and available Skill Points.
 
-### ⭐ Global Hero Perks & Recipe Unlocks
+### ⭐ Global Hero Perks
 
-Perks are purchased directly by clicking on their stars in the celestial sky. Several core recipes in the game are gated behind these perks; attempting to craft a locked item displays a red action bar prompt and prevents craft completion:
+Perks are purchased directly by clicking on their stars in the celestial sky:
 
-| Perk ID | Name | Max Level | Cost (Points) | Description & Unlock Benefits |
-|---|---|:---:|:---:|---|
-| `health_boost` | **Крепкое здоровье** (Health Boost) | **20** | 1 per rank | Increases player Max Health by **+0.5 heart (+1 HP)** per level. Reaches **+10 extra hearts (+20 HP)** at rank 20. |
-| `perk_fisherman` | **Рыбак** (Fisherman) | 1 | 1 | Unlocks crafting for all **Boats** (including chest boats and rafts) and the **Fishing Rod**. |
-| `perk_magic` | **Магия** (Magic) | 1 | 3 | Unlocks crafting for the **Enchanting Table**. |
-| `perk_alchemy` | **Алхимия** (Alchemy) | 1 | 2 | Unlocks crafting for the **Brewing Stand**. |
-| `perk_engineering` | **Инженерия** (Engineering) | 1 | 4 | Unlocks crafting for all **Redstone mechanisms and components** (pistons, sticky pistons, redstone torches, repeaters, comparators, dispensers, droppers, observers, hoppers, target blocks, daylight detectors, redstone lamps, crafters, note blocks, redstone blocks, TNT, tripwire hooks, trapped chests, powered/detector/activator rails, minecarts with components). |
-| `perk_ancient_knowledge` | **Древние знания** (Ancient Knowledge) | 1 | 5 | Unlocks crafting of **Netherite Ingots** on the crafting table. |
-| `perk_construction` | **Строительство** (Construction) | 1 | 1 | Unlocks crafting for **Scaffolding** and all 16 colors of **Concrete Powder**. |
-
-> [!NOTE]
-> Locked items display a prominent red tooltip: `🔒 Требуется перк: <Название> (<Очки> очк.)`.
-> If a player attempts to pull a locked item from a Crafting Table or 2x2 grid, the result is cancelled and an action bar notification is shown.
+| Perk ID | Name | Max Level | Cost (Points) | Icon | Description & Flavor |
+|---|---|:---:|:---:|:---:|---|
+| `health_boost` | **Крепкое здоровье** (Health Boost) | **20** | 1 per rank | Golden Apple | Increases player Max Health by **+0.5 heart (+1 HP)** per rank. Reaches **+10 extra hearts (+20 HP)** at rank 20. |
+| `light_step` | **Легкая поступь** (Light Step) | **3** | 1 per rank | Feather | Reduces fall damage by **20% / 40% / 60%**. **Flavor:** At rank 3, running and jumping never tramples farmland crops! |
+| `well_fed` | **Сытый путник** (Well-Fed Wanderer) | **3** | 1 per rank | Cooked Beef | Increases saturation gained from all food by **+25% / +50% / +75%**. **Flavor:** At rank 3, sprinting depletes hunger 30% slower. |
+| `soul_magnet` | **Магнит опыта** (Soul Magnet) | **2** | 2 per rank | Experience Bottle | Increases XP orb collection radius by **+2.5 / +5.0 blocks**. **Flavor:** At rank 2, XP orbs accelerate towards you and absorb instantly without delay! |
+| `iron_will` | **Закалка** (Iron Will) | **3** | 1 per rank | Shield | Reduces damage taken from fire, lava, poison, and wither by **15% / 30% / 45%**. **Flavor:** At rank 3, burning duration after stepping out of fire is cut in half! |
+| `wave_rider` | **Морской волк** (Wave Rider) | **2** | 1 per rank | Heart of the Sea | Increases swim speed by **+25% / +50%** and underwater breath by **+50% / +100%**. **Flavor:** At rank 2, grants Conduit Power underwater vision for crystal-clear sight! |
+| `silver_tongue` | **Торговая жилка** (Silver Tongue) | **2** | 2 per rank | Emerald | Grants permanent villager price discounts via elevated noble reputation. |
 
 ---
 

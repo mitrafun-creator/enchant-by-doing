@@ -155,74 +155,80 @@ public class SkillsTreeScreen extends Screen {
         health.unlockLevel = 1;
         constellation.stars.add(health);
 
-        StarNode magic = new StarNode();
-        magic.id = "perk_magic";
-        magic.x = 80;
-        magic.y = -65;
-        magic.type = "perk";
-        magic.name = "Магия";
-        magic.description = "Разблокирует создание стола зачарования.\nСтоимость: 3 очка навыков.";
-        magic.unlockLevel = 1;
-        constellation.stars.add(magic);
+        StarNode lightStep = new StarNode();
+        lightStep.id = "light_step";
+        lightStep.x = 75;
+        lightStep.y = -55;
+        lightStep.type = "perk";
+        lightStep.name = "Легкая поступь";
+        lightStep.description = "Снижает урон от падения на 20% / 40% / 60%.\nНа 3 ранге прыжки и бег больше не вытаптывают грядки.\nСтоимость: 1 очко навыков за ранг.";
+        lightStep.unlockLevel = 1;
+        constellation.stars.add(lightStep);
 
-        StarNode alchemy = new StarNode();
-        alchemy.id = "perk_alchemy";
-        alchemy.x = 110;
-        alchemy.y = 15;
-        alchemy.type = "perk";
-        alchemy.name = "Алхимия";
-        alchemy.description = "Разблокирует создание зельеварочной стойки.\nСтоимость: 2 очка навыков.";
-        alchemy.unlockLevel = 1;
-        constellation.stars.add(alchemy);
+        StarNode wellFed = new StarNode();
+        wellFed.id = "well_fed";
+        wellFed.x = 95;
+        wellFed.y = 30;
+        wellFed.type = "perk";
+        wellFed.name = "Сытый путник";
+        wellFed.description = "Увеличивает насыщение от любой пищи на +25% / +50% / +75%.\nНа 3 ранге шкала голода при беге тратится на 30% медленнее.\nСтоимость: 1 очко навыков за ранг.";
+        wellFed.unlockLevel = 1;
+        constellation.stars.add(wellFed);
 
-        StarNode ancient = new StarNode();
-        ancient.id = "perk_ancient_knowledge";
-        ancient.x = 75;
-        ancient.y = 90;
-        ancient.type = "perk";
-        ancient.name = "Древние знания";
-        ancient.description = "Разблокирует создание незеритового слитка на верстаке.\nСтоимость: 5 очков навыков.";
-        ancient.unlockLevel = 1;
-        constellation.stars.add(ancient);
+        StarNode soulMagnet = new StarNode();
+        soulMagnet.id = "soul_magnet";
+        soulMagnet.x = 45;
+        soulMagnet.y = 95;
+        soulMagnet.type = "perk";
+        soulMagnet.name = "Магнит опыта";
+        soulMagnet.description = "Увеличивает радиус притяжения сфер опыта на +2.5 / +5.0 блоков.\nНа 2 ранге сферы опыта притягиваются быстрее и моментально поглощаются.\nСтоимость: 2 очка навыков за ранг.";
+        soulMagnet.unlockLevel = 1;
+        constellation.stars.add(soulMagnet);
 
-        StarNode engineering = new StarNode();
-        engineering.id = "perk_engineering";
-        engineering.x = -75;
-        engineering.y = 90;
-        engineering.type = "perk";
-        engineering.name = "Инженерия";
-        engineering.description = "Разблокирует создание всех механизмов и компонентов редстоуна (поршни, повторители, компараторы, раздатчики, наблюдатели, воронки, рельсы и т.д.).\nСтоимость: 4 очка навыков.";
-        engineering.unlockLevel = 1;
-        constellation.stars.add(engineering);
+        StarNode ironWill = new StarNode();
+        ironWill.id = "iron_will";
+        ironWill.x = -45;
+        ironWill.y = 95;
+        ironWill.type = "perk";
+        ironWill.name = "Закалка";
+        ironWill.description = "Снижает периодический урон от огня, лавы, яда и иссушения на 15% / 30% / 45%.\nНа 3 ранге время горения сокращается вдвое.\nСтоимость: 1 очко навыков за ранг.";
+        ironWill.unlockLevel = 1;
+        constellation.stars.add(ironWill);
 
-        StarNode construction = new StarNode();
-        construction.id = "perk_construction";
-        construction.x = -110;
-        construction.y = 15;
-        construction.type = "perk";
-        construction.name = "Строительство";
-        construction.description = "Разблокирует создание строительных лесов и всех видов сухих бетонов (цемента).\nСтоимость: 1 очко навыков.";
-        construction.unlockLevel = 1;
-        constellation.stars.add(construction);
+        StarNode waveRider = new StarNode();
+        waveRider.id = "wave_rider";
+        waveRider.x = -95;
+        waveRider.y = 30;
+        waveRider.type = "perk";
+        waveRider.name = "Морской волк";
+        waveRider.description = "Увеличивает скорость плавания на +25% / +50% и запас воздуха на +50% / +100%.\nНа 2 ранге дарует четкое зрение под водой.\nСтоимость: 1 очко навыков за ранг.";
+        waveRider.unlockLevel = 1;
+        constellation.stars.add(waveRider);
 
-        StarNode fisherman = new StarNode();
-        fisherman.id = "perk_fisherman";
-        fisherman.x = -80;
-        fisherman.y = -65;
-        fisherman.type = "perk";
-        fisherman.name = "Рыбак";
-        fisherman.description = "Разблокирует создание лодок (включая лодки с сундуками и плоты) и удочки.\nСтоимость: 1 очко навыков.";
-        fisherman.unlockLevel = 1;
-        constellation.stars.add(fisherman);
+        StarNode silverTongue = new StarNode();
+        silverTongue.id = "silver_tongue";
+        silverTongue.x = -75;
+        silverTongue.y = -55;
+        silverTongue.type = "perk";
+        silverTongue.name = "Торговая жилка";
+        silverTongue.description = "Постоянная благородная скидка у жителей деревни на все товары.\nСтоимость: 2 очка навыков за ранг.";
+        silverTongue.unlockLevel = 1;
+        constellation.stars.add(silverTongue);
 
         constellation.connections.add(new String[]{"global_core", "health_boost"});
-        constellation.connections.add(new String[]{"global_core", "perk_magic"});
-        constellation.connections.add(new String[]{"perk_magic", "perk_alchemy"});
-        constellation.connections.add(new String[]{"perk_alchemy", "perk_ancient_knowledge"});
-        constellation.connections.add(new String[]{"global_core", "perk_engineering"});
-        constellation.connections.add(new String[]{"perk_engineering", "perk_construction"});
-        constellation.connections.add(new String[]{"perk_construction", "perk_fisherman"});
-        constellation.connections.add(new String[]{"perk_fisherman", "health_boost"});
+        constellation.connections.add(new String[]{"global_core", "light_step"});
+        constellation.connections.add(new String[]{"global_core", "well_fed"});
+        constellation.connections.add(new String[]{"global_core", "soul_magnet"});
+        constellation.connections.add(new String[]{"global_core", "iron_will"});
+        constellation.connections.add(new String[]{"global_core", "wave_rider"});
+        constellation.connections.add(new String[]{"global_core", "silver_tongue"});
+        constellation.connections.add(new String[]{"health_boost", "light_step"});
+        constellation.connections.add(new String[]{"light_step", "well_fed"});
+        constellation.connections.add(new String[]{"well_fed", "soul_magnet"});
+        constellation.connections.add(new String[]{"soul_magnet", "iron_will"});
+        constellation.connections.add(new String[]{"iron_will", "wave_rider"});
+        constellation.connections.add(new String[]{"wave_rider", "silver_tongue"});
+        constellation.connections.add(new String[]{"silver_tongue", "health_boost"});
 
         return constellation;
     }
@@ -233,6 +239,7 @@ public class SkillsTreeScreen extends Screen {
     private final Map<SoundSource, Float> originalVolumes = new HashMap<>();
     private final Map<SkillType, ItemStack> skillItemCache = new HashMap<>();
     private ItemStack netherStarCache = null;
+    private long lastPerkClickTime = 0;
     
     private final List<Star> stars = new ArrayList<>();
     private final List<Particle> particles = new ArrayList<>();
@@ -790,8 +797,24 @@ public class SkillsTreeScreen extends Screen {
 
         tooltip.add(Component.literal("§6★ ").append(perk.getDisplayName()).withStyle(net.minecraft.ChatFormatting.BOLD, net.minecraft.ChatFormatting.GOLD));
 
-        if (perk == aiefu.ebd.GlobalPerks.Perk.HEALTH_BOOST) {
-            tooltip.add(Component.literal("§eРанг: §f" + rank + " / " + perk.maxLevel + (rank > 0 ? " §a(+" + (rank * 0.5f) + " сердец)" : "")));
+        if (perk.maxLevel > 1) {
+            String bonusText = "";
+            if (perk == aiefu.ebd.GlobalPerks.Perk.HEALTH_BOOST && rank > 0) {
+                bonusText = " §a(+" + (rank * 0.5f) + " сердец / +" + rank + " HP)";
+            } else if (perk == aiefu.ebd.GlobalPerks.Perk.LIGHT_STEP && rank > 0) {
+                bonusText = " §a(-" + (rank * 20) + "% падения)";
+            } else if (perk == aiefu.ebd.GlobalPerks.Perk.WELL_FED && rank > 0) {
+                bonusText = " §a(+" + (rank * 25) + "% насыщения)";
+            } else if (perk == aiefu.ebd.GlobalPerks.Perk.SOUL_MAGNET && rank > 0) {
+                bonusText = " §a(+" + (rank * 2.5f) + "м радиус)";
+            } else if (perk == aiefu.ebd.GlobalPerks.Perk.IRON_WILL && rank > 0) {
+                bonusText = " §a(-" + (rank * 15) + "% урона)";
+            } else if (perk == aiefu.ebd.GlobalPerks.Perk.WAVE_RIDER && rank > 0) {
+                bonusText = " §a(+" + (rank * 25) + "% плавание)";
+            } else if (perk == aiefu.ebd.GlobalPerks.Perk.SILVER_TONGUE && rank > 0) {
+                bonusText = " §a(Скидка репутации +" + (rank * 25) + ")";
+            }
+            tooltip.add(Component.literal("§eРанг: §f" + rank + " / " + perk.maxLevel + bonusText));
         } else {
             if (rank > 0) {
                 tooltip.add(Component.translatable("skill.enchant_by_doing.unlocked", 1).withStyle(net.minecraft.ChatFormatting.GREEN));
@@ -879,6 +902,11 @@ public class SkillsTreeScreen extends Screen {
                         float starY = globalCenterY + star.y;
                         double distSq = (mouseX - starX) * (mouseX - starX) + (mouseY - starY) * (mouseY - starY);
                         if (distSq <= 100) {
+                            long now = System.currentTimeMillis();
+                            if (now - lastPerkClickTime < 250) {
+                                return true;
+                            }
+                            lastPerkClickTime = now;
                             int currentRank = aiefu.ebd.network.ClientsideNetworkManager.clientPerks.getOrDefault(perk.id, 0);
                             if (currentRank < perk.maxLevel && aiefu.ebd.network.ClientsideNetworkManager.clientSkillPoints >= perk.costPerLevel) {
                                 net.neoforged.neoforge.network.PacketDistributor.sendToServer(new aiefu.ebd.network.C2SUnlockPerkPayload(perk.id));

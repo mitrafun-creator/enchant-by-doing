@@ -179,19 +179,6 @@ public class EBDClient {
             }
         }
 
-        @SubscribeEvent
-        public static void onItemTooltip(net.neoforged.neoforge.event.entity.player.ItemTooltipEvent event) {
-            if (event.getEntity() != null && !event.getItemStack().isEmpty()) {
-                if (aiefu.ebd.GlobalPerks.isItemLockedForPlayer(event.getEntity(), event.getItemStack())) {
-                    aiefu.ebd.GlobalPerks.Perk perk = aiefu.ebd.GlobalPerks.getRequiredPerk(event.getItemStack());
-                    if (perk != null) {
-                        event.getToolTip().add(
-                                Component.literal("§c🔒 Требуется перк: §6").append(perk.getDisplayName()).append(" §c(§e" + perk.costPerLevel + " очк.§c)")
-                        );
-                    }
-                }
-            }
-        }
 
         @SubscribeEvent
         public static void onRenderBlockScreenEffect(net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent event) {

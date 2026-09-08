@@ -24,11 +24,6 @@ public abstract class SlotMixin {
         ItemStack stack = this.getItem();
         if (stack.isEmpty()) return;
 
-        if (aiefu.ebd.GlobalPerks.isItemLockedForPlayer(player, stack)) {
-            cir.setReturnValue(false);
-            return;
-        }
-
         if (!LBDConfig.INSTANCE.enableCraftingWorkstations) return;
 
         byte reqMask = WorkstationHelper.getRequiredWorkstationsMask(stack);

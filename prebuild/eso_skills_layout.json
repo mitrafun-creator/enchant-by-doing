@@ -329,69 +329,75 @@
                 "unlockLevel": 1
             },
             {
-                "id": "perk_magic",
-                "x": 80,
-                "y": -65,
-                "type": "perk",
-                "name": "Магия",
-                "description": "Разблокирует создание стола зачарования.\nСтоимость: 3 очка навыков.",
-                "unlockLevel": 1
-            },
-            {
-                "id": "perk_alchemy",
-                "x": 110,
-                "y": 15,
-                "type": "perk",
-                "name": "Алхимия",
-                "description": "Разблокирует создание зельеварочной стойки.\nСтоимость: 2 очка навыков.",
-                "unlockLevel": 1
-            },
-            {
-                "id": "perk_ancient_knowledge",
+                "id": "light_step",
                 "x": 75,
-                "y": 90,
+                "y": -55,
                 "type": "perk",
-                "name": "Древние знания",
-                "description": "Разблокирует создание незеритового слитка на верстаке.\nСтоимость: 5 очков навыков.",
+                "name": "Легкая поступь",
+                "description": "Снижает урон от падения на 20% / 40% / 60%.\nНа 3 ранге прыжки и бег больше не вытаптывают грядки.\nСтоимость: 1 очко навыков за ранг.",
                 "unlockLevel": 1
             },
             {
-                "id": "perk_engineering",
+                "id": "well_fed",
+                "x": 95,
+                "y": 30,
+                "type": "perk",
+                "name": "Сытый путник",
+                "description": "Увеличивает насыщение от любой пищи на +25% / +50% / +75%.\nНа 3 ранге шкала голода при беге тратится на 30% медленнее.\nСтоимость: 1 очко навыков за ранг.",
+                "unlockLevel": 1
+            },
+            {
+                "id": "soul_magnet",
+                "x": 45,
+                "y": 95,
+                "type": "perk",
+                "name": "Магнит опыта",
+                "description": "Увеличивает радиус притяжения сфер опыта на +2.5 / +5.0 блоков.\nНа 2 ранге сферы опыта притягиваются быстрее и моментально поглощаются.\nСтоимость: 2 очка навыков за ранг.",
+                "unlockLevel": 1
+            },
+            {
+                "id": "iron_will",
+                "x": -45,
+                "y": 95,
+                "type": "perk",
+                "name": "Закалка",
+                "description": "Снижает периодический урон от огня, лавы, яда и иссушения на 15% / 30% / 45%.\nНа 3 ранге время горения сокращается вдвое.\nСтоимость: 1 очко навыков за ранг.",
+                "unlockLevel": 1
+            },
+            {
+                "id": "wave_rider",
+                "x": -95,
+                "y": 30,
+                "type": "perk",
+                "name": "Морской волк",
+                "description": "Увеличивает скорость плавания на +25% / +50% и запас воздуха на +50% / +100%.\nНа 2 ранге дарует четкое зрение под водой.\nСтоимость: 1 очко навыков за ранг.",
+                "unlockLevel": 1
+            },
+            {
+                "id": "silver_tongue",
                 "x": -75,
-                "y": 90,
+                "y": -55,
                 "type": "perk",
-                "name": "Инженерия",
-                "description": "Разблокирует создание всех механизмов и компонентов редстоуна (поршни, повторители, компараторы, раздатчики, наблюдатели, воронки, рельсы и т.д.).\nСтоимость: 4 очка навыков.",
-                "unlockLevel": 1
-            },
-            {
-                "id": "perk_construction",
-                "x": -110,
-                "y": 15,
-                "type": "perk",
-                "name": "Строительство",
-                "description": "Разблокирует создание строительных лесов и всех видов сухих бетонов (цемента).\nСтоимость: 1 очко навыков.",
-                "unlockLevel": 1
-            },
-            {
-                "id": "perk_fisherman",
-                "x": -80,
-                "y": -65,
-                "type": "perk",
-                "name": "Рыбак",
-                "description": "Разблокирует создание лодок (включая лодки с сундуками и плоты) и удочки.\nСтоимость: 1 очко навыков.",
+                "name": "Торговая жилка",
+                "description": "Постоянная благородная скидка у жителей деревни на все товары.\nСтоимость: 2 очка навыков за ранг.",
                 "unlockLevel": 1
             }
         ],
         "connections": [
             ["global_core", "health_boost"],
-            ["global_core", "perk_magic"],
-            ["perk_magic", "perk_alchemy"],
-            ["perk_alchemy", "perk_ancient_knowledge"],
-            ["global_core", "perk_engineering"],
-            ["perk_engineering", "perk_construction"],
-            ["perk_construction", "perk_fisherman"],
-            ["perk_fisherman", "health_boost"]
+            ["global_core", "light_step"],
+            ["global_core", "well_fed"],
+            ["global_core", "soul_magnet"],
+            ["global_core", "iron_will"],
+            ["global_core", "wave_rider"],
+            ["global_core", "silver_tongue"],
+            ["health_boost", "light_step"],
+            ["light_step", "well_fed"],
+            ["well_fed", "soul_magnet"],
+            ["soul_magnet", "iron_will"],
+            ["iron_will", "wave_rider"],
+            ["wave_rider", "silver_tongue"],
+            ["silver_tongue", "health_boost"]
         ]
     }
 }
